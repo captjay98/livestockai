@@ -10,59 +10,59 @@ interface Milestone {
 
 const ROADMAP_DATA: Array<Milestone> = [
   {
-    title: 'Foundation & Core',
+    title: 'AI-Powered Features',
     description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.',
-    status: 'completed',
-    quarter: 'Q4 2025',
-    items: [
-      'Lorem ipsum dolor sit amet',
-      'Consectetur adipiscing elit',
-      'Sed do eiusmod tempor',
-      'Ut labore et dolore magna',
-      'Aliqua ut enim ad minim',
-    ],
-  },
-  {
-    title: 'Intelligence & Alerts',
-    description:
-      'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea.',
-    status: 'in-progress',
+      'Intelligent monitoring and decision support powered by AI agents and machine learning.',
+    status: 'planned',
     quarter: 'Q1 2026',
     items: [
-      'Duis aute irure dolor',
-      'In reprehenderit in',
-      'Voluptate velit esse',
-      'Cillum dolore eu fugiat',
-      'Nulla pariatur excepteur',
+      'Farm Sentinel: 24/7 autonomous monitoring',
+      'Vision Assistant: Camera-based health assessment',
+      'Farm Optimizer: Strategy backtesting',
+      'Vet Assist Mode: Offline diagnosis support',
+      'Predictive outbreak detection',
     ],
   },
   {
-    title: 'Ecosystem Expansion',
+    title: 'Offline Enhancements',
     description:
-      'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim.',
+      'Improved offline capabilities for reliable field operations without internet connectivity.',
+    status: 'planned',
+    quarter: 'Q1 2026',
+    items: [
+      'Enhanced conflict resolution',
+      'Offline photo uploads with background sync',
+      'Improved sync status indicators',
+      'Offline report generation',
+      'Better offline error handling',
+    ],
+  },
+  {
+    title: 'Integrations & Analytics',
+    description:
+      'Connect with external services and gain deeper insights into farm performance.',
     status: 'planned',
     quarter: 'Q2 2026',
     items: [
-      'Sint occaecat cupidatat',
-      'Non proident sunt in',
-      'Culpa qui officia deserunt',
-      'Mollit anim id est laborum',
-      'Sed ut perspiciatis unde',
+      "SMS notifications (Twilio, Africa's Talking)",
+      'Payment gateways (Stripe, Paystack, Flutterwave)',
+      'Weather API integration',
+      'Custom report builder',
+      'Data visualization dashboard',
     ],
   },
   {
-    title: 'Future Horizons',
+    title: 'B2G & Cooperative Features',
     description:
-      'Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.',
+      'Tools for government agencies, cooperatives, and multi-farm operations.',
     status: 'future',
-    quarter: '2026+',
+    quarter: 'Q3 2026',
     items: [
-      'Omnis iste natus error',
-      'Sit voluptatem accusantium',
-      'Doloremque laudantium',
-      'Totam rem aperiam',
-      'Eaque ipsa quae ab',
+      'Digital livestock census',
+      'Disease reporting to authorities',
+      'Multi-farm aggregation for cooperatives',
+      'Bulk purchasing coordination',
+      'Subsidy application management',
     ],
   },
 ]

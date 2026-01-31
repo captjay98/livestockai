@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { ArrowRight, Check, Sparkles, Trophy } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useOnboarding } from '~/features/onboarding/context'
+import { useOnboardingMutations } from '~/features/onboarding/mutations'
 import { logger } from '~/lib/logger'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent } from '~/components/ui/card'
@@ -11,7 +12,7 @@ import { cn } from '~/lib/utils'
 export function CompleteStep() {
   const { t } = useTranslation(['onboarding', 'common'])
   const { progress } = useOnboarding()
-  const [isCompleting, setIsCompleting] = useState(false)
+  const { markComplete } = useOnboardingMutations()
   const [showConfetti, setShowConfetti] = useState(false)
 
   useEffect(() => {
@@ -47,21 +48,19 @@ export function CompleteStep() {
     },
   ]
 
-  const handleComplete = async () => {
-    setIsCompleting(true)
-    try {
-      const { markOnboardingCompleteFn } =
-        await import('~/features/onboarding/server')
-      await markOnboardingCompleteFn({ data: {} })
-
-      // Force a full page reload to bypass router cache
-      // This ensures the _auth loader runs fresh and sees the updated onboardingCompleted flag
-      window.location.replace('/dashboard')
-    } catch (err) {
-      logger.error('Failed to mark onboarding complete:', err)
-      // Even on error, try to navigate - the DB update may have succeeded
-      window.location.replace('/dashboard')
-    }
+  const handleComplete = () => {
+    markComplete.mutate(undefined, {
+      onSuccess: () => {
+        // Force a full page reload to bypass router cache
+        // This ensures the _auth loader runs fresh and sees the updated onboardingCompleted flag
+        window.location.replace('/dashboard')
+      },
+      onError: (err) => {
+        logger.error('Failed to mark onboarding complete:', err)
+        // Even on error, try to navigate - the DB update may have succeeded
+        window.location.replace('/dashboard')
+      },
+    })
   }
 
   return (
@@ -175,10 +174,10 @@ export function CompleteStep() {
           <Button
             size="lg"
             onClick={handleComplete}
-            disabled={isCompleting}
+            disabled={markComplete.isPending}
             className="rounded-full px-12 h-14 text-lg shadow-xl shadow-primary/20 group"
           >
-            {isCompleting
+            {markComplete.isPending
               ? t('complete.finishing', {
                   defaultValue: 'Launching...',
                 })

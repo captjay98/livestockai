@@ -1,223 +1,57 @@
 /**
  * Sentry (BetterStack) Error Tracking Configuration
- *
- * Integrated with BetterStack for error tracking and monitoring.
- * DSN: https://8VcKcMeVVdKVHYRfrbZd1Az8@s1707120.eu-fsn-3.betterstackdata.com/1707120
+ * DISABLED - Sentry removed to reduce bundle size
  */
-
-import * as Sentry from '@sentry/react'
-
-/**
- * Check if we're in browser environment
- */
-function isBrowser(): boolean {
-  return typeof window !== 'undefined'
-}
 
 /**
  * Initialize Sentry for error tracking
- * Call this once at app startup
+ * DISABLED - No-op function
  */
 export function initSentry() {
-  // Only initialize in browser (not during SSR)
-  if (!isBrowser()) {
-    return
-  }
-
-  // Get environment
-  const environment = getEnvironment()
-
-  // Only track errors in production
-  if (environment !== 'production') {
-    console.log('🔍 Sentry disabled in development')
-    return
-  }
-
-  Sentry.init({
-    dsn: 'https://8VcKcMeVVdKVHYRfrbZd1Az8@s1707120.eu-fsn-3.betterstackdata.com/1707120',
-
-    // Environment
-    environment,
-
-    // Release version (optional - set via CI/CD)
-    // release: 'livestockai@1.0.0',
-
-    // Performance Monitoring
-    tracesSampleRate: 1.0, // Capture 100% of transactions for performance monitoring
-
-    // Session Replay (optional - captures user sessions for debugging)
-    replaysSessionSampleRate: 0.1, // 10% of sessions
-    replaysOnErrorSampleRate: 1.0, // 100% of sessions with errors
-
-    // Integrations
-    integrations: [
-      // Browser tracing for performance monitoring
-      Sentry.browserTracingIntegration(),
-
-      // Session replay for debugging
-      Sentry.replayIntegration({
-        maskAllText: true, // Mask sensitive text
-        blockAllMedia: true, // Block images/videos
-      }),
-    ],
-
-    // Filter out noise
-    ignoreErrors: [
-      // Browser extensions
-      'top.GLOBALS',
-      'chrome-extension://',
-      'moz-extension://',
-
-      // Network errors (user's connection issues)
-      'NetworkError',
-      'Failed to fetch',
-      'Load failed',
-
-      // Cancelled requests
-      'AbortError',
-      'The user aborted a request',
-    ],
-
-    // Before sending, add custom context
-    beforeSend(event) {
-      // Add user context if available
-      const userId = getUserId()
-      if (userId) {
-        event.user = {
-          id: userId,
-        }
-      }
-
-      // Add farm context if available
-      const farmId = getFarmId()
-      if (farmId) {
-        event.contexts = {
-          ...event.contexts,
-          farm: {
-            farmId,
-          },
-        }
-      }
-
-      return event
-    },
-  })
-
-  console.log('✅ Sentry initialized for error tracking')
+  // Sentry disabled to reduce bundle size
 }
 
 /**
- * Get current environment
+ * Manually capture an error (no-op)
  */
-function getEnvironment(): string {
-  if (typeof process !== 'undefined' && process.env.NODE_ENV) {
-    return process.env.NODE_ENV
-  }
-  return 'production'
+export function captureError(_error: Error, _context?: Record<string, any>) {
+  // Sentry disabled
 }
 
 /**
- * Get current user ID from session storage
- */
-function getUserId(): string | null {
-  if (!isBrowser()) return null
-
-  try {
-    const session = sessionStorage.getItem('session')
-    if (session) {
-      const parsed = JSON.parse(session)
-      return parsed.userId || null
-    }
-  } catch {
-    // Ignore errors
-  }
-  return null
-}
-
-/**
- * Get current farm ID from local storage
- */
-function getFarmId(): string | null {
-  if (!isBrowser()) return null
-
-  try {
-    const farmId = localStorage.getItem('selectedFarmId')
-    return farmId || null
-  } catch {
-    // Ignore errors
-  }
-  return null
-}
-
-/**
- * Manually capture an error (safe for SSR)
- */
-export function captureError(error: Error, context?: Record<string, any>) {
-  if (!isBrowser()) {
-    console.error('[Sentry SSR]', error, context)
-    return
-  }
-
-  Sentry.captureException(error, {
-    extra: context,
-  })
-}
-
-/**
- * Manually capture a message (safe for SSR)
+ * Manually capture a message (no-op)
  */
 export function captureMessage(
-  message: string,
-  level: 'info' | 'warning' | 'error' = 'info',
+  _message: string,
+  _level: 'info' | 'warning' | 'error' = 'info',
 ) {
-  if (!isBrowser()) {
-    console.log(`[Sentry SSR] ${level}:`, message)
-    return
-  }
-
-  Sentry.captureMessage(message, level)
+  // Sentry disabled
 }
 
 /**
- * Set user context (safe for SSR)
+ * Set user context (no-op)
  */
-export function setUser(userId: string, email?: string, name?: string) {
-  if (!isBrowser()) return
-
-  Sentry.setUser({
-    id: userId,
-    email,
-    username: name,
-  })
+export function setUser(_userId: string, _email?: string, _name?: string) {
+  // Sentry disabled
 }
 
 /**
- * Clear user context (on logout) (safe for SSR)
+ * Clear user context (no-op)
  */
 export function clearUser() {
-  if (!isBrowser()) return
-
-  Sentry.setUser(null)
+  // Sentry disabled
 }
 
 /**
- * Add breadcrumb for debugging (safe for SSR)
+ * Add breadcrumb for debugging (no-op)
  */
-export function addBreadcrumb(message: string, data?: Record<string, any>) {
-  if (!isBrowser()) return
-
-  Sentry.addBreadcrumb({
-    message,
-    data,
-    level: 'info',
-  })
+export function addBreadcrumb(_message: string, _data?: Record<string, any>) {
+  // Sentry disabled
 }
 
 /**
- * Set custom context (safe for SSR)
+ * Set custom context (no-op)
  */
-export function setContext(key: string, value: Record<string, any>) {
-  if (!isBrowser()) return
-
-  Sentry.setContext(key, value)
+export function setContext(_key: string, _value: Record<string, any>) {
+  // Sentry disabled
 }

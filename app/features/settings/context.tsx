@@ -106,6 +106,15 @@ export function SettingsProvider({
       try {
         setIsLoading(true)
         setError(null)
+
+        // Check if online before fetching
+        if (!navigator.onLine) {
+          console.log('[SettingsProvider] Offline - using default settings')
+          setSettings(DEFAULT_SETTINGS)
+          setIsLoading(false)
+          return
+        }
+
         const loadedSettings = await getUserSettingsFn({ data: {} })
         setSettings(loadedSettings)
       } catch (err) {
@@ -129,11 +138,22 @@ export function SettingsProvider({
           errMessage.includes('unauthorized') ||
           errMessage.includes('unauthenticated')
 
-        if (!isAuthError) {
+        // Check for network error
+        const isNetworkError =
+          errString.includes('network') ||
+          errString.includes('fetch') ||
+          errMessage.includes('network') ||
+          errMessage.includes('fetch')
+
+        if (!isAuthError && !isNetworkError) {
           console.error('[SettingsProvider] Error loading settings:', err)
           setError('Failed to load settings')
           toast.error(
             t('errors:saveFailed', { defaultValue: 'Failed to load settings' }),
+          )
+        } else if (isNetworkError) {
+          console.log(
+            '[SettingsProvider] Network error - using default settings',
           )
         }
         // Keep default settings on error

@@ -7,24 +7,6 @@ import {
   shouldApplySecurityHeaders,
   withSecurityHeaders,
 } from '~/lib/middleware/security-headers'
-import { initSentryServer } from '~/lib/sentry-server'
-
-// Initialize Sentry for server-side error tracking
-initSentryServer()
-
-// Validate environment variables at startup (Node.js/Bun only)
-if (typeof process !== 'undefined') {
-  try {
-    const { validateEnv } = await import('~/lib/env-validation')
-    validateEnv()
-  } catch (error) {
-    console.error('Failed to validate environment:', error)
-    // Don't exit in production - let Cloudflare handle it
-    if (process.env.NODE_ENV === 'development') {
-      process.exit(1)
-    }
-  }
-}
 
 const handler = createStartHandler(defaultStreamHandler)
 

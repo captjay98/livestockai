@@ -1,0 +1,1 @@
+This folder contains the built output assets for the worker "livestockai" generated at 2026-01-31T14:01:46.642Z.

@@ -43,6 +43,11 @@ export const farms = {
 
   // Detail page
   detail: {
+    info: 'Información de la Granja',
+    name: 'Nombre',
+    type: 'Tipo',
+    location: 'Ubicación',
+    created: 'Creada',
     notFound: 'Granja No Encontrada',
     notFoundDesc: 'La granja que buscas no existe o no tienes acceso a ella.',
     back: 'Volver a Granjas',
@@ -64,8 +69,45 @@ export const farms = {
     expenseRecords: '{{count}} registros de gastos',
   },
 
+  // Active batches
+  activeBatches: {
+    title: 'Lotes Activos',
+  },
+
+  // Structures
+  structures: {
+    title: 'Estructuras',
+    description: 'Estructuras e instalaciones de la granja',
+    types: {
+      pond: 'Estanque',
+      tarpaulin: 'Lona',
+      cage: 'Jaula',
+      house: 'Casa',
+      coop: 'Gallinero',
+      pen: 'Corral',
+      barn: 'Granero',
+      shed: 'Cobertizo',
+      hive: 'Colmena',
+    },
+    statuses: {
+      active: 'Activo',
+      inactive: 'Inactivo',
+      maintenance: 'Mantenimiento',
+    },
+  },
+
+  // Recent activity
+  recentActivity: {
+    title: 'Actividad Reciente',
+    sales: 'Ventas',
+    expenses: 'Gastos',
+  },
+
   // Quick actions
   quickActions: {
+    manageBatches: 'Gestionar Lotes',
+    recordExpense: 'Registrar Gasto',
+    viewReports: 'Ver Reportes',
     tip: {
       title: 'Consejo Rápido',
       text: 'Usa las acciones rápidas para gestionar eficientemente las operaciones diarias de tu granja.',

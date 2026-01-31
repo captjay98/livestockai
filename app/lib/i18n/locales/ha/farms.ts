@@ -43,6 +43,11 @@ export const farms = {
 
   // Detail page
   detail: {
+    info: 'Bayanan Gona',
+    name: 'Suna',
+    type: 'Nau\'i',
+    location: 'Wuri',
+    created: 'An Ƙirƙira',
     notFound: 'Ba a Sami Gona ba',
     notFoundDesc: 'Gonar da kake nema ba ta wanzu ko ba ka da damar shiga.',
     back: 'Komawa Gonaki',
@@ -52,6 +57,40 @@ export const farms = {
       activity: 'Ayyuka',
       settings: 'Saituna',
     },
+  },
+
+  // Active batches
+  activeBatches: {
+    title: 'Tarin Masu Aiki',
+  },
+
+  // Structures
+  structures: {
+    title: 'Gine-gine',
+    description: 'Gine-gine da kayan aikin gona',
+    types: {
+      pond: 'Tafki',
+      tarpaulin: 'Tarpaulin',
+      cage: 'Keji',
+      house: 'Gida',
+      coop: 'Gidan Kaji',
+      pen: 'Shinge',
+      barn: 'Rumbu',
+      shed: 'Rumfar Ajiya',
+      hive: 'Gidan Zuma',
+    },
+    statuses: {
+      active: 'Mai Aiki',
+      inactive: 'Ba Mai Aiki',
+      maintenance: 'Gyara',
+    },
+  },
+
+  // Recent activity
+  recentActivity: {
+    title: 'Ayyukan Kwanan Nan',
+    sales: 'Sayarwa',
+    expenses: 'Kashe Kuɗi',
   },
 
   // Dashboard stats
@@ -66,6 +105,9 @@ export const farms = {
 
   // Quick actions
   quickActions: {
+    manageBatches: 'Sarrafa Tari',
+    recordExpense: 'Rubuta Kashe Kuɗi',
+    viewReports: 'Duba Rahotanni',
     tip: {
       title: 'Shawarar Gaggawa',
       text: 'Yi amfani da ayyukan gaggawa don sarrafa ayyukan yau da kullum na gonarka yadda ya kamata.',

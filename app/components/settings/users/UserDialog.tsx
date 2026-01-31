@@ -2,12 +2,8 @@ import React, { useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 import { Building2, Loader2, Plus, Trash2 } from 'lucide-react'
 import type { FarmAssignment, FarmData, UserData } from './types'
-import { createUserFn, setUserPasswordFn } from '~/features/users/server'
-import {
-  assignUserToFarmFn,
-  removeUserFromFarmFn,
-  updateUserFarmRoleFn,
-} from '~/features/farms/server'
+import { useUserMutations } from '~/features/users/mutations'
+import { useFarmUserMutations } from '~/features/farms/mutations'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -51,8 +47,7 @@ export function AddUserDialog({
   onSuccess,
 }: AddUserDialogProps) {
   const { t } = useTranslation(['settings', 'common'])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { createUser } = useUserMutations()
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -60,20 +55,14 @@ export function AddUserDialog({
     role: 'user' as 'user' | 'admin',
   })
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      await createUserFn({ data: formData })
-      setFormData({ email: '', password: '', name: '', role: 'user' })
-      onSuccess()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('users.errors.create'))
-    } finally {
-      setIsLoading(false)
-    }
+    createUser.mutate(formData, {
+      onSuccess: () => {
+        setFormData({ email: '', password: '', name: '', role: 'user' })
+        onSuccess()
+      },
+    })
   }
 
   return (
@@ -85,9 +74,11 @@ export function AddUserDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
+          {createUser.error && (
             <div className="bg-destructive/10 text-destructive px-3 py-2 rounded-md text-sm">
-              {error}
+              {createUser.error instanceof Error
+                ? createUser.error.message
+                : t('users.errors.create')}
             </div>
           )}
 
@@ -176,8 +167,8 @@ export function AddUserDialog({
             >
               {t('common.cancel')}
             </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? (
+            <Button type="submit" disabled={createUser.isPending}>
+              {createUser.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 t('users.dialogs.add.submit')
@@ -271,28 +262,22 @@ export function ResetPasswordDialog({
   onSuccess,
 }: ResetPasswordDialogProps) {
   const { t } = useTranslation(['settings', 'common'])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { setUserPassword } = useUserMutations()
   const [newPassword, setNewPassword] = useState('')
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!user) return
 
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      await setUserPasswordFn({ data: { userId: user.id, newPassword } })
-      setNewPassword('')
-      onSuccess()
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : t('users.errors.resetPassword'),
-      )
-    } finally {
-      setIsLoading(false)
-    }
+    setUserPassword.mutate(
+      { userId: user.id, newPassword },
+      {
+        onSuccess: () => {
+          setNewPassword('')
+          onSuccess()
+        },
+      },
+    )
   }
 
   return (
@@ -310,9 +295,11 @@ export function ResetPasswordDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
+          {setUserPassword.error && (
             <div className="bg-destructive/10 text-destructive px-3 py-2 rounded-md text-sm">
-              {error}
+              {setUserPassword.error instanceof Error
+                ? setUserPassword.error.message
+                : t('users.errors.resetPassword')}
             </div>
           )}
 
@@ -337,8 +324,8 @@ export function ResetPasswordDialog({
             >
               {t('common.cancel')}
             </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? (
+            <Button type="submit" disabled={setUserPassword.isPending}>
+              {setUserPassword.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 t('users.dialogs.reset.submit')
@@ -370,8 +357,12 @@ export function FarmAssignmentDialog({
   onAssignmentChange,
 }: FarmAssignmentDialogProps) {
   const { t } = useTranslation(['settings', 'common'])
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const {
+    assignUserToFarm,
+    updateUserFarmRole,
+    removeUserFromFarm,
+    isPending,
+  } = useFarmUserMutations()
   const [addFarmOpen, setAddFarmOpen] = useState(false)
   const [selectedFarmId, setSelectedFarmId] = useState('')
   const [selectedRole, setSelectedRole] = useState<
@@ -383,79 +374,66 @@ export function FarmAssignmentDialog({
     (farm) => !assignments.some((a) => a.farmId === farm.id),
   )
 
-  const handleAssignFarm = async () => {
+  const handleAssignFarm = () => {
     if (!user || !selectedFarmId) return
-    setIsLoading(true)
-    setError(null)
 
-    try {
-      await assignUserToFarmFn({
-        data: {
-          userId: user.id,
-          farmId: selectedFarmId,
-          role: selectedRole,
+    assignUserToFarm.mutate(
+      {
+        userId: user.id,
+        farmId: selectedFarmId,
+        role: selectedRole,
+      },
+      {
+        onSuccess: () => {
+          setAddFarmOpen(false)
+          setSelectedFarmId('')
+          setSelectedRole('viewer')
+          onAssignmentChange()
         },
-      })
-      setAddFarmOpen(false)
-      setSelectedFarmId('')
-      setSelectedRole('viewer')
-      onAssignmentChange()
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : t('users.errors.assignFarm'),
-      )
-    } finally {
-      setIsLoading(false)
-    }
+      },
+    )
   }
 
-  const handleUpdateRole = async (
+  const handleUpdateRole = (
     farmId: string,
     newRole: 'owner' | 'manager' | 'viewer',
   ) => {
     if (!user) return
-    setIsLoading(true)
-    setError(null)
 
-    try {
-      await updateUserFarmRoleFn({
-        data: {
-          userId: user.id,
-          farmId,
-          role: newRole,
+    updateUserFarmRole.mutate(
+      {
+        userId: user.id,
+        farmId,
+        role: newRole,
+      },
+      {
+        onSuccess: () => {
+          onAssignmentChange()
         },
-      })
-      onAssignmentChange()
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : t('users.errors.updateFarmRole'),
-      )
-    } finally {
-      setIsLoading(false)
-    }
+      },
+    )
   }
 
-  const handleRemoveFromFarm = async (farmId: string) => {
+  const handleRemoveFromFarm = (farmId: string) => {
     if (!user) return
-    setIsLoading(true)
-    setError(null)
 
-    try {
-      await removeUserFromFarmFn({
-        data: {
-          userId: user.id,
-          farmId,
+    removeUserFromFarm.mutate(
+      {
+        userId: user.id,
+        farmId,
+      },
+      {
+        onSuccess: () => {
+          onAssignmentChange()
         },
-      })
-      onAssignmentChange()
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : t('users.errors.removeFromFarm'),
-      )
-    } finally {
-      setIsLoading(false)
-    }
+      },
+    )
   }
+
+  const error =
+    assignUserToFarm.error ||
+    updateUserFarmRole.error ||
+    removeUserFromFarm.error
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -471,7 +449,7 @@ export function FarmAssignmentDialog({
 
         {error && (
           <div className="bg-destructive/10 text-destructive px-3 py-2 rounded-md text-sm">
-            {error}
+            {error instanceof Error ? error.message : t('common:error.generic')}
           </div>
         )}
 
@@ -504,7 +482,7 @@ export function FarmAssignmentDialog({
                             handleUpdateRole(assignment.farmId, v)
                           }
                         }}
-                        disabled={isLoading}
+                        disabled={isPending}
                       >
                         <SelectTrigger className="w-28 h-8">
                           <SelectValue />
@@ -532,7 +510,7 @@ export function FarmAssignmentDialog({
                         size="sm"
                         className="text-destructive hover:text-destructive h-8 w-8 p-0"
                         onClick={() => handleRemoveFromFarm(assignment.farmId)}
-                        disabled={isLoading}
+                        disabled={isPending}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -613,9 +591,9 @@ export function FarmAssignmentDialog({
                 <Button
                   size="sm"
                   onClick={handleAssignFarm}
-                  disabled={!selectedFarmId || isLoading}
+                  disabled={!selectedFarmId || isPending}
                 >
-                  {isLoading ? (
+                  {isPending ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     t('users.dialogs.farms.assign')

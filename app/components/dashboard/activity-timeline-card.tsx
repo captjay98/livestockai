@@ -66,13 +66,15 @@ export function ActivityTimelineCard() {
     <Card className={cardClassName}>
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-          <Calendar className="h-4 w-4" />
-          {t('dashboard.recentActivity', {
-            defaultValue: 'Recent Activity',
-          })}
+          <Calendar className="h-4 w-4 shrink-0" />
+          <span className="truncate">
+            {t('dashboard.recentActivity', {
+              defaultValue: 'Recent Activity',
+            })}
+          </span>
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="overflow-hidden">
         <div className="relative pl-4 space-y-4 before:absolute before:left-1.5 before:top-2 before:bottom-2 before:w-[2px] before:bg-gradient-to-b before:from-muted/50 before:to-transparent">
           {activityItems.map((item, i) => (
             <div key={i} className="relative group">

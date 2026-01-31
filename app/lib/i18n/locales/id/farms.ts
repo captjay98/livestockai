@@ -43,6 +43,11 @@ export const farms = {
 
   // Detail page
   detail: {
+    info: 'Informasi Peternakan',
+    name: 'Nama',
+    type: 'Jenis',
+    location: 'Lokasi',
+    created: 'Dibuat',
     notFound: 'Peternakan Tidak Ditemukan',
     notFoundDesc:
       'Peternakan yang Anda cari tidak ada atau Anda tidak memiliki akses.',
@@ -65,8 +70,45 @@ export const farms = {
     expenseRecords: '{{count}} catatan pengeluaran',
   },
 
+  // Active batches
+  activeBatches: {
+    title: 'Batch Aktif',
+  },
+
+  // Structures
+  structures: {
+    title: 'Struktur',
+    description: 'Struktur dan fasilitas peternakan',
+    types: {
+      pond: 'Kolam',
+      tarpaulin: 'Terpal',
+      cage: 'Kandang',
+      house: 'Rumah',
+      coop: 'Kandang Ayam',
+      pen: 'Kandang',
+      barn: 'Gudang',
+      shed: 'Gudang',
+      hive: 'Sarang',
+    },
+    statuses: {
+      active: 'Aktif',
+      inactive: 'Tidak Aktif',
+      maintenance: 'Pemeliharaan',
+    },
+  },
+
+  // Recent activity
+  recentActivity: {
+    title: 'Aktivitas Terbaru',
+    sales: 'Penjualan',
+    expenses: 'Pengeluaran',
+  },
+
   // Quick actions
   quickActions: {
+    manageBatches: 'Kelola Batch',
+    recordExpense: 'Catat Pengeluaran',
+    viewReports: 'Lihat Laporan',
     tip: {
       title: 'Tips Cepat',
       text: 'Gunakan aksi cepat untuk mengelola operasi harian peternakan Anda secara efisien.',

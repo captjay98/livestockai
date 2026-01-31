@@ -1,11 +1,5 @@
-import {
-  Link,
-  createFileRoute,
-  useNavigate,
-  useRouter,
-} from '@tanstack/react-router'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { toast } from 'sonner'
 import {
   ArrowLeft,
   Edit,
@@ -16,11 +10,8 @@ import {
   TrendingUp,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import {
-  deleteCustomerFn,
-  getCustomerWithSalesFn,
-  updateCustomerFn,
-} from '~/features/customers/server'
+import { getCustomerWithSalesFn } from '~/features/customers/server'
+import { useCustomerMutations } from '~/features/customers/mutations'
 import { useFormatCurrency, useFormatDate } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import { Badge } from '~/components/ui/badge'
@@ -58,9 +49,11 @@ function CustomerDetailPage() {
   const { t } = useTranslation(['customers', 'common'])
   const customer = Route.useLoaderData()
   const navigate = useNavigate()
-  const router = useRouter()
   const { format: formatCurrency } = useFormatCurrency()
   const { format: formatDate } = useFormatDate()
+
+  // Use mutation hooks for offline support
+  const { deleteCustomer, updateCustomer } = useCustomerMutations()
 
   if (!customer) {
     return (
@@ -85,7 +78,6 @@ function CustomerDetailPage() {
 
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [editFormData, setEditFormData] = useState<{
     name: string
     phone: string
@@ -113,63 +105,40 @@ function CustomerDetailPage() {
     { value: 'wholesaler', label: t('customers:types.wholesaler') },
   ]
 
-  const handleDelete = async () => {
-    setIsSubmitting(true)
-    try {
-      await deleteCustomerFn({ data: { id: customer.id } })
-      toast.success(
-        t('customers:messages.deleted', {
-          defaultValue: 'Customer deleted',
-        }),
-      )
-      navigate({ to: '/customers' })
-    } catch (err) {
-      toast.error(
-        err instanceof Error
-          ? err.message
-          : t('customers:errors.delete', {
-              defaultValue: 'Failed to delete customer',
-            }),
-      )
-    } finally {
-      setIsSubmitting(false)
-      setDeleteDialogOpen(false)
-    }
+  const handleDelete = () => {
+    deleteCustomer.mutate(
+      { customerId: customer.id },
+      {
+        onSuccess: () => {
+          navigate({ to: '/customers' })
+        },
+      },
+    )
+    setDeleteDialogOpen(false)
   }
 
-  const handleEditSubmit = async (e: React.FormEvent) => {
+  const handleEditSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
-    try {
-      await updateCustomerFn({
+    updateCustomer.mutate(
+      {
+        customerId: customer.id,
         data: {
-          id: customer.id,
-          data: {
-            name: editFormData.name,
-            phone: editFormData.phone,
-            email: editFormData.email || null,
-            location: editFormData.location || null,
-            customerType: editFormData.customerType || null,
-          },
+          name: editFormData.name,
+          phone: editFormData.phone,
+          email: editFormData.email || null,
+          location: editFormData.location || null,
+          customerType: editFormData.customerType || null,
         },
-      })
-      toast.success(
-        t('customers:messages.updated', {
-          defaultValue: 'Customer updated',
-        }),
-      )
-      setEditDialogOpen(false)
-      router.invalidate()
-    } catch (err) {
-      toast.error(
-        t('customers:messages.updateFailed', {
-          defaultValue: 'Failed to update customer',
-        }),
-      )
-    } finally {
-      setIsSubmitting(false)
-    }
+      },
+      {
+        onSuccess: () => {
+          setEditDialogOpen(false)
+        },
+      },
+    )
   }
+
+  const isSubmitting = deleteCustomer.isPending || updateCustomer.isPending
 
   return (
     <div className="min-h-screen bg-background">

@@ -8,8 +8,17 @@ import type { User } from '~/features/auth/types'
 import { checkAuthFn } from '~/features/auth/server'
 import { checkNeedsOnboardingFn } from '~/features/onboarding/server'
 import { AppShell } from '~/components/layout/shell'
-import { FarmProvider, useFarm } from '~/features/farms/context'
+import { useFarm } from '~/features/farms/context'
 import { ModuleProvider } from '~/features/modules/context'
+
+// Cache expiry time: 7 days (matches session expiry)
+const USER_CACHE_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000
+
+// Type for cached user with timestamp
+interface CachedUser {
+  user: User
+  cachedAt: number
+}
 
 // Type for Better Auth user with custom fields
 interface BetterAuthUser {
@@ -54,6 +63,48 @@ export const Route = createFileRoute('/_auth')({
   staleTime: 0,
   gcTime: 0,
   beforeLoad: async ({ location }) => {
+    // Check if offline (only in browser)
+    if (typeof window !== 'undefined' && !navigator.onLine) {
+      // Try to get cached user from localStorage
+      const cachedData = localStorage.getItem('livestockai-cached-user')
+      if (cachedData) {
+        try {
+          const parsed = JSON.parse(cachedData) as CachedUser | User
+
+          // Handle both old format (just User) and new format (CachedUser with timestamp)
+          let user: User
+          let isExpired = false
+
+          if ('cachedAt' in parsed) {
+            // New format with timestamp
+            user = parsed.user
+            isExpired = Date.now() - parsed.cachedAt > USER_CACHE_EXPIRY_MS
+          } else {
+            // Old format (just User) - treat as not expired but migrate on next online
+            user = parsed
+          }
+
+          if (isExpired) {
+            console.log('[Auth] Offline - cached user expired')
+            localStorage.removeItem('livestockai-cached-user')
+            throw redirect({ to: '/offline' })
+          }
+
+          console.log('[Auth] Offline - using cached user')
+          return { user, needsOnboarding: false }
+        } catch (e) {
+          // Invalid cache or redirect, handle appropriately
+          if (e && typeof e === 'object' && 'to' in e) {
+            throw e // Re-throw redirect
+          }
+          localStorage.removeItem('livestockai-cached-user')
+          throw redirect({ to: '/offline' })
+        }
+      }
+      // No cached user, redirect to offline page
+      throw redirect({ to: '/offline' })
+    }
+
     try {
       // Fetch auth and onboarding status in parallel
       const [authResult, onboardingResult] = await Promise.all([
@@ -84,6 +135,18 @@ export const Route = createFileRoute('/_auth')({
             createdAt: authUser.createdAt,
             updatedAt: authUser.updatedAt,
           }
+
+      // Cache user for offline use (only in browser) with timestamp
+      if (typeof window !== 'undefined') {
+        const cachedUser: CachedUser = {
+          user,
+          cachedAt: Date.now(),
+        }
+        localStorage.setItem(
+          'livestockai-cached-user',
+          JSON.stringify(cachedUser),
+        )
+      }
 
       // Redirect new users to onboarding
       if (needsOnboarding && !location.pathname.startsWith('/onboarding')) {
@@ -127,14 +190,13 @@ function AuthLayout() {
 
   const { user } = context
 
+  // FarmProvider is already in __root.tsx, so we just need ModuleProvider here
   return (
-    <FarmProvider>
-      <ModuleProviderWrapper>
-        <AppShell user={user as User}>
-          <Outlet />
-        </AppShell>
-      </ModuleProviderWrapper>
-    </FarmProvider>
+    <ModuleProviderWrapper>
+      <AppShell user={user}>
+        <Outlet />
+      </AppShell>
+    </ModuleProviderWrapper>
   )
 }
 

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useRouter } from '@tanstack/react-router'
 import { logger } from '~/lib/logger'
 import { Button } from '~/components/ui/button'
 import {
@@ -18,17 +19,28 @@ import {
   DialogTitle,
 } from '~/components/ui/dialog'
 import { StepperInput } from '~/components/ui/stepper-input'
+import { FeedDialog } from '~/components/feed/feed-dialog'
+import { MortalityDialog } from '~/components/mortality/mortality-dialog'
+import { ExpenseDialog } from '~/components/expenses/expense-dialog'
 
 interface BatchCommandCenterProps {
   batchId: string
+  farmId: string
 }
 
 export function BatchCommandCenter({
   batchId: _batchId,
+  farmId,
 }: BatchCommandCenterProps) {
   const { t } = useTranslation(['common', 'batches'])
+  const router = useRouter()
 
-  // Quick Log States
+  // Dialog states
+  const [feedDialogOpen, setFeedDialogOpen] = useState(false)
+  const [mortalityDialogOpen, setMortalityDialogOpen] = useState(false)
+  const [expenseDialogOpen, setExpenseDialogOpen] = useState(false)
+
+  // Quick Log States (legacy - keeping for quick feed)
   const [quickFeedOpen, setQuickFeedOpen] = useState(false)
   const [feedAmount, setFeedAmount] = useState(0)
 
@@ -45,7 +57,7 @@ export function BatchCommandCenter({
           <Button
             variant="outline"
             className="h-24 flex flex-col gap-2 bg-white/30 dark:bg-black/30 backdrop-blur-md border-white/20 dark:border-white/10 hover:bg-white/40 dark:hover:bg-black/40 transition-all rounded-2xl group shadow-sm"
-            onClick={() => setQuickFeedOpen(true)}
+            onClick={() => setFeedDialogOpen(true)}
           >
             <div className="h-10 w-10 rounded-xl bg-orange-500/10 flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
               <Wheat className="h-5 w-5 text-orange-600" />
@@ -79,7 +91,7 @@ export function BatchCommandCenter({
           <Button
             variant="outline"
             className="h-20 flex flex-col gap-1 bg-white/30 dark:bg-black/30 backdrop-blur-md border-white/20 dark:border-white/10 hover:bg-white/40 dark:hover:bg-black/40 transition-all rounded-2xl group shadow-sm"
-            onClick={() => logger.debug('Log Mortality')}
+            onClick={() => setMortalityDialogOpen(true)}
           >
             <HeartPulse className="h-5 w-5 text-red-500 mb-1 group-hover:scale-110 transition-transform" />
             <span className="text-xs font-bold">
@@ -108,7 +120,7 @@ export function BatchCommandCenter({
           <Button
             variant="outline"
             className="h-16 flex items-center justify-start px-4 gap-3 bg-white/30 dark:bg-black/30 backdrop-blur-md border-white/20 dark:border-white/10 hover:bg-white/40 dark:hover:bg-black/40 transition-all rounded-2xl group shadow-sm"
-            onClick={() => logger.debug('New Sale')}
+            onClick={() => router.navigate({ to: '/sales' })}
           >
             <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 group-hover:scale-110 transition-transform">
               <ShoppingCart className="h-4 w-4" />
@@ -120,7 +132,7 @@ export function BatchCommandCenter({
           <Button
             variant="outline"
             className="h-16 flex items-center justify-start px-4 gap-3 bg-white/30 dark:bg-black/30 backdrop-blur-md border-white/20 dark:border-white/10 hover:bg-white/40 dark:hover:bg-black/40 transition-all rounded-2xl group shadow-sm"
-            onClick={() => logger.debug('New Expense')}
+            onClick={() => setExpenseDialogOpen(true)}
           >
             <div className="p-1.5 rounded-lg bg-muted/20 text-muted-foreground group-hover:scale-110 transition-transform">
               <Receipt className="h-4 w-4" />
@@ -132,7 +144,7 @@ export function BatchCommandCenter({
         </div>
       </section>
 
-      {/* Quick Feed Dialog */}
+      {/* Quick Feed Dialog - Legacy, keeping for reference */}
       <Dialog open={quickFeedOpen} onOpenChange={setQuickFeedOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader className="bg-white/10 dark:bg-black/20 p-6 -mx-6 -mt-6 rounded-t-lg border-b border-white/10 backdrop-blur-sm">
@@ -176,6 +188,27 @@ export function BatchCommandCenter({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Feed Dialog */}
+      <FeedDialog
+        farmId={farmId}
+        open={feedDialogOpen}
+        onOpenChange={setFeedDialogOpen}
+      />
+
+      {/* Mortality Dialog */}
+      <MortalityDialog
+        open={mortalityDialogOpen}
+        onOpenChange={setMortalityDialogOpen}
+        onSuccess={() => router.invalidate()}
+      />
+
+      {/* Expense Dialog */}
+      <ExpenseDialog
+        farmId={farmId}
+        open={expenseDialogOpen}
+        onOpenChange={setExpenseDialogOpen}
+      />
     </div>
   )
 }

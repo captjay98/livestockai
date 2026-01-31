@@ -136,7 +136,7 @@ export function SavedFormulations({
     if (!formulationDetail) return
 
     try {
-      const { generateFormulationPdf } =
+      const { generateFormulationPDF } =
         await import('~/features/feed-formulation/pdf-service')
 
       // Transform to PDF data format
@@ -156,20 +156,7 @@ export function SavedFormulations({
         mixingInstructions: formulationDetail.mixingInstructions,
       }
 
-      const blob = await generateFormulationPdf(
-        pdfData,
-        format(0).replace('0', '').trim(), // Extract currency symbol
-      )
-
-      // Download
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `formulation-${formulationDetail.name.replace(/\s+/g, '-').toLowerCase()}.pdf`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
+      generateFormulationPDF(pdfData)
     } catch (error) {
       logger.error('Failed to generate PDF:', error)
     }

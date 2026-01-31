@@ -43,6 +43,11 @@ export const farms = {
 
   // Detail page
   detail: {
+    info: 'Informações da Fazenda',
+    name: 'Nome',
+    type: 'Tipo',
+    location: 'Localização',
+    created: 'Criado',
     notFound: 'Fazenda Não Encontrada',
     notFoundDesc:
       'A fazenda que você está procurando não existe ou você não tem acesso a ela.',
@@ -65,8 +70,45 @@ export const farms = {
     expenseRecords: '{{count}} registros de despesas',
   },
 
+  // Active batches
+  activeBatches: {
+    title: 'Lotes Ativos',
+  },
+
+  // Structures
+  structures: {
+    title: 'Estruturas',
+    description: 'Estruturas e instalações da fazenda',
+    types: {
+      pond: 'Tanque',
+      tarpaulin: 'Lona',
+      cage: 'Gaiola',
+      house: 'Casa',
+      coop: 'Galinheiro',
+      pen: 'Cercado',
+      barn: 'Celeiro',
+      shed: 'Galpão',
+      hive: 'Colmeia',
+    },
+    statuses: {
+      active: 'Ativo',
+      inactive: 'Inativo',
+      maintenance: 'Manutenção',
+    },
+  },
+
+  // Recent activity
+  recentActivity: {
+    title: 'Atividade Recente',
+    sales: 'Vendas',
+    expenses: 'Despesas',
+  },
+
   // Quick actions
   quickActions: {
+    manageBatches: 'Gerenciar Lotes',
+    recordExpense: 'Registrar Despesa',
+    viewReports: 'Ver Relatórios',
     tip: {
       title: 'Dica Rápida',
       text: 'Use ações rápidas para gerenciar eficientemente as operações diárias da sua fazenda.',

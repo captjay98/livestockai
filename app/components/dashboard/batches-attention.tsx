@@ -79,14 +79,16 @@ export function BatchesAttention() {
             params={{ batchId: batch.id }}
             className="block"
           >
-            <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-              <div className="space-y-1">
-                <div className="font-medium text-sm">{batch.batchName}</div>
-                <div className="text-xs text-muted-foreground">
+            <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors gap-2">
+              <div className="space-y-1 min-w-0 flex-1">
+                <div className="font-medium text-sm truncate">
+                  {batch.batchName}
+                </div>
+                <div className="text-xs text-muted-foreground truncate">
                   {batch.species}
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0">
                 <div className="text-right">
                   <div className="text-sm font-medium">
                     PI: {batch.performanceIndex}

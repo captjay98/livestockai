@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
-import { toast } from 'sonner'
 import { Download, Eye, History, Trash2 } from 'lucide-react'
 import { z } from 'zod'
 import { useTranslation } from 'react-i18next'
@@ -26,11 +25,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '~/components/ui/alert-dialog'
-import {
-  deleteReportFn,
-  downloadReportFn,
-  getReportsHistoryFn,
-} from '~/features/credit-passport/server'
+import { getReportsHistoryFn } from '~/features/credit-passport/server'
+import { useCreditPassportMutations } from '~/features/credit-passport/mutations'
 import { useFormatDate } from '~/features/settings'
 import { ErrorPage } from '~/components/error-page'
 
@@ -89,6 +85,7 @@ function ReportHistoryPage() {
   const navigate = useNavigate()
   const { format: formatDate } = useFormatDate()
   const loaderData = Route.useLoaderData()
+  const { deleteReport, downloadReport } = useCreditPassportMutations()
 
   const [typeFilter, setTypeFilter] = useState<string>('all')
   const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -96,7 +93,6 @@ function ReportHistoryPage() {
   const [selectedReport, setSelectedReport] = useState<
     ReportHistoryData['reports'][number] | null
   >(null)
-  const [isDeleting, setIsDeleting] = useState(false)
 
   const filteredReports = (loaderData.reports as Array<any>).filter(
     (report: any) => {
@@ -117,56 +113,23 @@ function ReportHistoryPage() {
     // Sorting is handled server-side, currently fixed to createdAt desc
   }
 
-  const handleDownload = async (reportId: string) => {
-    try {
-      const result = (await downloadReportFn({ data: { reportId } })) as any
-      // Convert base64 content to blob
-      const binaryString = atob(result.content)
-      const bytes = new Uint8Array(binaryString.length)
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i)
-      }
-      const blob = new Blob([bytes], { type: result.contentType })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `credit-passport-${reportId}.pdf`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-    } catch (error) {
-      toast.error(
-        t('credit-passport:downloadFailed', {
-          defaultValue: 'Failed to download report',
-        }),
-      )
-    }
+  const handleDownload = (reportId: string) => {
+    downloadReport.mutate({ reportId })
   }
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!selectedReport) return
 
-    setIsDeleting(true)
-    try {
-      await deleteReportFn({ data: { reportId: selectedReport.id } })
-      toast.success(
-        t('credit-passport:reportDeleted', {
-          defaultValue: 'Report deleted successfully',
-        }),
-      )
-      setDeleteDialogOpen(false)
-      setSelectedReport(null)
-      router.invalidate()
-    } catch (error) {
-      toast.error(
-        t('credit-passport:deleteFailed', {
-          defaultValue: 'Failed to delete report',
-        }),
-      )
-    } finally {
-      setIsDeleting(false)
-    }
+    deleteReport.mutate(
+      { reportId: selectedReport.id },
+      {
+        onSuccess: () => {
+          setDeleteDialogOpen(false)
+          setSelectedReport(null)
+          router.invalidate()
+        },
+      },
+    )
   }
 
   const columns = [
@@ -370,10 +333,10 @@ function ReportHistoryPage() {
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              disabled={isDeleting}
+              disabled={deleteReport.isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isDeleting
+              {deleteReport.isPending
                 ? t('common:status.deleting', { defaultValue: 'Deleting...' })
                 : t('common:delete', { defaultValue: 'Delete' })}
             </AlertDialogAction>

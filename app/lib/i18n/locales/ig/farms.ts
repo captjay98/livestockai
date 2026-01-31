@@ -43,6 +43,11 @@ export const farms = {
 
   // Detail page
   detail: {
+    info: 'Ozi Ubi',
+    name: 'Aha',
+    type: 'Ụdị',
+    location: 'Ebe',
+    created: 'E Mepụtara',
     notFound: 'Ahụghị Ubi',
     notFoundDesc: 'Ubi ị na-achọ adịghị ma ọ bụ ị nweghị ohere ịbanye.',
     back: 'Laghachi na Ubi',
@@ -52,6 +57,40 @@ export const farms = {
       activity: 'Ọrụ',
       settings: 'Ntọala',
     },
+  },
+
+  // Active batches
+  activeBatches: {
+    title: 'Otu Na-arụ Ọrụ',
+  },
+
+  // Structures
+  structures: {
+    title: 'Ụlọ',
+    description: 'Ụlọ na ihe ndị ọzọ nke ubi',
+    types: {
+      pond: 'Ọdọ Mmiri',
+      tarpaulin: 'Tarpaulin',
+      cage: 'Ọnụ Ụlọ',
+      house: 'Ụlọ',
+      coop: 'Ụlọ Ọkụkọ',
+      pen: 'Ogige',
+      barn: 'Ụlọ Nchekwa',
+      shed: 'Ụlọ Nta',
+      hive: 'Ụlọ Aṅụ',
+    },
+    statuses: {
+      active: 'Na-arụ Ọrụ',
+      inactive: 'Anaghị Arụ Ọrụ',
+      maintenance: 'Nrụzi',
+    },
+  },
+
+  // Recent activity
+  recentActivity: {
+    title: 'Ọrụ Na-adịbeghị Anya',
+    sales: 'Ire',
+    expenses: 'Ego Imefu',
   },
 
   // Dashboard stats
@@ -66,6 +105,9 @@ export const farms = {
 
   // Quick actions
   quickActions: {
+    manageBatches: 'Jikwaa Otu',
+    recordExpense: 'Dee Ego Imefu',
+    viewReports: 'Lee Akụkọ',
     tip: {
       title: 'Ndụmọdụ Ngwa Ngwa',
       text: 'Jiri ọrụ ngwa ngwa jikwaa ọrụ kwa ụbọchị nke ubi gị nke ọma.',

@@ -9,19 +9,19 @@
     "nodejs_compat",
     "no_handle_cross_request_promise_resolution",
   ],
-  // TanStack Start entry point - do not change
+  // TanStack Start entry point
   "main": "@tanstack/react-start/server-entry",
   // Development-only: Load environment variables from .dev.vars file
   // These are NOT used in production - set secrets via wrangler secret put
   "vars": {},
-  // Scheduled triggers for Extension Worker Mode
-  "triggers": {
-    "crons": [
-      "0 */6 * * *", // Every 6 hours - expire access grants/requests
-      "0 0 * * *", // Daily at midnight - expiration warnings
-      "0 9 * * *", // Daily at 9 AM - outbreak detection
-    ],
-  },
+  // Scheduled triggers for Extension Worker Mode (disabled for free tier)
+  // "triggers": {
+  //   "crons": [
+  //     "0 */6 * * *", // Every 6 hours - expire access grants/requests
+  //     "0 0 * * *", // Daily at midnight - expiration warnings
+  //     "0 9 * * *", // Daily at 9 AM - outbreak detection
+  //   ],
+  // },
   // R2 Storage Buckets
   "r2_buckets": [
     {
@@ -35,29 +35,22 @@
       "preview_bucket_name": "livestockai-private-preview",
     },
   ],
-  // KV Namespace for Rate Limiting
-  "kv_namespaces": [
-    {
-      "binding": "RATE_LIMIT_KV",
-      "id": "your-kv-namespace-id",
-      "preview_id": "your-preview-kv-namespace-id",
-    },
-  ],
-  // Hyperdrive - PostgreSQL connection pooling for full transaction support
-  // Setup instructions:
-  // 1. Go to Cloudflare Dashboard → Hyperdrive → Create configuration
-  // 2. Enter your Neon PostgreSQL connection string
-  // 3. Copy the configuration ID and replace the placeholder below
-  // 4. For local dev, the app uses DATABASE_URL from .dev.vars directly
-  //
-  // NOTE: Uncomment this section after setting up Hyperdrive in Cloudflare dashboard
-  // For local development, the app falls back to process.env.DATABASE_URL
-  //
-  // "hyperdrive": [
+  // KV Namespace for Rate Limiting (optional - uncomment after creating)
+  // "kv_namespaces": [
   //   {
-  //     "binding": "HYPERDRIVE",
-  //     "id": "<your-hyperdrive-configuration-id>",
-  //     "localConnectionString": "postgresql://user:pass@host/db"
+  //     "binding": "RATE_LIMIT_KV",
+  //     "id": "your-kv-namespace-id",
+  //     "preview_id": "your-preview-kv-namespace-id",
   //   },
   // ],
+  // Hyperdrive - PostgreSQL connection pooling for full transaction support
+  // Configuration 'livestockai-prod' created and configured
+  // For local development, the app falls back to process.env.DATABASE_URL
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "709c0e195c3e4de89e0c05583356df74",
+      "localConnectionString": "postgresql://neondb_owner:npg_sgQcrqf0P6Se@ep-cold-sun-aefhm3qh-pooler.c-2.us-east-2.aws.neon.tech/livestockai_prod?sslmode=require",
+    },
+  ],
 }

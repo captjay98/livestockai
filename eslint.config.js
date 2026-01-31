@@ -22,6 +22,10 @@ export default [
       'examples/**',
       'vitest.*.ts',
       'app/lib/db/seeds/development.ts',
+      'app/lib/db/seeds/seed-demo-for-existing-user.ts',
+      'dev-dist/**',
+      '.wrangler/**',
+      '.wrangler-dry/**',
     ],
   },
   {

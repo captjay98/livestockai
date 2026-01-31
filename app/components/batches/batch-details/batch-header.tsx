@@ -43,13 +43,14 @@ export function BatchHeader({ batch, onEdit, onDelete }: BatchHeaderProps) {
   )
 
   return (
-    <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between mb-8 group">
-      <div className="flex items-start gap-4">
+    <div className="mb-6">
+      {/* Back button + Actions row */}
+      <div className="flex items-center justify-between mb-4">
         <Button
           variant="ghost"
           size="icon"
           asChild
-          className="mt-1 hover:bg-white/10 rounded-full h-10 w-10"
+          className="hover:bg-white/10 rounded-full h-9 w-9"
         >
           <Link
             to="/batches"
@@ -57,111 +58,93 @@ export function BatchHeader({ batch, onEdit, onDelete }: BatchHeaderProps) {
               defaultValue: 'Back to batches',
             })}
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
-        <div className="space-y-1">
-          <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-2xl bg-white/40 dark:bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center shrink-0 shadow-lg group-hover:scale-110 transition-transform">
-              {batch.livestockType === 'poultry' ? (
-                <Bird className="h-6 w-6 text-orange-600" />
-              ) : (
-                <Fish className="h-6 w-6 text-blue-600" />
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onEdit}
+            className="rounded-lg h-8"
+          >
+            <Edit className="h-3.5 w-3.5 sm:mr-2" />
+            <span className="hidden sm:inline">
+              {t('common:edit', { defaultValue: 'Edit' })}
+            </span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onDelete}
+            className="rounded-lg h-8 hover:bg-red-500/10 hover:text-red-500"
+          >
+            <Trash2 className="h-3.5 w-3.5 sm:mr-2" />
+            <span className="hidden sm:inline">
+              {t('common:delete', { defaultValue: 'Delete' })}
+            </span>
+          </Button>
+        </div>
+      </div>
+
+      {/* Title + Icon */}
+      <div className="flex items-start gap-3 mb-3">
+        <div className="h-10 w-10 rounded-xl bg-white/40 dark:bg-white/10 border border-white/20 flex items-center justify-center shrink-0">
+          {batch.livestockType === 'poultry' ? (
+            <Bird className="h-5 w-5 text-orange-600" />
+          ) : (
+            <Fish className="h-5 w-5 text-blue-600" />
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-2xl font-bold tracking-tight">
+              {batch.batchName || batch.species}
+            </h1>
+            <Badge
+              variant={batch.status === 'active' ? 'default' : 'secondary'}
+              className={cn(
+                'rounded-full text-[10px] font-semibold uppercase',
+                batch.status === 'active'
+                  ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                  : 'bg-muted/50 text-muted-foreground',
               )}
-            </div>
-            <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-foreground bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
-                  {batch.batchName || batch.species}
-                </h1>
-                <Badge
-                  variant={batch.status === 'active' ? 'default' : 'secondary'}
-                  className={cn(
-                    'rounded-full px-3 py-0.5 text-[10px] font-black uppercase tracking-widest',
-                    batch.status === 'active'
-                      ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.2)]'
-                      : 'bg-muted/50 text-muted-foreground',
-                  )}
-                >
-                  {batch.status}
-                </Badge>
-              </div>
-              <p className="text-muted-foreground text-sm flex items-center gap-2 mt-2 flex-wrap font-medium">
-                <span className="text-foreground/80">{batch.species}</span>
-                {batch.sourceSize && (
-                  <>
-                    <span className="opacity-30">•</span>
-                    <span className="capitalize">{batch.sourceSize}</span>
-                  </>
-                )}
-
-                {batch.farmName && (
-                  <>
-                    <span className="opacity-30">•</span>
-                    <div
-                      className="flex items-center gap-1.5"
-                      title={t('batches:farmLocation', {
-                        defaultValue: 'Farm Location',
-                      })}
-                    >
-                      <MapPin className="h-3.5 w-3.5 text-primary/70" />
-                      <span className="text-xs">{batch.farmName}</span>
-                    </div>
-                  </>
-                )}
-
-                {batch.structureName && (
-                  <>
-                    <span className="opacity-30">•</span>
-                    <div
-                      className="flex items-center gap-1.5"
-                      title={t('common:a11y.structure', {
-                        defaultValue: 'Structure',
-                      })}
-                    >
-                      <Warehouse className="h-3.5 w-3.5 text-primary/70" />
-                      <span className="text-xs">{batch.structureName}</span>
-                    </div>
-                  </>
-                )}
-
-                <span className="opacity-30">•</span>
-                <div className="flex items-center gap-1.5 bg-white/40 dark:bg-white/5 px-2 py-0.5 rounded-lg border border-white/10 backdrop-blur-sm">
-                  <Calendar className="h-3 w-3 text-primary/70" />
-                  <span className="text-[11px] font-bold">
-                    {formatDate(batch.acquisitionDate)}{' '}
-                    <span className="opacity-60">
-                      {t('batches:ageInDays', {
-                        count: ageInDays,
-                        defaultValue: '({{count}} days)',
-                      })}
-                    </span>
-                  </span>
-                </div>
-              </p>
-            </div>
+            >
+              {batch.status}
+            </Badge>
           </div>
         </div>
       </div>
-      <div className="flex gap-2 self-end sm:self-auto">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onEdit}
-          className="rounded-xl font-bold glass shadow-sm px-4"
-        >
-          <Edit className="h-4 w-4 mr-2 text-primary" />{' '}
-          {t('common:edit', { defaultValue: 'Edit' })}
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onDelete}
-          className="rounded-xl font-bold text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-all px-4"
-        >
-          <Trash2 className="h-4 w-4 mr-2" />{' '}
-          {t('common:delete', { defaultValue: 'Delete' })}
-        </Button>
+
+      {/* Metadata grid */}
+      <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+        <div className="flex items-center gap-1.5">
+          <span className="font-medium text-foreground">{batch.species}</span>
+          {batch.sourceSize && (
+            <span className="capitalize">({batch.sourceSize})</span>
+          )}
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <Calendar className="h-3 w-3" />
+          <span>
+            {formatDate(batch.acquisitionDate)} ({ageInDays}d)
+          </span>
+        </div>
+
+        {batch.farmName && (
+          <div className="flex items-center gap-1.5">
+            <MapPin className="h-3 w-3" />
+            <span className="truncate">{batch.farmName}</span>
+          </div>
+        )}
+
+        {batch.structureName && (
+          <div className="flex items-center gap-1.5">
+            <Warehouse className="h-3 w-3" />
+            <span className="truncate">{batch.structureName}</span>
+          </div>
+        )}
       </div>
     </div>
   )

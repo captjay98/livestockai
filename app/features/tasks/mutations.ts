@@ -144,6 +144,7 @@ export function useTaskMutations(): UseTaskMutationsResult {
     CreateTaskMutationInput,
     OptimisticContext<Array<TaskCacheRecord>>
   >({
+    networkMode: 'offlineFirst',
     mutationFn: async ({ farmId, task }) => {
       return createTaskFn({ data: { farmId, data: task } })
     },
@@ -243,6 +244,7 @@ export function useTaskMutations(): UseTaskMutationsResult {
     CompleteTaskMutationInput,
     OptimisticContext<Array<TaskCacheRecord>>
   >({
+    networkMode: 'offlineFirst',
     mutationFn: async ({ taskId }) => {
       return completeTaskFn({ data: { taskId } })
     },
@@ -276,12 +278,15 @@ export function useTaskMutations(): UseTaskMutationsResult {
     },
 
     onSuccess: () => {
-      toast.success(
-        t('messages.completed', {
-          defaultValue: 'Task completed',
-          ns: 'tasks',
-        }),
-      )
+      // Only show toast when online
+      if (navigator.onLine) {
+        toast.success(
+          t('messages.completed', {
+            defaultValue: 'Task completed',
+            ns: 'tasks',
+          }),
+        )
+      }
     },
 
     onSettled: () => {
@@ -295,6 +300,7 @@ export function useTaskMutations(): UseTaskMutationsResult {
     UncompleteTaskMutationInput,
     OptimisticContext<Array<TaskCacheRecord>>
   >({
+    networkMode: 'offlineFirst',
     mutationFn: async ({ taskId }) => {
       return uncompleteTaskFn({ data: { taskId } })
     },
@@ -329,12 +335,15 @@ export function useTaskMutations(): UseTaskMutationsResult {
     },
 
     onSuccess: () => {
-      toast.success(
-        t('messages.uncompleted', {
-          defaultValue: 'Task marked as incomplete',
-          ns: 'tasks',
-        }),
-      )
+      // Only show toast when online
+      if (navigator.onLine) {
+        toast.success(
+          t('messages.uncompleted', {
+            defaultValue: 'Task marked as incomplete',
+            ns: 'tasks',
+          }),
+        )
+      }
     },
 
     onSettled: () => {
@@ -348,6 +357,7 @@ export function useTaskMutations(): UseTaskMutationsResult {
     DeleteTaskMutationInput,
     OptimisticContext<Array<TaskCacheRecord>>
   >({
+    networkMode: 'offlineFirst',
     mutationFn: async ({ taskId }) => {
       await deleteTaskFn({ data: { taskId } })
     },

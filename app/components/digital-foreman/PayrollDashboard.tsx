@@ -141,23 +141,20 @@ export function PayrollDashboard({ farmId }: PayrollDashboardProps) {
     const period = periods.find((p) => p.id === selectedPeriod)
     if (!period) return
 
-    const doc = generatePaymentReceiptPDF(
-      {
-        receiptNumber: `PAY-${worker.id.slice(0, 8).toUpperCase()}`,
-        paymentDate: new Date(),
-        farmName: summary.farmName || 'Farm',
-        workerName: worker.userName || 'Worker',
-        periodStart: new Date(period.startDate),
-        periodEnd: new Date(period.endDate),
-        totalHours: worker.totalHours,
-        wageRate: worker.wageRate,
-        wageRateType: worker.wageRateType,
-        grossWages: worker.grossWages,
-        amountPaid: worker.paid,
-        paymentMethod: 'cash',
-      },
-      settings,
-    )
+    const doc = generatePaymentReceiptPDF({
+      receiptNumber: `PAY-${worker.id.slice(0, 8).toUpperCase()}`,
+      paymentDate: new Date(),
+      farmName: summary.farmName || 'Farm',
+      workerName: worker.userName || 'Worker',
+      periodStart: new Date(period.startDate),
+      periodEnd: new Date(period.endDate),
+      totalHours: worker.totalHours,
+      wageRate: worker.wageRate,
+      wageRateType: worker.wageRateType,
+      grossWages: worker.grossWages,
+      amountPaid: worker.paid,
+      paymentMethod: 'cash',
+    })
     downloadPDF(
       doc,
       `receipt-${(worker.userName || 'worker').replace(/\s+/g, '-').toLowerCase()}-${period.startDate}`,

@@ -16,45 +16,48 @@ export function TaskItem({ task, onToggle, loading }: TaskItemProps) {
   return (
     <div
       className={cn(
-        'flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer',
+        'flex items-center gap-3 p-4 rounded-xl border-2 transition-all cursor-pointer',
         task.completed
-          ? 'bg-muted/50 border-transparent opacity-60'
-          : 'bg-card hover:bg-accent/50 hover:border-primary/20',
+          ? 'bg-muted/30 border-muted opacity-70'
+          : 'bg-card hover:bg-accent/30 border-border hover:border-primary/40 hover:shadow-md active:scale-[0.98]',
       )}
       onClick={() => onToggle(task)}
     >
+      <Button
+        variant={task.completed ? 'ghost' : 'outline'}
+        size="icon"
+        className={cn(
+          'h-9 w-9 rounded-full shrink-0 border-2 transition-all',
+          task.completed
+            ? 'bg-green-500/20 border-green-500 text-green-600 dark:text-green-400'
+            : 'border-muted-foreground/30 hover:border-primary hover:bg-primary/10',
+        )}
+        disabled={loading}
+      >
+        {loading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : task.completed ? (
+          <Check className="h-5 w-5 stroke-[3]" />
+        ) : (
+          <div className="h-4 w-4" />
+        )}
+      </Button>
+
       <div className="flex-1 min-w-0">
         <span
           className={cn(
-            'font-medium block truncate',
+            'font-medium block text-base',
             task.completed && 'line-through text-muted-foreground',
           )}
         >
           {t(task.title)}
         </span>
         {task.description && (
-          <span className="text-xs text-muted-foreground block truncate">
+          <span className="text-sm text-muted-foreground/80 block mt-0.5">
             {t(task.description)}
           </span>
         )}
       </div>
-      <Button
-        variant={task.completed ? 'ghost' : 'outline'}
-        size="icon"
-        className={cn(
-          'h-8 w-8 rounded-full shrink-0 ml-2',
-          task.completed
-            ? 'text-green-500 hover:text-green-600'
-            : 'text-muted-foreground',
-        )}
-        disabled={loading}
-      >
-        {loading ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <Check className="h-4 w-4" />
-        )}
-      </Button>
     </div>
   )
 }

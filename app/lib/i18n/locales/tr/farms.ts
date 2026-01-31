@@ -43,6 +43,11 @@ export const farms = {
 
   // Detail page
   detail: {
+    info: 'Çiftlik Bilgileri',
+    name: 'Ad',
+    type: 'Tür',
+    location: 'Konum',
+    created: 'Oluşturuldu',
     notFound: 'Çiftlik Bulunamadı',
     notFoundDesc: 'Aradığınız çiftlik mevcut değil veya erişim izniniz yok.',
     back: 'Çiftliklere Dön',
@@ -64,8 +69,45 @@ export const farms = {
     expenseRecords: '{{count}} gider kaydı',
   },
 
+  // Active batches
+  activeBatches: {
+    title: 'Aktif Gruplar',
+  },
+
+  // Structures
+  structures: {
+    title: 'Yapılar',
+    description: 'Çiftlik yapıları ve tesisleri',
+    types: {
+      pond: 'Gölet',
+      tarpaulin: 'Branda',
+      cage: 'Kafes',
+      house: 'Ev',
+      coop: 'Kümes',
+      pen: 'Ağıl',
+      barn: 'Ahır',
+      shed: 'Baraka',
+      hive: 'Kovan',
+    },
+    statuses: {
+      active: 'Aktif',
+      inactive: 'Pasif',
+      maintenance: 'Bakım',
+    },
+  },
+
+  // Recent activity
+  recentActivity: {
+    title: 'Son Aktiviteler',
+    sales: 'Satışlar',
+    expenses: 'Giderler',
+  },
+
   // Quick actions
   quickActions: {
+    manageBatches: 'Grupları Yönet',
+    recordExpense: 'Gider Kaydet',
+    viewReports: 'Raporları Görüntüle',
     tip: {
       title: 'Hızlı İpucu',
       text: 'Çiftliğinizdeki günlük işlemleri verimli bir şekilde yönetmek için hızlı eylemleri kullanın.',

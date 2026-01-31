@@ -1,8 +1,7 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { ArrowRight, Plus, Users } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useQuery } from '@tanstack/react-query'
 import { getWorkersByFarmFn } from '~/features/digital-foreman/server'
 import { useFarm } from '~/features/farms/context'
 import { cn } from '~/lib/utils'
@@ -23,6 +22,9 @@ import { WorkerSkeleton } from '~/components/workers/worker-skeleton'
 import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/_auth/workers/')({
+  loader: async () => {
+    return getWorkersByFarmFn({ data: {} })
+  },
   pendingComponent: WorkerSkeleton,
   errorComponent: ({ error, reset }) => (
     <ErrorPage error={error} reset={reset} />
@@ -34,32 +36,13 @@ function WorkersListPage() {
   const { t } = useTranslation(['workers', 'common'])
   const { selectedFarmId } = useFarm()
   const [createWorkerDialogOpen, setCreateWorkerDialogOpen] = useState(false)
+  const allWorkers = Route.useLoaderData()
 
-  const { data: workers = [], isLoading } = useQuery({
-    queryKey: ['workers', selectedFarmId],
-    queryFn: () =>
-      selectedFarmId
-        ? getWorkersByFarmFn({ data: { farmId: selectedFarmId } })
-        : Promise.resolve([]),
-    enabled: !!selectedFarmId,
-  })
-
-  if (!selectedFarmId) {
-    return (
-      <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
-        <Users className="h-12 w-12 mb-4 opacity-20" />
-        <p className="font-medium">
-          {t('common:selectFarmFirst', {
-            defaultValue: 'Please select a farm first',
-          })}
-        </p>
-      </div>
-    )
-  }
-
-  if (isLoading) {
-    return <WorkerSkeleton />
-  }
+  // Filter workers by selected farm
+  const workers = useMemo(() => {
+    if (!selectedFarmId) return allWorkers
+    return allWorkers.filter((w) => w.farmId === selectedFarmId)
+  }, [allWorkers, selectedFarmId])
 
   return (
     <div className="space-y-6">

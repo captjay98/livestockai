@@ -1,7 +1,10 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute, useRouter } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { ExternalLink, Target, X } from 'lucide-react'
+import type { ExpenseRecord, FeedRecord, MortalityRecord, SaleRecord } from '~/features/batches/types'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert'
 import { Button } from '~/components/ui/button'
@@ -15,7 +18,14 @@ import { FeedRecordsTab } from '~/components/batches/batch-details/feed-records-
 import { MortalityRecordsTab } from '~/components/batches/batch-details/mortality-records-tab'
 import { ExpensesTab } from '~/components/batches/batch-details/expenses-tab'
 import { SalesTab } from '~/components/batches/batch-details/sales-tab'
-import { getBatchDetailsFn } from '~/features/batches/server'
+import { deleteBatchFn, getBatchDetailsFn, updateBatchFn } from '~/features/batches/server'
+import { getFeedRecordsForBatchFn } from '~/features/feed/server'
+import { getMortalityRecordsForBatchFn } from '~/features/mortality/server'
+import { getSalesPaginatedFn } from '~/features/sales/server'
+import { getExpensesPaginatedFn } from '~/features/expenses/server'
+import { BATCH_QUERY_KEYS } from '~/features/batches/mutations'
+import { BatchEditDialog } from '~/components/batches/batch-edit-dialog'
+import { BatchDeleteDialog } from '~/components/batches/batch-delete-dialog'
 import { DetailSkeleton } from '~/components/ui/detail-skeleton'
 import { ErrorPage } from '~/components/error-page'
 
@@ -99,10 +109,96 @@ function BatchDetailsPage() {
   ])
   const { batchId } = Route.useParams()
   const data = Route.useLoaderData()
+  const router = useRouter()
+  const queryClient = useQueryClient()
   const [targetWeightPromptDismissed, setTargetWeightPromptDismissed] =
     useState(false)
+  
+  // Edit/Delete dialog state
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  
+  // Tab state for lazy loading
+  const [activeTab, setActiveTab] = useState('feed')
 
   const { batch, mortality, feed, sales, expenses } = data
+
+  // Lazy load feed records when tab is active
+  const feedRecordsQuery = useQuery({
+    queryKey: ['feed-records', batchId],
+    queryFn: () => getFeedRecordsForBatchFn({ data: { batchId } }),
+    enabled: activeTab === 'feed',
+    staleTime: 30000,
+  })
+
+  // Lazy load mortality records when tab is active
+  const mortalityRecordsQuery = useQuery({
+    queryKey: ['mortality-records', batchId],
+    queryFn: () => getMortalityRecordsForBatchFn({ data: { batchId } }),
+    enabled: activeTab === 'health',
+    staleTime: 30000,
+  })
+
+  // Lazy load sales records when tab is active
+  const salesRecordsQuery = useQuery({
+    queryKey: ['sales-records', batchId],
+    queryFn: () => getSalesPaginatedFn({ data: { batchId, pageSize: 50 } }),
+    enabled: activeTab === 'sales',
+    staleTime: 30000,
+  })
+
+  // Lazy load expenses records when tab is active
+  const expensesRecordsQuery = useQuery({
+    queryKey: ['expenses-records', batchId],
+    queryFn: () => getExpensesPaginatedFn({ data: { batchId, pageSize: 50 } }),
+    enabled: activeTab === 'expenses',
+    staleTime: 30000,
+  })
+
+  // Transform feed records to match expected type
+  const feedRecords: Array<FeedRecord> = (feedRecordsQuery.data || []).map((r: any) => ({
+    id: r.id,
+    batchId: r.batchId,
+    feedType: r.feedType,
+    brandName: r.brandName || null,
+    quantityKg: r.quantityKg,
+    cost: r.cost,
+    date: new Date(r.date),
+    notes: r.notes || null,
+  }))
+
+  // Transform mortality records to match expected type
+  const mortalityRecords: Array<MortalityRecord> = (mortalityRecordsQuery.data || []).map((r: any) => ({
+    id: r.id,
+    batchId: r.batchId,
+    quantity: r.quantity,
+    date: new Date(r.date),
+    cause: r.cause,
+    notes: r.notes || null,
+  }))
+
+  // Transform sales records to match expected type
+  const salesRecords: Array<SaleRecord> = (salesRecordsQuery.data?.data || []).map((r: any) => ({
+    id: r.id,
+    quantity: r.quantity,
+    totalAmount: r.totalAmount,
+    date: new Date(r.date),
+    livestockType: r.livestockType,
+    unitType: r.unitType || null,
+    ageWeeks: r.ageWeeks || null,
+    paymentStatus: r.paymentStatus || null,
+    customerName: r.customerName || null,
+  }))
+
+  // Transform expenses records to match expected type
+  const expensesRecords: Array<ExpenseRecord> = (expensesRecordsQuery.data?.data || []).map((r: any) => ({
+    id: r.id,
+    category: r.category,
+    amount: r.amount,
+    date: new Date(r.date),
+    description: r.description,
+  }))
 
   // Create metrics object from the data structure
   const metrics = {
@@ -134,11 +230,58 @@ function BatchDetailsPage() {
         : 0,
   }
 
+  // Handle edit submit
+  const handleEditSubmit = async (formData: {
+    currentQuantity: string
+    status: 'active' | 'depleted' | 'sold'
+    breedId: string | null
+  }) => {
+    setIsSubmitting(true)
+    try {
+      await updateBatchFn({
+        data: {
+          batchId: batch.id,
+          batch: {
+            status: formData.status,
+          },
+        },
+      })
+      toast.success(t('messages.updated', { defaultValue: 'Batch updated' }))
+      queryClient.invalidateQueries({ queryKey: BATCH_QUERY_KEYS.all })
+      router.invalidate()
+      setEditDialogOpen(false)
+    } catch (error) {
+      toast.error(t('messages.updateError', { defaultValue: 'Failed to update batch' }))
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  // Handle delete confirm
+  const handleDeleteConfirm = async () => {
+    setIsSubmitting(true)
+    try {
+      await deleteBatchFn({ data: { batchId: batch.id } })
+      toast.success(t('messages.deleted', { defaultValue: 'Batch deleted' }))
+      queryClient.invalidateQueries({ queryKey: BATCH_QUERY_KEYS.all })
+      router.navigate({ to: '/batches' })
+    } catch (error) {
+      toast.error(t('messages.deleteError', { defaultValue: 'Failed to delete batch' }))
+    } finally {
+      setIsSubmitting(false)
+      setDeleteDialogOpen(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
-      <BatchHeader batch={batch} onEdit={() => {}} onDelete={() => {}} />
+      <BatchHeader 
+        batch={batch} 
+        onEdit={() => setEditDialogOpen(true)} 
+        onDelete={() => setDeleteDialogOpen(true)} 
+      />
 
-      <BatchCommandCenter batchId={batchId} />
+      <BatchCommandCenter batchId={batchId} farmId={batch.farmId} />
 
       <BatchKPIs
         metrics={metrics}
@@ -149,7 +292,7 @@ function BatchDetailsPage() {
 
       {batch.formulation && <FormulationCard formulation={batch.formulation} />}
 
-      <Tabs defaultValue="feed" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="w-full grid grid-cols-3 lg:grid-cols-6 h-auto p-1.5">
           <TabsTrigger value="feed" className="w-full">
             {t('tabs.feed', { defaultValue: 'Feed Logs' })}
@@ -174,7 +317,10 @@ function BatchDetailsPage() {
         </TabsList>
 
         <TabsContent value="feed" className="mt-4">
-          <FeedRecordsTab records={[]} isLoading={false} />
+          <FeedRecordsTab 
+            records={feedRecords} 
+            isLoading={feedRecordsQuery.isLoading} 
+          />
         </TabsContent>
 
         <TabsContent value="growth" className="mt-4">
@@ -202,9 +348,7 @@ function BatchDetailsPage() {
                     variant="outline"
                     size="sm"
                     className="mt-4 rounded-xl font-bold bg-white/40 dark:bg-white/5 border-primary/20 hover:bg-primary/10 text-primary transition-all shadow-sm"
-                    onClick={() => {
-                      /* TODO: Implement edit dialog */
-                    }}
+                    onClick={() => setEditDialogOpen(true)}
                   >
                     Edit Batch
                   </Button>
@@ -224,17 +368,55 @@ function BatchDetailsPage() {
         </TabsContent>
 
         <TabsContent value="health" className="mt-4">
-          <MortalityRecordsTab records={[]} isLoading={false} />
+          <MortalityRecordsTab 
+            records={mortalityRecords} 
+            isLoading={mortalityRecordsQuery.isLoading} 
+          />
         </TabsContent>
 
         <TabsContent value="expenses" className="mt-4">
-          <ExpensesTab records={[]} isLoading={false} />
+          <ExpensesTab 
+            records={expensesRecords} 
+            isLoading={expensesRecordsQuery.isLoading} 
+          />
         </TabsContent>
 
         <TabsContent value="sales" className="mt-4">
-          <SalesTab records={[]} isLoading={false} />
+          <SalesTab 
+            records={salesRecords} 
+            isLoading={salesRecordsQuery.isLoading} 
+          />
         </TabsContent>
       </Tabs>
+
+      {/* Edit Dialog */}
+      <BatchEditDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        batch={{
+          id: batch.id,
+          species: batch.species,
+          breedId: batch.breedId,
+          currentQuantity: batch.currentQuantity,
+          status: batch.status,
+        }}
+        onSubmit={handleEditSubmit}
+        isSubmitting={isSubmitting}
+      />
+
+      {/* Delete Dialog */}
+      <BatchDeleteDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        batch={{
+          id: batch.id,
+          species: batch.species,
+          currentQuantity: batch.currentQuantity,
+          livestockType: batch.livestockType,
+        }}
+        onConfirm={handleDeleteConfirm}
+        isSubmitting={isSubmitting}
+      />
     </div>
   )
 }

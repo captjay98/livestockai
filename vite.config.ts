@@ -10,6 +10,10 @@ import { config } from 'dotenv'
 // Load .env file
 config()
 
+// Cloudflare plugin breaks getRequestHeaders() in dev mode
+// See: https://www.answeroverflow.com/m/1444770155367235787
+const isProduction = process.env.NODE_ENV === 'production'
+
 export default defineConfig({
   server: {
     port: 3000,
@@ -38,7 +42,9 @@ export default defineConfig({
     },
   },
   plugins: [
-    cloudflare({ viteEnvironment: { name: 'ssr' } }),
+    // Only enable Cloudflare plugin in production builds
+    // It breaks getRequestHeaders() in dev mode which breaks Better Auth
+    ...(isProduction ? [cloudflare({ viteEnvironment: { name: 'ssr' } })] : []),
     tailwindcss(),
     tsconfigPaths({ projects: ['./tsconfig.json'] }),
     tanstackStart({
@@ -55,7 +61,7 @@ export default defineConfig({
         enabled: true,
         type: 'module',
       },
-      includeAssets: ['favicon.ico', 'logo-icon.svg'],
+      includeAssets: ['logo-icon.svg'],
       manifest: {
         name: 'LivestockAI Manager',
         short_name: 'LivestockAI',

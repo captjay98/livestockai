@@ -102,6 +102,25 @@ export async function getWorkersByFarm(db: Kysely<Database>, farmId: string) {
     .execute()
 }
 
+export async function getAllWorkers(db: Kysely<Database>) {
+  return db
+    .selectFrom('worker_profiles as wp')
+    .leftJoin('users as u', 'u.id', 'wp.userId')
+    .select([
+      'wp.id',
+      'wp.userId',
+      'wp.farmId',
+      'wp.phone',
+      'wp.employmentStatus',
+      'wp.wageRateAmount',
+      'wp.wageRateType',
+      'wp.permissions',
+      'u.name as userName',
+      'u.email as userEmail',
+    ])
+    .execute()
+}
+
 export async function updateWorkerProfile(
   db: Kysely<Database>,
   id: string,

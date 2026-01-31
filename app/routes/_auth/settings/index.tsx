@@ -9,7 +9,6 @@ import {
   Settings,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'sonner'
 import { Button } from '~/components/ui/button'
 import { Card } from '~/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs'
@@ -24,6 +23,7 @@ import { BusinessTab } from '~/components/settings/business-tab'
 import { IntegrationsTab } from '~/components/settings/integrations-tab'
 import { SettingsSkeleton } from '~/components/settings/settings-skeleton'
 import { ErrorPage } from '~/components/error-page'
+import { useOnboardingMutations } from '~/features/onboarding/mutations'
 
 export const Route = createFileRoute('/_auth/settings/')({
   loader: async () => {
@@ -38,6 +38,7 @@ export const Route = createFileRoute('/_auth/settings/')({
 
 function SettingsPage() {
   const { t } = useTranslation(['settings'])
+  const { resetOnboarding } = useOnboardingMutations()
 
   // Get data from loader
   const initialSettings = Route.useLoaderData()
@@ -178,20 +179,13 @@ function SettingsPage() {
           <Button
             variant="outline"
             className="rounded-xl font-bold bg-white/50 dark:bg-white/5 border-white/20 hover:bg-white/70 shadow-sm"
-            onClick={async () => {
-              try {
-                const { resetOnboardingFn } =
-                  await import('~/features/onboarding/server')
-                await resetOnboardingFn({ data: {} })
-                localStorage.removeItem('livestockai_onboarding')
-                window.location.href = '/onboarding'
-              } catch (err) {
-                toast.error(
-                  t('settings:help.resetOnboardingFailed', {
-                    defaultValue: 'Failed to reset onboarding',
-                  }),
-                )
-              }
+            disabled={resetOnboarding.isPending}
+            onClick={() => {
+              resetOnboarding.mutate(undefined, {
+                onSuccess: () => {
+                  window.location.href = '/onboarding'
+                },
+              })
             }}
           >
             <PlayCircle className="h-4 w-4 mr-2" />

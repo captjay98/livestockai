@@ -12,46 +12,22 @@ interface ChangelogEntry {
 const CHANGELOG_DATA: Array<ChangelogEntry> = [
   {
     version: 'v1.0.0',
-    date: 'January 15, 2026',
+    date: 'January 31, 2026',
     type: 'major',
     changes: {
       added: [
-        'Lorem ipsum dolor sit amet consectetur adipiscing elit',
-        'Sed do eiusmod tempor incididunt ut labore',
-        'Ut enim ad minim veniam quis nostrud exercitation',
-        'Ullamco laboris nisi ut aliquip ex ea commodo',
-        'Duis aute irure dolor in reprehenderit',
-      ],
-    },
-  },
-  {
-    version: 'v0.9.5',
-    date: 'December 20, 2025',
-    type: 'minor',
-    changes: {
-      added: [
-        'Voluptate velit esse cillum dolore eu fugiat',
-        'Nulla pariatur excepteur sint occaecat',
-      ],
-      changed: [
-        'Cupidatat non proident sunt in culpa',
-        'Qui officia deserunt mollit anim id est',
-      ],
-      fixed: [
-        'Laborum et dolorum fuga et harum',
-        'Quidem rerum facilis est et expedita',
-      ],
-    },
-  },
-  {
-    version: 'v0.9.0',
-    date: 'November 10, 2025',
-    type: 'minor',
-    changes: {
-      added: [
-        'Distinctio nam libero tempore cum soluta',
-        'Nobis est eligendi optio cumque nihil',
-        'Impedit quo minus id quod maxime',
+        'Multi-species livestock management (poultry, fish, cattle, goats, sheep, bees)',
+        'Offline-first architecture with automatic sync',
+        'Financial tracking (sales, expenses, invoicing, P&L reports)',
+        'Predictive analytics (growth forecasting, harvest predictions)',
+        'Multi-currency support (20+ currencies) and 15 languages',
+        'Extension Worker Mode for agricultural officers',
+        'Credit Passport with cryptographic verification',
+        'IoT Sensor Hub with real-time monitoring',
+        'Digital Foreman for workforce management',
+        'Offline Marketplace for livestock sales',
+        'Feed formulation calculator with nutritional requirements',
+        'Progressive Web App (installable on mobile and desktop)',
       ],
     },
   },

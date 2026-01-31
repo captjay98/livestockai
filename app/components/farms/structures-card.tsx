@@ -1,7 +1,6 @@
 import { Edit, Home, Plus, Trash2, Warehouse } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'sonner'
 import type {
   StructureStatus,
   StructureType,
@@ -9,11 +8,8 @@ import type {
 import {
   STRUCTURE_STATUSES,
   STRUCTURE_TYPES,
-  createStructureFn,
-  deleteStructureFn,
-  getStructuresWithCountsFn,
-  updateStructureFn,
 } from '~/features/structures/server'
+import { useStructureMutations } from '~/features/structures/mutations'
 import { useFormatArea } from '~/features/settings'
 import { Button } from '~/components/ui/button'
 import {
@@ -69,15 +65,17 @@ export function StructuresCard({
   const { t } = useTranslation(['farms', 'common'])
   const { label: areaLabel } = useFormatArea()
 
-  const [structures, setStructures] =
-    useState<Array<Structure>>(initialStructures)
+  // Use mutation hooks for offline support
+  const { createStructure, updateStructure, deleteStructure, isPending } =
+    useStructureMutations()
+
+  const [structures] = useState<Array<Structure>>(initialStructures)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [selectedStructure, setSelectedStructure] = useState<Structure | null>(
     null,
   )
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
   const [form, setForm] = useState({
@@ -101,84 +99,75 @@ export function StructuresCard({
     setError('')
   }
 
-  const refreshStructures = async () => {
-    const updated = await getStructuresWithCountsFn({ data: { farmId } })
-    setStructures(updated)
-  }
-
-  const handleCreate = async (e: React.FormEvent) => {
+  const handleCreate = (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
     setError('')
-    try {
-      await createStructureFn({
-        data: {
-          input: {
-            farmId,
-            name: form.name,
-            type: form.type,
-            capacity: form.capacity ? parseInt(form.capacity) : null,
-            areaSqm: form.areaSqm ? parseFloat(form.areaSqm) : null,
-            status: form.status,
-            notes: form.notes || null,
-          },
+    createStructure.mutate(
+      {
+        structure: {
+          farmId,
+          name: form.name,
+          type: form.type,
+          capacity: form.capacity ? parseInt(form.capacity) : null,
+          areaSqm: form.areaSqm ? parseFloat(form.areaSqm) : null,
+          status: form.status,
+          notes: form.notes || null,
         },
-      })
-      await refreshStructures()
-      setCreateDialogOpen(false)
-      resetForm()
-      toast.success(t('farms:structures.created'))
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create')
-    } finally {
-      setIsSubmitting(false)
-    }
+      },
+      {
+        onSuccess: () => {
+          setCreateDialogOpen(false)
+          resetForm()
+        },
+        onError: (err) => {
+          setError(err instanceof Error ? err.message : 'Failed to create')
+        },
+      },
+    )
   }
 
-  const handleEdit = async (e: React.FormEvent) => {
+  const handleEdit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedStructure) return
-    setIsSubmitting(true)
     setError('')
-    try {
-      await updateStructureFn({
+    updateStructure.mutate(
+      {
+        structureId: selectedStructure.id,
         data: {
-          id: selectedStructure.id,
-          input: {
-            name: form.name,
-            type: form.type,
-            capacity: form.capacity ? parseInt(form.capacity) : null,
-            areaSqm: form.areaSqm ? parseFloat(form.areaSqm) : null,
-            status: form.status,
-            notes: form.notes || null,
-          },
+          name: form.name,
+          type: form.type,
+          capacity: form.capacity ? parseInt(form.capacity) : null,
+          areaSqm: form.areaSqm ? parseFloat(form.areaSqm) : null,
+          status: form.status,
+          notes: form.notes || null,
         },
-      })
-      await refreshStructures()
-      setEditDialogOpen(false)
-      resetForm()
-      toast.success(t('farms:structures.updated'))
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update')
-    } finally {
-      setIsSubmitting(false)
-    }
+      },
+      {
+        onSuccess: () => {
+          setEditDialogOpen(false)
+          resetForm()
+        },
+        onError: (err) => {
+          setError(err instanceof Error ? err.message : 'Failed to update')
+        },
+      },
+    )
   }
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!selectedStructure) return
-    setIsSubmitting(true)
     setError('')
-    try {
-      await deleteStructureFn({ data: { id: selectedStructure.id } })
-      await refreshStructures()
-      setDeleteDialogOpen(false)
-      toast.success(t('farms:structures.deleted'))
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete')
-    } finally {
-      setIsSubmitting(false)
-    }
+    deleteStructure.mutate(
+      { structureId: selectedStructure.id },
+      {
+        onSuccess: () => {
+          setDeleteDialogOpen(false)
+        },
+        onError: (err) => {
+          setError(err instanceof Error ? err.message : 'Failed to delete')
+        },
+      },
+    )
   }
 
   const openEditDialog = (structure: Structure) => {
@@ -307,8 +296,8 @@ export function StructuresCard({
         >
           {t('farms:structures.form.cancel')}
         </Button>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting
+        <Button type="submit" disabled={isPending}>
+          {isPending
             ? t('farms:structures.form.saving')
             : t('farms:structures.form.save')}
         </Button>
@@ -470,9 +459,9 @@ export function StructuresCard({
             <Button
               variant="destructive"
               onClick={handleDelete}
-              disabled={isSubmitting}
+              disabled={isPending}
             >
-              {isSubmitting
+              {isPending
                 ? t('farms:structures.form.deleting')
                 : t('farms:structures.form.delete')}
             </Button>

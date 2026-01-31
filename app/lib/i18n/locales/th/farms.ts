@@ -43,6 +43,11 @@ export const farms = {
 
   // Detail page
   detail: {
+    info: 'ข้อมูลฟาร์ม',
+    name: 'ชื่อ',
+    type: 'ประเภท',
+    location: 'ที่ตั้ง',
+    created: 'สร้างเมื่อ',
     notFound: 'ไม่พบฟาร์ม',
     notFoundDesc: 'ฟาร์มที่คุณกำลังค้นหาไม่มีอยู่หรือคุณไม่มีสิทธิ์เข้าถึง',
     back: 'กลับไปยังฟาร์ม',
@@ -52,6 +57,40 @@ export const farms = {
       activity: 'กิจกรรม',
       settings: 'การตั้งค่า',
     },
+  },
+
+  // Active batches
+  activeBatches: {
+    title: 'แบทช์ที่ใช้งานอยู่',
+  },
+
+  // Structures
+  structures: {
+    title: 'โครงสร้าง',
+    description: 'โครงสร้างและสิ่งอำนวยความสะดวกของฟาร์ม',
+    types: {
+      pond: 'บ่อ',
+      tarpaulin: 'ผ้าใบ',
+      cage: 'กรง',
+      house: 'บ้าน',
+      coop: 'เล้า',
+      pen: 'คอก',
+      barn: 'ยุ้งฉาง',
+      shed: 'โรงเก็บ',
+      hive: 'รัง',
+    },
+    statuses: {
+      active: 'ใช้งานอยู่',
+      inactive: 'ไม่ใช้งาน',
+      maintenance: 'บำรุงรักษา',
+    },
+  },
+
+  // Recent activity
+  recentActivity: {
+    title: 'กิจกรรมล่าสุด',
+    sales: 'การขาย',
+    expenses: 'ค่าใช้จ่าย',
   },
 
   // Dashboard stats
@@ -66,6 +105,9 @@ export const farms = {
 
   // Quick actions
   quickActions: {
+    manageBatches: 'จัดการแบทช์',
+    recordExpense: 'บันทึกค่าใช้จ่าย',
+    viewReports: 'ดูรายงาน',
     tip: {
       title: 'เคล็ดลับด่วน',
       text: 'ใช้การดำเนินการด่วนเพื่อจัดการการดำเนินงานประจำวันของฟาร์มอย่างมีประสิทธิภาพ',

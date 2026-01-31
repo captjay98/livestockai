@@ -724,6 +724,7 @@ export const getSalesPaginatedFn = createServerFn({ method: 'GET' })
       sortOrder: z.enum(['asc', 'desc']).optional(),
       search: z.string().optional(),
       farmId: z.string().uuid().optional(),
+      batchId: z.string().uuid().optional(),
       livestockType: z
         .enum([
           'poultry',

@@ -440,6 +440,17 @@ export async function getFeedRecordsForBatch(userId: string, batchId: string) {
 }
 
 /**
+ * Server function to get feed records for a specific batch
+ */
+export const getFeedRecordsForBatchFn = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({ batchId: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return getFeedRecordsForBatch(session.user.id, data.batchId)
+  })
+
+/**
  * Fetches all feeding records for one or more farms.
  * Defaults to all farms belonging to the user if no specific farm is provided.
  *

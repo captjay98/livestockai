@@ -29,7 +29,10 @@ interface SensorFormDialogProps {
     sensorType: SensorType
     structureId?: string
     pollingIntervalMinutes: number
-  }) => Promise<{ sensorId: string; apiKey?: string }>
+  }) =>
+    | Promise<{ sensorId: string; apiKey?: string }>
+    | { sensorId: string; apiKey?: string }
+    | void
   mode: 'create' | 'edit'
   defaultValues?: {
     name?: string
@@ -71,7 +74,7 @@ export function SensorFormDialog({
         structureId: structureId || undefined,
         pollingIntervalMinutes: pollingInterval,
       })
-      if (result.apiKey) {
+      if (result && 'apiKey' in result && result.apiKey) {
         setApiKey(result.apiKey)
       } else {
         onOpenChange(false)

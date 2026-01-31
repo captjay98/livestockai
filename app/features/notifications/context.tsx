@@ -73,7 +73,8 @@ export function NotificationsProvider({
     queryFn: () => getNotificationsFn({ data: { limit: 50 } }),
     refetchInterval: isPublicPage ? false : 30000, // 30 seconds, disabled on public pages
     staleTime: 25000, // Consider stale after 25 seconds
-    enabled: !isPublicPage, // Don't fetch on public pages
+    enabled: !isPublicPage && navigator.onLine, // Don't fetch on public pages or when offline
+    retry: false,
   })
 
   // Calculate unread count

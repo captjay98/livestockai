@@ -7,12 +7,8 @@ import { TaskTabs } from '~/components/tasks/task-tabs'
 import { TasksSkeleton } from '~/components/tasks/tasks-skeleton'
 import { TaskDialog } from '~/components/tasks/task-dialog'
 import { ErrorPage } from '~/components/error-page'
-import {
-  completeTaskFn,
-  createTaskFn,
-  getTasksFn,
-  uncompleteTaskFn,
-} from '~/features/tasks/server'
+import { getTasksFn } from '~/features/tasks/server'
+import { useTaskMutations } from '~/features/tasks/mutations'
 import { getDefaultFarmFn } from '~/features/settings/server'
 
 const tasksSearchSchema = z.object({
@@ -39,11 +35,10 @@ export const Route = createFileRoute('/_auth/tasks/')({
 })
 
 function TasksPage() {
-  const router = useRouter()
-  const [loading, setLoading] = useState<string | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [creating, setCreating] = useState(false)
+  const router = useRouter()
   const { tasks, defaultFarmId, farmId } = Route.useLoaderData()
+  const { completeTask, uncompleteTask, createTask } = useTaskMutations()
 
   const { dailyTasks, weeklyTasks, monthlyTasks } = useMemo(
     () => ({
@@ -60,64 +55,66 @@ function TasksPage() {
     [tasks],
   )
 
-  const handleToggle = async (task: TaskWithStatus) => {
-    setLoading(task.id)
-    try {
-      if (task.completed) {
-        await uncompleteTaskFn({ data: { taskId: task.id } })
-      } else {
-        await completeTaskFn({ data: { taskId: task.id } })
-      }
-      router.invalidate()
-    } finally {
-      setLoading(null)
+  const handleToggle = (task: TaskWithStatus) => {
+    if (task.completed) {
+      uncompleteTask.mutate(
+        { taskId: task.id },
+        { onSuccess: () => router.invalidate({ sync: true }) },
+      )
+    } else {
+      completeTask.mutate(
+        { taskId: task.id },
+        { onSuccess: () => router.invalidate({ sync: true }) },
+      )
     }
   }
 
-  const handleCreateTask = async (data: {
+  const handleCreateTask = (data: {
     title: string
     description: string | null
     frequency: 'daily' | 'weekly' | 'monthly'
   }) => {
-    // Use the farmId from search params, or fall back to default farm
     const targetFarmId = farmId ?? defaultFarmId
     if (!targetFarmId) {
-      throw new Error('No farm selected')
+      return
     }
 
-    setCreating(true)
-    try {
-      await createTaskFn({
-        data: {
-          farmId: targetFarmId,
-          data: {
-            title: data.title,
-            description: data.description,
-            frequency: data.frequency,
-          },
+    createTask.mutate(
+      {
+        farmId: targetFarmId,
+        task: {
+          title: data.title,
+          description: data.description,
+          frequency: data.frequency,
         },
-      })
-      router.invalidate()
-    } finally {
-      setCreating(false)
-    }
+      },
+      { onSuccess: () => router.invalidate({ sync: true }) },
+    )
+    setDialogOpen(false)
   }
 
   // Only show add button if we have a farm context
   const canAddTask = !!(farmId ?? defaultFarmId)
+
+  // Track which task is being toggled for loading state
+  const loadingTaskId = completeTask.isPending
+    ? completeTask.variables.taskId
+    : uncompleteTask.isPending
+      ? uncompleteTask.variables.taskId
+      : null
 
   return (
     <div className="space-y-6 pb-20">
       <TaskPageHeader
         onAddTask={canAddTask ? () => setDialogOpen(true) : undefined}
       />
-      <div className="bg-white/30 dark:bg-black/80 backdrop-blur-2xl border-white/20 dark:border-white/10 rounded-3xl shadow-2xl overflow-hidden border p-1 sm:p-2">
+      <div className="bg-white/30 dark:bg-black/80 backdrop-blur-2xl border-white/20 dark:border-white/10 rounded-3xl shadow-2xl overflow-hidden border p-1 sm:p-2 mx-1 sm:mx-0">
         <TaskTabs
           dailyTasks={dailyTasks}
           weeklyTasks={weeklyTasks}
           monthlyTasks={monthlyTasks}
           onToggle={handleToggle}
-          loading={loading}
+          loading={loadingTaskId}
         />
       </div>
 
@@ -125,7 +122,7 @@ function TasksPage() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         onSubmit={handleCreateTask}
-        isLoading={creating}
+        isLoading={createTask.isPending}
       />
     </div>
   )

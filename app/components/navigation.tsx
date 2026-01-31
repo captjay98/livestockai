@@ -1,4 +1,4 @@
-import { Link, useLocation } from '@tanstack/react-router'
+import { Link, useLocation, useRouter } from '@tanstack/react-router'
 import {
   Activity,
   BarChart3,
@@ -32,6 +32,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ThemeToggle } from './theme-toggle'
 import { LanguageSwitcher } from './ui/language-switcher'
+import { signOut } from '~/features/auth/client'
 import { cn } from '~/lib/utils'
 import { Button } from '~/components/ui/button'
 import { useModuleNavigation } from '~/hooks/useModuleNavigation'
@@ -410,6 +411,14 @@ export function Navigation() {
 
 export function Header() {
   const { t } = useTranslation(['common', 'auth'])
+  const router = useRouter()
+
+  const handleSignOut = async () => {
+    localStorage.removeItem('livestockai-cached-user')
+    await signOut()
+    router.navigate({ to: '/login' })
+  }
+
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
@@ -440,12 +449,12 @@ export function Header() {
             {/* <NotificationBell /> */}
             <LanguageSwitcher />
             <ThemeToggle />
-            <Link
-              to="/login"
+            <button
+              onClick={handleSignOut}
               className="hidden sm:inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
             >
               {t('common:signOut', { defaultValue: 'Sign Out' })}
-            </Link>
+            </button>
           </div>
         </div>
       </div>

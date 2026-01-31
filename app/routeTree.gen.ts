@@ -13,6 +13,7 @@ import { Route as SupportRouteImport } from './routes/support'
 import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as OfflineRouteImport } from './routes/offline'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as ExtensionWorkersRouteImport } from './routes/extension-workers'
@@ -102,6 +103,11 @@ const RegisterRoute = RegisterRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OfflineRoute = OfflineRouteImport.update({
+  id: '/offline',
+  path: '/offline',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -472,6 +478,7 @@ export interface FileRoutesByFullPath {
   '/extension-workers': typeof ExtensionWorkersRoute
   '/features': typeof FeaturesRoute
   '/login': typeof LoginRoute
+  '/offline': typeof OfflineRoute
   '/pricing': typeof PricingRoute
   '/register': typeof RegisterRoute
   '/roadmap': typeof RoadmapRoute
@@ -547,6 +554,7 @@ export interface FileRoutesByTo {
   '/extension-workers': typeof ExtensionWorkersRoute
   '/features': typeof FeaturesRoute
   '/login': typeof LoginRoute
+  '/offline': typeof OfflineRoute
   '/pricing': typeof PricingRoute
   '/register': typeof RegisterRoute
   '/roadmap': typeof RoadmapRoute
@@ -623,6 +631,7 @@ export interface FileRoutesById {
   '/extension-workers': typeof ExtensionWorkersRoute
   '/features': typeof FeaturesRoute
   '/login': typeof LoginRoute
+  '/offline': typeof OfflineRoute
   '/pricing': typeof PricingRoute
   '/register': typeof RegisterRoute
   '/roadmap': typeof RoadmapRoute
@@ -700,6 +709,7 @@ export interface FileRouteTypes {
     | '/extension-workers'
     | '/features'
     | '/login'
+    | '/offline'
     | '/pricing'
     | '/register'
     | '/roadmap'
@@ -775,6 +785,7 @@ export interface FileRouteTypes {
     | '/extension-workers'
     | '/features'
     | '/login'
+    | '/offline'
     | '/pricing'
     | '/register'
     | '/roadmap'
@@ -850,6 +861,7 @@ export interface FileRouteTypes {
     | '/extension-workers'
     | '/features'
     | '/login'
+    | '/offline'
     | '/pricing'
     | '/register'
     | '/roadmap'
@@ -927,6 +939,7 @@ export interface RootRouteChildren {
   ExtensionWorkersRoute: typeof ExtensionWorkersRoute
   FeaturesRoute: typeof FeaturesRoute
   LoginRoute: typeof LoginRoute
+  OfflineRoute: typeof OfflineRoute
   PricingRoute: typeof PricingRoute
   RegisterRoute: typeof RegisterRoute
   RoadmapRoute: typeof RoadmapRoute
@@ -968,6 +981,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/offline': {
+      id: '/offline'
+      path: '/offline'
+      fullPath: '/offline'
+      preLoaderRoute: typeof OfflineRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -1609,6 +1629,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExtensionWorkersRoute: ExtensionWorkersRoute,
   FeaturesRoute: FeaturesRoute,
   LoginRoute: LoginRoute,
+  OfflineRoute: OfflineRoute,
   PricingRoute: PricingRoute,
   RegisterRoute: RegisterRoute,
   RoadmapRoute: RoadmapRoute,

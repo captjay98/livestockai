@@ -1,4 +1,4 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useRouter } from '@tanstack/react-router'
 import {
   AlertTriangle,
   BarChart3,
@@ -24,6 +24,7 @@ import { filterNavigationByModules } from '~/hooks/useModuleNavigation'
 import { useExtensionNav } from '~/features/extension/use-extension-nav'
 import { useFarm } from '~/features/farms/context'
 import { getFarmsForUserFn } from '~/features/farms/server'
+import { signOut } from '~/features/auth/client'
 
 interface SidebarProps {
   className?: string
@@ -36,6 +37,20 @@ export function Sidebar({ className, onClose, user }: SidebarProps) {
   const { enabledModules, isLoading } = useModules()
   const { isExtensionWorker, isSupervisor } = useExtensionNav()
   const { selectedFarmId } = useFarm()
+  const router = useRouter()
+
+  // Handle sign out
+  const handleSignOut = async () => {
+    // Clear cached user to prevent offline auto-login
+    localStorage.removeItem('livestockai-cached-user')
+    onClose?.()
+
+    // Call Better Auth signOut
+    await signOut()
+
+    // Navigate to login page
+    router.navigate({ to: '/login' })
+  }
 
   // Fetch user's farms
   const { data: farms = [] } = useQuery({
@@ -110,7 +125,7 @@ export function Sidebar({ className, onClose, user }: SidebarProps) {
   return (
     <div
       className={cn(
-        'flex flex-col h-full text-foreground transition-all duration-300 backdrop-blur-xl bg-white/40 dark:bg-black/40 border-r border-white/20 dark:border-white/10 shadow-2xl relative overflow-hidden',
+        'flex flex-col h-full text-foreground transition-all duration-300 backdrop-blur-xl bg-white/80 dark:bg-black/70 border-r border-white/30 dark:border-white/15 shadow-2xl relative overflow-hidden',
         className,
       )}
     >
@@ -145,7 +160,7 @@ export function Sidebar({ className, onClose, user }: SidebarProps) {
 
         <FarmSelector
           farms={farms}
-          className="w-full shadow-lg rounded-xl border-white/10 bg-white/50 dark:bg-black/50 backdrop-blur-xl hover:bg-white/60 dark:hover:bg-black/60 transition-all"
+          className="w-full shadow-lg rounded-xl border-white/20 dark:border-white/15 bg-white/60 dark:bg-black/60 backdrop-blur-xl hover:bg-white/70 dark:hover:bg-black/70 transition-all"
         />
       </div>
 
@@ -170,7 +185,7 @@ export function Sidebar({ className, onClose, user }: SidebarProps) {
         hasExtensionAccess={hasExtensionAccess}
       />
 
-      <div className="p-4 m-4 mt-2 bg-gradient-to-br from-white/10 to-white/5 dark:from-white/5 dark:to-transparent rounded-2xl border border-white/10 shadow-lg backdrop-blur-md relative z-10 group hover:border-white/20 transition-all">
+      <div className="p-4 m-4 mt-2 bg-gradient-to-br from-white/20 to-white/10 dark:from-white/10 dark:to-white/5 rounded-2xl border border-white/20 dark:border-white/15 shadow-lg backdrop-blur-md relative z-10 group hover:border-white/30 dark:hover:border-white/25 transition-all">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3 min-w-0">
             <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 border border-white/10 shadow-inner flex items-center justify-center shrink-0">
@@ -181,7 +196,7 @@ export function Sidebar({ className, onClose, user }: SidebarProps) {
                 {userName}
               </p>
               {userEmail && (
-                <p className="text-xs text-muted-foreground/80 truncate">
+                <p className="text-xs text-foreground/60 truncate">
                   {userEmail}
                 </p>
               )}
@@ -189,16 +204,15 @@ export function Sidebar({ className, onClose, user }: SidebarProps) {
           </div>
           <ThemeToggle />
         </div>
-        <Link to="/login" onClick={onClose}>
-          <Button
-            variant="ghost"
-            className="w-full justify-start gap-2 rounded-xl hover:bg-red-500/10 hover:text-red-500 transition-all text-muted-foreground"
-            size="sm"
-          >
-            <LogOut className="h-4 w-4" />
-            {t('common:signOut')}
-          </Button>
-        </Link>
+        <Button
+          variant="ghost"
+          className="w-full justify-start gap-2 rounded-xl hover:bg-red-500/10 hover:text-red-500 transition-all text-foreground/70"
+          size="sm"
+          onClick={handleSignOut}
+        >
+          <LogOut className="h-4 w-4" />
+          {t('common:signOut')}
+        </Button>
       </div>
     </div>
   )

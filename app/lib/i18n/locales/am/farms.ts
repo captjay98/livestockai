@@ -42,6 +42,11 @@ export const farms = {
 
   // Detail page
   detail: {
+    info: 'የእርሻ መረጃ',
+    name: 'ስም',
+    type: 'ዓይነት',
+    location: 'ቦታ',
+    created: 'የተፈጠረበት',
     notFound: 'እርሻ አልተገኘም',
     notFoundDesc: 'እየፈለጉ ያለው እርሻ የለም ወይም መዳረሻ የሎትም።',
     back: 'ወደ እርሻዎች ተመለስ',
@@ -51,6 +56,40 @@ export const farms = {
       activity: 'እንቅስቃሴ',
       settings: 'ቅንብሮች',
     },
+  },
+
+  // Active batches
+  activeBatches: {
+    title: 'ንቁ ቡድኖች',
+  },
+
+  // Structures
+  structures: {
+    title: 'መዋቅሮች',
+    description: 'የእርሻ መዋቅሮች እና ተቋማት',
+    types: {
+      pond: 'ኩሬ',
+      tarpaulin: 'ታርፖሊን',
+      cage: 'ጓዳ',
+      house: 'ቤት',
+      coop: 'የዶሮ ቤት',
+      pen: 'ጎጆ',
+      barn: 'ጎተራ',
+      shed: 'ሼድ',
+      hive: 'የንብ ቤት',
+    },
+    statuses: {
+      active: 'ንቁ',
+      inactive: 'ንቁ ያልሆነ',
+      maintenance: 'ጥገና',
+    },
+  },
+
+  // Recent activity
+  recentActivity: {
+    title: 'የቅርብ ጊዜ እንቅስቃሴ',
+    sales: 'ሽያጮች',
+    expenses: 'ወጪዎች',
   },
 
   // Dashboard stats
@@ -65,6 +104,9 @@ export const farms = {
 
   // Quick actions
   quickActions: {
+    manageBatches: 'ቡድኖችን ያስተዳድሩ',
+    recordExpense: 'ወጪ ይመዝግቡ',
+    viewReports: 'ሪፖርቶችን ይመልከቱ',
     tip: {
       title: 'ፈጣን ምክር',
       text: 'የእርሻዎን የዕለት ተዕለት ስራዎች በብቃት ለማስተዳደር ፈጣን ድርጊቶችን ይጠቀሙ።',

@@ -33,12 +33,18 @@ export function PreferencesStep() {
   const handleSave = async () => {
     setIsSaving(true)
     try {
+      // Update settings first
       await updateSettings({
         ...settings,
         ...localSettings,
       } as UserSettings)
-      setIsSaving(false)
+
+      // Wait a bit for settings to persist
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      // Then complete the step
       completeStep('preferences')
+      setIsSaving(false)
     } catch (error) {
       setIsSaving(false)
       toast.error(

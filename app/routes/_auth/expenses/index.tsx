@@ -1,17 +1,12 @@
-import { createFileRoute, useNavigate, useRouter } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Plus, Receipt, Users } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'sonner'
 import type { Expense } from '~/components/expenses/expense-columns'
 import { getExpenseColumns } from '~/components/expenses/expense-columns'
 import { validateExpenseSearch } from '~/features/expenses/validation'
-import {
-  createExpenseFn,
-  deleteExpenseFn,
-  getExpensesPaginatedFn,
-  updateExpenseFn,
-} from '~/features/expenses/server'
+import { getExpensesPaginatedFn } from '~/features/expenses/server'
+import { useExpenseMutations } from '~/features/expenses/mutations'
 import { getBatchesFn } from '~/features/batches/server'
 import { getSuppliersFn } from '~/features/suppliers/server'
 import { useFormatCurrency, useFormatDate } from '~/features/settings'
@@ -67,7 +62,6 @@ export const Route = createFileRoute('/_auth/expenses/')({
 })
 
 function ExpensesPage() {
-  const router = useRouter()
   const { t } = useTranslation(['expenses', 'common'])
   const { selectedFarmId } = useFarm()
   const { format: formatCurrency, symbol: currencySymbol } = useFormatCurrency()
@@ -79,12 +73,14 @@ function ExpensesPage() {
   const { paginatedExpenses, summary, batches, suppliers } =
     Route.useLoaderData()
 
+  // Use mutation hooks for offline support
+  const { createExpense, updateExpense, deleteExpense } = useExpenseMutations()
+
   // Dialog states
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null)
   const [formOpen, setFormOpen] = useState(false)
   const [viewOpen, setViewOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Navigation helper for search params
   const updateSearch = (updates: Partial<typeof searchParams>) => {
@@ -108,76 +104,68 @@ function ExpensesPage() {
     setDeleteOpen(true)
   }
 
-  const handleCreateSubmit = async (data: any) => {
+  const handleCreateSubmit = (data: any) => {
     if (!selectedFarmId) return
-    setIsSubmitting(true)
-    try {
-      await createExpenseFn({
-        data: {
-          expense: {
-            farmId: selectedFarmId,
-            ...data,
-          },
+    createExpense.mutate(
+      {
+        expense: {
+          farmId: selectedFarmId,
+          ...data,
         },
-      })
-      toast.success(t('messages.recorded'))
-      setFormOpen(false)
-      await router.invalidate()
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleEditSubmit = async (data: any) => {
-    if (!selectedExpense) return
-    setIsSubmitting(true)
-    try {
-      await updateExpenseFn({
-        data: {
-          expenseId: selectedExpense.id,
-          data: {
-            category: data.category,
-            amount: data.amount,
-            description: data.description,
-          },
+      },
+      {
+        onSuccess: () => {
+          setFormOpen(false)
         },
-      })
-      toast.success(t('messages.updated'))
-      setFormOpen(false)
-      setSelectedExpense(null)
-      await router.invalidate()
-    } finally {
-      setIsSubmitting(false)
-    }
+      },
+    )
   }
 
-  const handleDeleteConfirm = async () => {
+  const handleEditSubmit = (data: any) => {
     if (!selectedExpense) return
-    setIsSubmitting(true)
-    try {
-      await deleteExpenseFn({ data: { expenseId: selectedExpense.id } })
-      toast.success(t('messages.deleted'))
-      setDeleteOpen(false)
-      setSelectedExpense(null)
-      await router.invalidate()
-    } finally {
-      setIsSubmitting(false)
-    }
+    updateExpense.mutate(
+      {
+        expenseId: selectedExpense.id,
+        data: {
+          category: data.category,
+          amount: data.amount,
+          description: data.description,
+        },
+      },
+      {
+        onSuccess: () => {
+          setFormOpen(false)
+          setSelectedExpense(null)
+        },
+      },
+    )
   }
 
-  const handleFormSubmit = async (data: any) => {
+  const handleDeleteConfirm = () => {
+    if (!selectedExpense) return
+    deleteExpense.mutate(
+      { expenseId: selectedExpense.id },
+      {
+        onSuccess: () => {
+          setDeleteOpen(false)
+          setSelectedExpense(null)
+        },
+      },
+    )
+  }
+
+  const handleFormSubmit = (data: any) => {
     if (selectedExpense) {
-      await handleEditSubmit(data)
+      handleEditSubmit(data)
     } else {
-      await handleCreateSubmit(data)
+      handleCreateSubmit(data)
     }
-    setFormOpen(false)
   }
 
-  const handleDeleteSubmit = async () => {
-    await handleDeleteConfirm()
-    setDeleteOpen(false)
-  }
+  const isSubmitting =
+    createExpense.isPending ||
+    updateExpense.isPending ||
+    deleteExpense.isPending
 
   const columns = useMemo(
     () =>
@@ -280,8 +268,8 @@ function ExpensesPage() {
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         expense={selectedExpense}
-        onConfirm={handleDeleteSubmit}
-        isSubmitting={isSubmitting}
+        onConfirm={handleDeleteConfirm}
+        isSubmitting={deleteExpense.isPending}
       />
     </div>
   )

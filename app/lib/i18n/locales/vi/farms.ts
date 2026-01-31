@@ -43,6 +43,11 @@ export const farms = {
 
   // Detail page
   detail: {
+    info: 'Thông Tin Trang Trại',
+    name: 'Tên',
+    type: 'Loại',
+    location: 'Vị Trí',
+    created: 'Đã Tạo',
     notFound: 'Không Tìm Thấy Trang Trại',
     notFoundDesc:
       'Trang trại bạn đang tìm kiếm không tồn tại hoặc bạn không có quyền truy cập.',
@@ -65,8 +70,45 @@ export const farms = {
     expenseRecords: '{{count}} bản ghi chi phí',
   },
 
+  // Active batches
+  activeBatches: {
+    title: 'Lô Đang Hoạt Động',
+  },
+
+  // Structures
+  structures: {
+    title: 'Cấu Trúc',
+    description: 'Cấu trúc và cơ sở vật chất trang trại',
+    types: {
+      pond: 'Ao',
+      tarpaulin: 'Bạt',
+      cage: 'Lồng',
+      house: 'Nhà',
+      coop: 'Chuồng Gà',
+      pen: 'Chuồng',
+      barn: 'Chuồng Trại',
+      shed: 'Nhà Kho',
+      hive: 'Tổ Ong',
+    },
+    statuses: {
+      active: 'Hoạt Động',
+      inactive: 'Không Hoạt Động',
+      maintenance: 'Bảo Trì',
+    },
+  },
+
+  // Recent activity
+  recentActivity: {
+    title: 'Hoạt Động Gần Đây',
+    sales: 'Bán Hàng',
+    expenses: 'Chi Phí',
+  },
+
   // Quick actions
   quickActions: {
+    manageBatches: 'Quản Lý Lô',
+    recordExpense: 'Ghi Chi Phí',
+    viewReports: 'Xem Báo Cáo',
     tip: {
       title: 'Mẹo Nhanh',
       text: 'Sử dụng các hành động nhanh để quản lý hiệu quả các hoạt động hàng ngày của trang trại.',

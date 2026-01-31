@@ -110,14 +110,19 @@ export const updateWorkerProfileFn = createServerFn({ method: 'POST' })
   })
 
 export const getWorkersByFarmFn = createServerFn({ method: 'GET' })
-  .inputValidator(z.object({ farmId: z.string().uuid() }))
+  .inputValidator(z.object({ farmId: z.string().uuid().optional() }))
   .handler(async ({ data }) => {
     const { requireAuth } = await import('~/features/auth/server-middleware')
     await requireAuth()
     const { getDb } = await import('~/lib/db')
     const db = await getDb()
-    const { getWorkersByFarm } = await import('./repository')
-    return getWorkersByFarm(db, data.farmId)
+    const { getWorkersByFarm, getAllWorkers } = await import('./repository')
+    
+    if (data.farmId) {
+      return getWorkersByFarm(db, data.farmId)
+    }
+    // Return all workers if no farmId specified
+    return getAllWorkers(db)
   })
 
 export const getWorkerProfileByUserIdFn = createServerFn({ method: 'GET' })

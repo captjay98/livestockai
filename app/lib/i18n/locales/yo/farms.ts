@@ -43,6 +43,11 @@ export const farms = {
 
   // Detail page
   detail: {
+    info: 'Àlàyé Oko',
+    name: 'Orúkọ',
+    type: 'Irú',
+    location: 'Ibi',
+    created: 'A Ṣẹ̀dá',
     notFound: 'A kò Rí Oko',
     notFoundDesc: 'Oko tí o ń wá kò sí tàbí o kò ní ààyè sí i.',
     back: 'Padà sí Àwọn Oko',
@@ -52,6 +57,40 @@ export const farms = {
       activity: 'Iṣẹ́',
       settings: 'Ètò',
     },
+  },
+
+  // Active batches
+  activeBatches: {
+    title: 'Àwọn Ìdìpọ̀ Tí Ń Ṣiṣẹ́',
+  },
+
+  // Structures
+  structures: {
+    title: 'Àwọn Ilé',
+    description: 'Àwọn ilé àti ohun èlò oko',
+    types: {
+      pond: 'Adágún',
+      tarpaulin: 'Tarpaulin',
+      cage: 'Àgọ́',
+      house: 'Ilé',
+      coop: 'Ilé Àdìyẹ',
+      pen: 'Àgbàlá',
+      barn: 'Ilé Ìpamọ́',
+      shed: 'Àbà',
+      hive: 'Ilé Oyin',
+    },
+    statuses: {
+      active: 'Tí Ń Ṣiṣẹ́',
+      inactive: 'Tí Kò Ṣiṣẹ́',
+      maintenance: 'Àtúnṣe',
+    },
+  },
+
+  // Recent activity
+  recentActivity: {
+    title: 'Iṣẹ́ Àìpẹ́',
+    sales: 'Títà',
+    expenses: 'Owó Ìnáwó',
   },
 
   // Dashboard stats
@@ -66,6 +105,9 @@ export const farms = {
 
   // Quick actions
   quickActions: {
+    manageBatches: 'Ṣàkóso Àwọn Ìdìpọ̀',
+    recordExpense: 'Kọ Owó Ìnáwó',
+    viewReports: 'Wo Àwọn Ìjábọ̀',
     tip: {
       title: 'Ìmọ̀ràn Kíákíá',
       text: 'Lo àwọn iṣẹ́ kíákíá láti ṣàkóso iṣẹ́ ojoojúmọ́ oko rẹ dáadáa.',

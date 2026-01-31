@@ -27,7 +27,7 @@ interface TaskDialogProps {
     title: string
     description: string | null
     frequency: 'daily' | 'weekly' | 'monthly'
-  }) => Promise<void>
+  }) => void | Promise<void>
   isLoading?: boolean
 }
 

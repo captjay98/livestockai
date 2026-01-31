@@ -257,6 +257,17 @@ export async function getMortalityRecords(userId: string, batchId: string) {
 }
 
 /**
+ * Server function to get mortality records for a specific batch
+ */
+export const getMortalityRecordsForBatchFn = createServerFn({ method: 'GET' })
+  .inputValidator(z.object({ batchId: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    const { requireAuth } = await import('~/features/auth/server-middleware')
+    const session = await requireAuth()
+    return getMortalityRecords(session.user.id, data.batchId)
+  })
+
+/**
  * Calculate comprehensive mortality statistics for a batch
  *
  * Aggregates total deaths, mortality rate, breakdown by cause, and recent trends.

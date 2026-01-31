@@ -43,6 +43,11 @@ export const farms = {
 
   // Detail page
   detail: {
+    info: 'खेत की जानकारी',
+    name: 'नाम',
+    type: 'प्रकार',
+    location: 'स्थान',
+    created: 'बनाया गया',
     notFound: 'खेत नहीं मिला',
     notFoundDesc:
       'जिस खेत की आप तलाश कर रहे हैं वह मौजूद नहीं है या आपके पास इसकी पहुंच नहीं है।',
@@ -65,8 +70,45 @@ export const farms = {
     expenseRecords: '{{count}} खर्च रिकॉर्ड',
   },
 
+  // Active batches
+  activeBatches: {
+    title: 'सक्रिय बैच',
+  },
+
+  // Structures
+  structures: {
+    title: 'संरचनाएं',
+    description: 'खेत की संरचनाएं और सुविधाएं',
+    types: {
+      pond: 'तालाब',
+      tarpaulin: 'तिरपाल',
+      cage: 'पिंजरा',
+      house: 'घर',
+      coop: 'मुर्गी घर',
+      pen: 'बाड़ा',
+      barn: 'गोदाम',
+      shed: 'शेड',
+      hive: 'छत्ता',
+    },
+    statuses: {
+      active: 'सक्रिय',
+      inactive: 'निष्क्रिय',
+      maintenance: 'रखरखाव',
+    },
+  },
+
+  // Recent activity
+  recentActivity: {
+    title: 'हाल की गतिविधि',
+    sales: 'बिक्री',
+    expenses: 'खर्च',
+  },
+
   // Quick actions
   quickActions: {
+    manageBatches: 'बैच प्रबंधित करें',
+    recordExpense: 'खर्च रिकॉर्ड करें',
+    viewReports: 'रिपोर्ट देखें',
     tip: {
       title: 'त्वरित सुझाव',
       text: 'अपने खेत के दैनिक कार्यों को कुशलता से प्रबंधित करने के लिए त्वरित क्रियाओं का उपयोग करें।',

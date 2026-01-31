@@ -43,6 +43,11 @@ export const farms = {
 
   // Detail page
   detail: {
+    info: 'খামারের তথ্য',
+    name: 'নাম',
+    type: 'ধরন',
+    location: 'অবস্থান',
+    created: 'তৈরি হয়েছে',
     notFound: 'খামার পাওয়া যায়নি',
     notFoundDesc:
       'আপনি যে খামারটি খুঁজছেন তা বিদ্যমান নেই বা আপনার অ্যাক্সেস নেই।',
@@ -53,6 +58,40 @@ export const farms = {
       activity: 'কার্যকলাপ',
       settings: 'সেটিংস',
     },
+  },
+
+  // Active batches
+  activeBatches: {
+    title: 'সক্রিয় ব্যাচ',
+  },
+
+  // Structures
+  structures: {
+    title: 'কাঠামো',
+    description: 'খামারের কাঠামো এবং সুবিধাসমূহ',
+    types: {
+      pond: 'পুকুর',
+      tarpaulin: 'তারপলিন',
+      cage: 'খাঁচা',
+      house: 'ঘর',
+      coop: 'মুরগির ঘর',
+      pen: 'খোঁয়াড়',
+      barn: 'গোয়ালঘর',
+      shed: 'শেড',
+      hive: 'মৌচাক',
+    },
+    statuses: {
+      active: 'সক্রিয়',
+      inactive: 'নিষ্ক্রিয়',
+      maintenance: 'রক্ষণাবেক্ষণ',
+    },
+  },
+
+  // Recent activity
+  recentActivity: {
+    title: 'সাম্প্রতিক কার্যকলাপ',
+    sales: 'বিক্রয়',
+    expenses: 'খরচ',
   },
 
   // Dashboard stats
@@ -67,6 +106,9 @@ export const farms = {
 
   // Quick actions
   quickActions: {
+    manageBatches: 'ব্যাচ পরিচালনা করুন',
+    recordExpense: 'খরচ রেকর্ড করুন',
+    viewReports: 'রিপোর্ট দেখুন',
     tip: {
       title: 'দ্রুত টিপ',
       text: 'আপনার খামারের দৈনন্দিন কার্যক্রম দক্ষতার সাথে পরিচালনা করতে দ্রুত অ্যাকশন ব্যবহার করুন।',

@@ -76,54 +76,47 @@ export function FeedInventorySummary({ inventory }: FeedInventorySummaryProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
-          {inventory.map((item) => {
-            const isLowStock =
-              parseFloat(item.quantityKg) <= parseFloat(item.minThresholdKg)
-            const stockPercentage =
-              (parseFloat(item.quantityKg) / parseFloat(item.minThresholdKg)) *
-              100
+        <div className="max-h-[200px] overflow-y-auto pr-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {inventory.map((item) => {
+              const isLowStock =
+                parseFloat(item.quantityKg) <= parseFloat(item.minThresholdKg)
+              const stockPercentage =
+                (parseFloat(item.quantityKg) / parseFloat(item.minThresholdKg)) *
+                100
 
-            return (
-              <div
-                key={item.id}
-                className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`h-2 w-2 rounded-full ${isLowStock ? 'bg-destructive' : 'bg-success'}`}
-                  />
-                  <div>
-                    <p className="font-medium capitalize">
+              return (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between p-2 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                >
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <div
+                      className={`h-2 w-2 rounded-full shrink-0 ${isLowStock ? 'bg-destructive' : 'bg-success'}`}
+                    />
+                    <p className="font-medium capitalize truncate text-sm">
                       {item.feedType.replace(/_/g, ' ')}
                     </p>
-                    <p className="text-sm text-muted-foreground">
-                      {t('feed:inventory.threshold', { defaultValue: 'Min' })}:{' '}
-                      {formatWeight(parseFloat(item.minThresholdKg))}
+                  </div>
+                  <div className="text-right shrink-0 ml-2">
+                    <p
+                      className={`font-semibold text-sm ${isLowStock ? 'text-destructive' : ''}`}
+                    >
+                      {formatWeight(parseFloat(item.quantityKg))}
                     </p>
+                    {isLowStock && (
+                      <p className="text-xs text-destructive">
+                        {stockPercentage.toFixed(0)}%
+                      </p>
+                    )}
                   </div>
                 </div>
-                <div className="text-right">
-                  <p
-                    className={`font-semibold ${isLowStock ? 'text-destructive' : ''}`}
-                  >
-                    {formatWeight(parseFloat(item.quantityKg))}
-                  </p>
-                  {isLowStock && (
-                    <p className="text-xs text-destructive">
-                      {stockPercentage.toFixed(0)}%{' '}
-                      {t('feed:inventory.remaining', {
-                        defaultValue: 'remaining',
-                      })}
-                    </p>
-                  )}
-                </div>
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
         </div>
 
-        <Button asChild variant="outline" className="w-full mt-4">
+        <Button asChild variant="outline" size="sm" className="w-full mt-3">
           <Link to="/inventory" search={{ tab: 'feed' }}>
             {t('feed:inventory.manage', { defaultValue: 'Manage Inventory' })}
             <ArrowRight className="ml-2 h-4 w-4" />

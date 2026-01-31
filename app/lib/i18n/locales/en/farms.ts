@@ -43,6 +43,11 @@ export const farms = {
 
   // Detail page
   detail: {
+    info: 'Farm Information',
+    name: 'Name',
+    type: 'Type',
+    location: 'Location',
+    created: 'Created',
     notFound: 'Farm Not Found',
     notFoundDesc:
       "The farm you're looking for doesn't exist or you don't have access to it.",
@@ -65,8 +70,45 @@ export const farms = {
     expenseRecords: '{{count}} expense records',
   },
 
+  // Active batches
+  activeBatches: {
+    title: 'Active Batches',
+  },
+
+  // Structures
+  structures: {
+    title: 'Structures',
+    description: 'Farm structures and facilities',
+    types: {
+      pond: 'Pond',
+      tarpaulin: 'Tarpaulin',
+      cage: 'Cage',
+      house: 'House',
+      coop: 'Coop',
+      pen: 'Pen',
+      barn: 'Barn',
+      shed: 'Shed',
+      hive: 'Hive',
+    },
+    statuses: {
+      active: 'Active',
+      inactive: 'Inactive',
+      maintenance: 'Maintenance',
+    },
+  },
+
+  // Recent activity
+  recentActivity: {
+    title: 'Recent Activity',
+    sales: 'Sales',
+    expenses: 'Expenses',
+  },
+
   // Quick actions
   quickActions: {
+    manageBatches: 'Manage Batches',
+    recordExpense: 'Record Expense',
+    viewReports: 'View Reports',
     tip: {
       title: 'Quick Tip',
       text: 'Use quick actions to efficiently manage daily operations on your farm.',

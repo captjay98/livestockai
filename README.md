@@ -9,12 +9,27 @@
 </p>
 
 <p align="center">
+  <a href="https://livestockai.captjay98.workers.dev">🚀 Live Demo</a> •
   <a href="#features">Features</a> •
   <a href="#quick-start">Quick Start</a> •
   <a href="#deployment">Deployment</a> •
   <a href="#for-ai-agents">For AI Agents</a> •
   <a href="#contributing">Contributing</a>
 </p>
+
+---
+
+## 🚀 Try It Now
+
+**Live Demo:** [https://livestockai.captjay98.workers.dev](https://livestockai.captjay98.workers.dev)
+
+| Email                  | Password   |
+| ---------------------- | ---------- |
+| `admin@livestockai.com` | `password` |
+
+> The demo is pre-populated with Nigerian farm data: 5 farms, 8 batches across all livestock types, sales, expenses, and more.
+
+---
 
 <p align="center">
   🌍 <strong>Available in 15 Languages:</strong><br/>
@@ -161,7 +176,7 @@ See the complete platform in action: offline functionality, 15-language support,
 | Layer      | Technology                                                           |
 | ---------- | -------------------------------------------------------------------- |
 | Framework  | [TanStack Start](https://tanstack.com/start) (React 19, SSR)         |
-| Database   | PostgreSQL via [Neon](https://neon.tech) (serverless) + Hyperdrive   |
+| Database   | PostgreSQL ([Neon](https://neon.tech) serverless or local)           |
 | ORM        | [Kysely](https://kysely.dev) (type-safe SQL)                         |
 | Styling    | [Tailwind CSS v4](https://tailwindcss.com)                           |
 | State      | [TanStack Query](https://tanstack.com/query) + IndexedDB persistence |
@@ -176,12 +191,15 @@ See the complete platform in action: offline functionality, 15-language support,
 ### Prerequisites
 
 - **Node.js 22+** (or Bun 1.0+)
-- **Neon account** — Free at [neon.tech](https://neon.tech) (database setup is automated)
+- **PostgreSQL database** — Either:
+  - [Neon](https://neon.tech) (free serverless, recommended for cloud deployment)
+  - Local PostgreSQL (works great for development)
 
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/yourusername/livestock-ai.git
+# Clone the repository
+git clone <repository-url>
 cd livestock-ai
 bun install
 ```
@@ -211,22 +229,16 @@ Open [http://localhost:3001](http://localhost:3001)
 
 ### Default Login Credentials
 
-After running the seeder, you can log in with these default accounts:
+After running the seeder, you can log in with these accounts:
 
-#### Production Seeder (`bun run db:seed`)
+| Seeder                    | Email                     | Password      | Data Included                    |
+| ------------------------- | ------------------------- | ------------- | -------------------------------- |
+| `bun run db:seed`         | Set via `ADMIN_EMAIL` env | Set via `ADMIN_PASSWORD` env | Admin user + reference data only |
+| `bun run db:seed:dev`     | `admin@livestockai.local` | `password123` | Full demo data (farms, batches, sales, etc.) |
 
-| Role  | Email                     | Password      |
-| ----- | ------------------------- | ------------- |
-| Admin | `admin@livestockai.local` | `password123` |
+**For local development**, use `bun run db:seed:dev` to get a fully populated demo environment.
 
-#### Development Seeder (`bun run db:seed:dev`)
-
-| Role  | Email                     | Password      |
-| ----- | ------------------------- | ------------- |
-| Admin | `admin@livestockai.local` | `password123` |
-| Demo  | `demo@livestockai.local`  | `demo123`     |
-
-**⚠️ Security Note**: Change these default passwords immediately in production environments. You can set custom credentials via environment variables:
+**For production**, use `bun run db:seed` with environment variables:
 
 ```env
 ADMIN_EMAIL=your-admin@example.com
@@ -250,8 +262,9 @@ cp .env.example .env
 Edit `.env` with your values:
 
 ```env
-# Database - Get a free Neon database at https://neon.tech
-DATABASE_URL=postgresql://user:password@your-neon-host/dbname?sslmode=require
+# Database - Use Neon (https://neon.tech) or local PostgreSQL
+DATABASE_URL=postgresql://user:password@localhost:5432/livestockai
+# For Neon: postgresql://user:password@ep-xxx.region.neon.tech/dbname?sslmode=require
 
 # Auth - Generate with: openssl rand -base64 32
 BETTER_AUTH_SECRET=your-secret-key-at-least-32-chars
@@ -262,14 +275,21 @@ BETTER_AUTH_URL=http://localhost:3001
 
 ```bash
 bun run db:migrate   # Run migrations
-bun run db:seed      # Seed production data (admin user + reference data)
 ```
 
-For development with demo data:
+#### Seed Data (Choose One)
 
+**Option A: Development (Recommended for local testing)**
 ```bash
-bun run db:seed:dev  # Seed full demo data
+bun run db:seed:dev  # Creates admin + full demo data (farms, batches, sales, etc.)
 ```
+Login: `admin@livestockai.local` / `password123`
+
+**Option B: Production (Minimal data)**
+```bash
+ADMIN_EMAIL=you@example.com ADMIN_PASSWORD=yourpassword bun run db:seed
+```
+Creates only admin user + reference data (breeds, growth standards).
 
 </details>
 
@@ -277,7 +297,18 @@ bun run db:seed:dev  # Seed full demo data
 
 ## Deployment
 
+**Production:** https://livestockai.captjay98.workers.dev
+
 ### Cloudflare Workers (Recommended)
+
+**Current deployment:** Cloudflare Workers Free Tier
+
+**Optimizations applied:**
+
+- Bundle size: 2.86 MB (compressed)
+- PDF export disabled (CSV export still available)
+- Cron triggers disabled (free tier limit)
+- Sentry error tracking disabled
 
 1. Install Wrangler CLI:
 
@@ -303,7 +334,7 @@ bun run db:seed:dev  # Seed full demo data
 
 The app can be deployed to any platform supporting Node.js:
 
-- Vercel
+- Vercel (no size limits)
 - Railway
 - Render
 - Self-hosted with Docker
@@ -449,18 +480,19 @@ bun run test:coverage     # Generate coverage report
 
 ## Scripts
 
-| Command               | Description                          |
-| --------------------- | ------------------------------------ |
-| `bun dev`             | Start development server             |
-| `bun build`           | Build for production                 |
-| `bun run test`        | Run unit tests (vitest)              |
-| `bun run lint`        | Run ESLint                           |
-| `bun run check`       | Format + lint                        |
-| `bun run db:migrate`  | Run database migrations              |
-| `bun run db:seed`     | Seed production data (admin + refs)  |
-| `bun run db:seed:dev` | Seed full demo data (farms, batches) |
-| `bun run db:rollback` | Rollback last migration              |
-| `bun run deploy`      | Build & deploy to Cloudflare         |
+| Command               | Description                                      |
+| --------------------- | ------------------------------------------------ |
+| `bun dev`             | Start development server                         |
+| `bun build`           | Build for production                             |
+| `bun run test`        | Run unit tests (vitest)                          |
+| `bun run lint`        | Run ESLint                                       |
+| `bun run check`       | Format + lint                                    |
+| `bun run db:migrate`  | Run database migrations                          |
+| `bun run db:seed`     | Seed production (admin + refs, requires env vars)|
+| `bun run db:seed:dev` | Seed development (full demo data)                |
+| `bun run db:seed:demo`| Seed demo data for existing user (requires `DEMO_USER_EMAIL`) |
+| `bun run db:rollback` | Rollback last migration                          |
+| `bun run deploy`      | Build & deploy to Cloudflare                     |
 
 ---
 

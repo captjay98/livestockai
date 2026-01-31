@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'sonner'
 import { ArrowLeft, Pencil, Trash2 } from 'lucide-react'
+import type { SensorType } from '~/lib/db/types'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Skeleton } from '~/components/ui/skeleton'
@@ -21,13 +21,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '~/components/ui/alert-dialog'
-import {
-  acknowledgeAlertFn,
-  deleteSensorFn,
-  getSensorChartDataFn,
-  getSensorFn,
-  updateSensorFn,
-} from '~/features/sensors/server'
+import { getSensorChartDataFn, getSensorFn } from '~/features/sensors/server'
+import { useSensorMutations } from '~/features/sensors/mutations'
 import { ErrorPage } from '~/components/error-page'
 
 export const Route = createFileRoute('/_auth/sensors/$sensorId')({
@@ -71,42 +66,38 @@ function SensorDetailPage() {
   const navigate = useNavigate()
   const [editOpen, setEditOpen] = useState(false)
 
-  const handleUpdate = async (formData: {
-    name?: string
-    structureId?: string | null
-    pollingIntervalMinutes?: number
-    isActive?: boolean
-  }) => {
-    await updateSensorFn({ data: { sensorId, ...formData } })
-    toast.success(
-      t('sensors:messages.updated', {
-        defaultValue: 'Sensor updated',
-      }),
+  // Use mutation hooks for offline support
+  const { updateSensor, deleteSensor } = useSensorMutations()
+
+  const handleUpdate = (formData: {
+    name: string
+    sensorType: SensorType
+    structureId?: string
+    pollingIntervalMinutes: number
+  }): { sensorId: string; apiKey?: string } => {
+    updateSensor.mutate(
+      { sensorId, ...formData },
+      {
+        onSuccess: () => {
+          setEditOpen(false)
+        },
+      },
     )
-    navigate({
-      to: '/sensors/$sensorId',
-      params: { sensorId },
-    })
     return { sensorId }
   }
 
-  const handleDelete = async () => {
-    await deleteSensorFn({ data: { sensorId } })
-    toast.success(
-      t('sensors:messages.deleted', {
-        defaultValue: 'Sensor deleted',
-      }),
-    )
-    navigate({ to: '/sensors' })
+  const handleDelete = () => {
+    deleteSensor.mutate(sensorId, {
+      onSuccess: () => {
+        navigate({ to: '/sensors' })
+      },
+    })
   }
 
+  // Note: acknowledgeAlert doesn't have a mutation hook yet - keeping as-is for now
   const handleAcknowledge = async (alertId: string) => {
+    const { acknowledgeAlertFn } = await import('~/features/sensors/server')
     await acknowledgeAlertFn({ data: { alertId } })
-    toast.success(
-      t('sensors:messages.acknowledged', {
-        defaultValue: 'Alert acknowledged',
-      }),
-    )
   }
 
   const latestReading = readings[0]

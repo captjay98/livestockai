@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import type { DashboardAction, DashboardFarm } from '~/features/dashboard/types'
 import { getDashboardDataFn } from '~/features/dashboard/server'
+import { offlineLoaderSimple } from '~/lib/offline-loader'
 import { useDashboardPreferences, useFormatCurrency } from '~/features/settings'
 import { useModules } from '~/features/modules/context'
 import { Card, CardContent } from '~/components/ui/card'
@@ -34,7 +35,51 @@ export const Route = createFileRoute('/_auth/dashboard/')({
     <ErrorPage error={error} reset={reset} />
   ),
   loader: async () => {
-    return getDashboardDataFn()
+    // Use offline-aware loader that caches data and returns cached version when offline
+    return offlineLoaderSimple(
+      'dashboard',
+      () => getDashboardDataFn(),
+      // Default value when offline with no cache
+      {
+        stats: {
+          inventory: {
+            totalPoultry: 0,
+            totalFish: 0,
+            totalCattle: 0,
+            totalGoats: 0,
+            totalSheep: 0,
+            totalBees: 0,
+            activeBatches: 0,
+          },
+          financial: {
+            monthlyRevenue: 0,
+            monthlyExpenses: 0,
+            monthlyProfit: 0,
+            revenueChange: 0,
+            expensesChange: 0,
+          },
+          production: {
+            eggsThisMonth: 0,
+            layingPercentage: 0,
+          },
+          mortality: {
+            totalDeaths: 0,
+            mortalityRate: 0,
+          },
+          feed: {
+            totalCost: 0,
+            totalKg: 0,
+            fcr: 0,
+          },
+          alerts: [],
+          recentTransactions: [],
+          topCustomers: [],
+        },
+        hasFarms: false,
+        farms: [],
+        sensorSummary: undefined,
+      },
+    )
   },
 })
 
@@ -85,7 +130,7 @@ function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-x-hidden pb-20">
       <DashboardHeader
         selectedFarmId={selectedFarmId}
         farms={farms}
@@ -162,12 +207,12 @@ function DashboardPage() {
           </div>
 
           <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
-            <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+            <div className="lg:col-span-2 space-y-4 sm:space-y-6 min-w-0">
               <AlertsSection alerts={stats.alerts} />
               <RecentTransactionsCard transactions={stats.recentTransactions} />
             </div>
 
-            <div className="space-y-4 sm:space-y-6">
+            <div className="space-y-4 sm:space-y-6 min-w-0">
               <DashboardTopCustomers customers={stats.topCustomers} />
               <ActivityTimelineCard />
             </div>

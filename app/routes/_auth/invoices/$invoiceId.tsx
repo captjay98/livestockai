@@ -1,18 +1,9 @@
-import {
-  Link,
-  createFileRoute,
-  useNavigate,
-  useRouter,
-} from '@tanstack/react-router'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
-import { toast } from 'sonner'
 import { ArrowLeft, Edit, Printer, Trash2 } from 'lucide-react'
-import {
-  deleteInvoiceFn,
-  getInvoiceByIdFn,
-  updateInvoiceStatusFn,
-} from '~/features/invoices/server'
+import { getInvoiceByIdFn } from '~/features/invoices/server'
+import { useInvoiceMutations } from '~/features/invoices/mutations'
 import { useFormatCurrency, useFormatDate } from '~/features/settings'
 import {
   Dialog,
@@ -38,7 +29,6 @@ export const Route = createFileRoute('/_auth/invoices/$invoiceId')({
 })
 
 function InvoiceDetailPage() {
-  const router = useRouter()
   const { t } = useTranslation()
   const invoice = Route.useLoaderData()
   const navigate = useNavigate()
@@ -46,6 +36,9 @@ function InvoiceDetailPage() {
   const { format: formatCurrency } = useFormatCurrency()
   const { format: formatDate } = useFormatDate()
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+
+  // Use mutation hooks for offline support
+  const { deleteInvoice, updateInvoiceStatus } = useInvoiceMutations()
 
   if (!invoice) {
     return (
@@ -57,30 +50,19 @@ function InvoiceDetailPage() {
     )
   }
 
-  const handleStatusChange = async (status: 'unpaid' | 'partial' | 'paid') => {
-    try {
-      await updateInvoiceStatusFn({
-        data: { invoiceId: params.invoiceId, status },
-      })
-      toast.success(t('invoices.messages.statusUpdated'))
-      await router.invalidate()
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : t('invoices.messages.statusError'),
-      )
-    }
+  const handleStatusChange = (status: 'unpaid' | 'partial' | 'paid') => {
+    updateInvoiceStatus.mutate({ invoiceId: params.invoiceId, status })
   }
 
-  const handleDeleteConfirm = async () => {
-    try {
-      await deleteInvoiceFn({ data: { invoiceId: params.invoiceId } })
-      toast.success(t('invoices.messages.deleted'))
-      navigate({ to: '/invoices' })
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : t('invoices.messages.deleteError'),
-      )
-    }
+  const handleDeleteConfirm = () => {
+    deleteInvoice.mutate(
+      { invoiceId: params.invoiceId },
+      {
+        onSuccess: () => {
+          navigate({ to: '/invoices' })
+        },
+      },
+    )
   }
 
   const handlePrint = () => {

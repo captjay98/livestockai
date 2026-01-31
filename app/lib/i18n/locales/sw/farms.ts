@@ -43,6 +43,11 @@ export const farms = {
 
   // Detail page
   detail: {
+    info: 'Taarifa za Shamba',
+    name: 'Jina',
+    type: 'Aina',
+    location: 'Mahali',
+    created: 'Imeundwa',
     notFound: 'Shamba Halipatikani',
     notFoundDesc: 'Shamba unalolitafuta halipo au huna ruhusa ya kulifikia.',
     back: 'Rudi kwa Mashamba',
@@ -64,8 +69,45 @@ export const farms = {
     expenseRecords: 'rekodi za gharama {{count}}',
   },
 
+  // Active batches
+  activeBatches: {
+    title: 'Makundi Yanayofanya Kazi',
+  },
+
+  // Structures
+  structures: {
+    title: 'Miundo',
+    description: 'Miundo na vifaa vya shamba',
+    types: {
+      pond: 'Bwawa',
+      tarpaulin: 'Tarpaulin',
+      cage: 'Kimbo',
+      house: 'Nyumba',
+      coop: 'Banda la Kuku',
+      pen: 'Zizi',
+      barn: 'Ghala',
+      shed: 'Kibanda',
+      hive: 'Mzinga',
+    },
+    statuses: {
+      active: 'Inafanya Kazi',
+      inactive: 'Haifanyi Kazi',
+      maintenance: 'Matengenezo',
+    },
+  },
+
+  // Recent activity
+  recentActivity: {
+    title: 'Shughuli za Hivi Karibuni',
+    sales: 'Mauzo',
+    expenses: 'Gharama',
+  },
+
   // Quick actions
   quickActions: {
+    manageBatches: 'Simamia Makundi',
+    recordExpense: 'Rekodi Gharama',
+    viewReports: 'Ona Ripoti',
     tip: {
       title: 'Kidokezo cha Haraka',
       text: 'Tumia vitendo vya haraka kusimamia shughuli za kila siku za shamba lako kwa ufanisi.',

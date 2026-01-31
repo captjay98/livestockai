@@ -58,7 +58,7 @@ interface Expense {
 interface ExpenseFormDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSubmit: (data: any) => Promise<void>
+  onSubmit: (data: any) => void | Promise<void>
   batches: Array<Batch>
   suppliers: Array<Supplier>
   currencySymbol: string

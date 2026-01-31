@@ -190,7 +190,7 @@ export function OnboardingProvider({
     [steps],
   )
 
-  const skipStep = useCallback(() => {
+  const skipStep = useCallback(async () => {
     setProgress((prev) => {
       const currentIndex = steps.indexOf(prev.currentStep)
       const nextStep = steps[currentIndex + 1] || 'complete'
@@ -209,7 +209,24 @@ export function OnboardingProvider({
         currentStep: nextStep,
       }
     })
-  }, [steps])
+
+    // Save to server immediately
+    try {
+      const { saveOnboardingProgressFn } = await import('./server')
+      const currentIndex = steps.indexOf(progress.currentStep)
+      const nextStep = steps[currentIndex + 1] || 'complete'
+      await saveOnboardingProgressFn({
+        data: {
+          progress: {
+            ...progress,
+            currentStep: nextStep,
+          },
+        },
+      })
+    } catch {
+      // Silent fail, localStorage is backup
+    }
+  }, [steps, progress])
 
   const skipOnboarding = useCallback(async () => {
     // Persist to database FIRST before navigating

@@ -25,13 +25,15 @@ export function DashboardTopCustomers({
     <Card className="bg-white/40 dark:bg-black/40 backdrop-blur-md border-white/20 dark:border-white/10 shadow-lg overflow-hidden">
       <CardHeader className="pb-3 px-4">
         <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-          <Trophy className="h-3.5 w-3.5" />
-          {t('dashboard.topCustomers', {
-            defaultValue: 'Top Customers',
-          })}
+          <Trophy className="h-3.5 w-3.5 shrink-0" />
+          <span className="truncate">
+            {t('dashboard.topCustomers', {
+              defaultValue: 'Top Customers',
+            })}
+          </span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="px-4 pb-4">
+      <CardContent className="px-4 pb-4 overflow-hidden">
         <div className="space-y-1">
           {customers.slice(0, 5).map((customer, i) => (
             <div

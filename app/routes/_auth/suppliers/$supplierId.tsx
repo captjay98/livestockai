@@ -1,6 +1,5 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { toast } from 'sonner'
 import {
   ArrowLeft,
   Edit,
@@ -11,10 +10,8 @@ import {
   Trash2,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import {
-  deleteSupplierFn,
-  getSupplierWithExpenses,
-} from '~/features/suppliers/server'
+import { getSupplierWithExpenses } from '~/features/suppliers/server'
+import { useSupplierMutations } from '~/features/suppliers/mutations'
 import { useFormatCurrency, useFormatDate } from '~/features/settings'
 import {
   Dialog,
@@ -68,6 +65,9 @@ function SupplierDetailPage() {
   const { format: formatDate } = useFormatDate()
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
+  // Use mutation hooks for offline support
+  const { deleteSupplier } = useSupplierMutations()
+
   if (!supplier) {
     return (
       <div className="min-h-screen bg-background">
@@ -82,24 +82,15 @@ function SupplierDetailPage() {
     )
   }
 
-  const handleDeleteConfirm = async () => {
-    try {
-      await deleteSupplierFn({ data: { id: supplier.id } })
-      toast.success(
-        t('suppliers:messages.deleted', {
-          defaultValue: 'Supplier deleted',
-        }),
-      )
-      navigate({ to: '/suppliers' })
-    } catch (err) {
-      toast.error(
-        err instanceof Error
-          ? err.message
-          : t('suppliers:errors.delete', {
-              defaultValue: 'Failed to delete supplier',
-            }),
-      )
-    }
+  const handleDeleteConfirm = () => {
+    deleteSupplier.mutate(
+      { supplierId: supplier.id },
+      {
+        onSuccess: () => {
+          navigate({ to: '/suppliers' })
+        },
+      },
+    )
   }
 
   return (

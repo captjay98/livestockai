@@ -31,13 +31,15 @@ export function RecentTransactionsCard({
     <Card className={cardClassName}>
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-          <Activity className="h-4 w-4" />
-          {t('dashboard.recentTransactions', {
-            defaultValue: 'Recent Transactions',
-          })}
+          <Activity className="h-4 w-4 shrink-0" />
+          <span className="truncate">
+            {t('dashboard.recentTransactions', {
+              defaultValue: 'Recent Transactions',
+            })}
+          </span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-1">
+      <CardContent className="space-y-1 overflow-hidden">
         {transactions.slice(0, 5).map((tx) => (
           <div
             key={tx.id}

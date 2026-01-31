@@ -42,14 +42,18 @@ export function FarmProvider({ children }: { children: ReactNode }) {
       selectedFarmId
         ? getStructuresFn({ data: { farmId: selectedFarmId } })
         : Promise.resolve([]),
-    enabled: !!selectedFarmId,
+    enabled: !!selectedFarmId && navigator.onLine,
+    retry: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   })
 
   // Load suppliers (global, not farm-specific currently)
   const { data: suppliers = [], isLoading: isLoadingSuppliers } = useQuery({
     queryKey: ['suppliers'],
     queryFn: () => getSuppliersFn({ data: { farmId: undefined } }),
-    enabled: !!selectedFarmId,
+    enabled: !!selectedFarmId && navigator.onLine,
+    retry: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   })
 
   // Load from localStorage on mount, or use defaultFarmId from settings
