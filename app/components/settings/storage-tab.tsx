@@ -1,5 +1,6 @@
 import { HardDrive, RefreshCw, Trash2 } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Button } from '~/components/ui/button'
 import {
@@ -38,6 +39,7 @@ import { useSyncStatus } from '~/components/sync-status'
  * **Validates: Requirements 13.5**
  */
 export function StorageTab() {
+  const { t } = useTranslation(['settings', 'common'])
   const [isClearing, setIsClearing] = useState(false)
 
   const {
@@ -58,9 +60,9 @@ export function StorageTab() {
     try {
       await syncWithDeduplication()
       await refresh()
-      toast.success('Sync completed successfully')
+      toast.success(t('storage.messages.syncSuccess'))
     } catch (error) {
-      toast.error('Sync failed. Please try again.')
+      toast.error(t('storage.messages.syncFailed'))
     }
   }
 
@@ -78,9 +80,9 @@ export function StorageTab() {
       }
 
       await refresh()
-      toast.success('Cache cleared successfully')
+      toast.success(t('storage.messages.cacheCleared'))
     } catch (error) {
-      toast.error('Failed to clear cache')
+      toast.error(t('storage.messages.cacheClearFailed'))
     } finally {
       setIsClearing(false)
     }
@@ -95,10 +97,10 @@ export function StorageTab() {
   }
 
   const statusLabels = {
-    ok: 'Good',
-    warning: 'Warning',
-    critical: 'Critical',
-    blocked: 'Full',
+    ok: t('storage.statusLabels.ok'),
+    warning: t('storage.statusLabels.warning'),
+    critical: t('storage.statusLabels.critical'),
+    blocked: t('storage.statusLabels.blocked'),
   }
 
   return (
@@ -108,11 +110,9 @@ export function StorageTab() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <HardDrive className="h-5 w-5" />
-            Storage Usage
+            {t('storage.title')}
           </CardTitle>
-          <CardDescription>
-            Monitor your device's storage usage for offline data
-          </CardDescription>
+          <CardDescription>{t('storage.desc')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {isAvailable && quota ? (
@@ -120,15 +120,23 @@ export function StorageTab() {
               {/* Progress bar */}
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span>Used: {usageFormatted}</span>
-                  <span>Total: {quotaFormatted}</span>
+                  <span>
+                    {t('storage.used')}: {usageFormatted}
+                  </span>
+                  <span>
+                    {t('storage.total')}: {quotaFormatted}
+                  </span>
                 </div>
                 <Progress value={quota.percentage} className="h-3" />
                 <div className="flex justify-between text-sm text-muted-foreground">
                   <span className={statusColors[status]}>
-                    Status: {statusLabels[status]}
+                    {t('storage.status')}: {statusLabels[status]}
                   </span>
-                  <span>{quota.percentage.toFixed(1)}% used</span>
+                  <span>
+                    {t('storage.percentageUsed', {
+                      percentage: quota.percentage.toFixed(1),
+                    })}
+                  </span>
                 </div>
               </div>
 
@@ -136,14 +144,16 @@ export function StorageTab() {
               <div className="grid grid-cols-3 gap-4 pt-4 border-t">
                 <div className="text-center">
                   <div className="text-2xl font-bold">{availableFormatted}</div>
-                  <div className="text-xs text-muted-foreground">Available</div>
+                  <div className="text-xs text-muted-foreground">
+                    {t('storage.available')}
+                  </div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold">
                     {STORAGE_THRESHOLDS.warning}%
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    Warning at
+                    {t('storage.warningAt')}
                   </div>
                 </div>
                 <div className="text-center">
@@ -151,7 +161,7 @@ export function StorageTab() {
                     {STORAGE_THRESHOLDS.blocked}%
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    Blocked at
+                    {t('storage.blockedAt')}
                   </div>
                 </div>
               </div>
@@ -159,25 +169,23 @@ export function StorageTab() {
               {/* Status messages */}
               {status === 'warning' && (
                 <div className="bg-warning/10 text-warning px-4 py-3 rounded-md text-sm">
-                  Storage is getting full. Consider syncing your data soon.
+                  {t('storage.warningMsg')}
                 </div>
               )}
               {status === 'critical' && (
                 <div className="bg-destructive/10 text-destructive px-4 py-3 rounded-md text-sm">
-                  Storage is almost full! Please sync your data to free up
-                  space.
+                  {t('storage.criticalMsg')}
                 </div>
               )}
               {status === 'blocked' && (
                 <div className="bg-destructive/10 text-destructive px-4 py-3 rounded-md text-sm">
-                  Storage is full. You must sync your data before making more
-                  changes.
+                  {t('storage.blockedMsg')}
                 </div>
               )}
             </>
           ) : (
             <div className="text-center py-8 text-muted-foreground">
-              Storage API not available on this device
+              {t('storage.notAvailable')}
             </div>
           )}
         </CardContent>
@@ -188,35 +196,39 @@ export function StorageTab() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <RefreshCw className="h-5 w-5" />
-            Sync Status
+            {t('storage.syncStatus')}
           </CardTitle>
-          <CardDescription>
-            Manage pending changes and sync with the server
-          </CardDescription>
+          <CardDescription>{t('storage.syncDesc')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Pending changes */}
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center p-4 bg-muted rounded-lg">
               <div className="text-2xl font-bold">{pendingCount}</div>
-              <div className="text-xs text-muted-foreground">Pending</div>
+              <div className="text-xs text-muted-foreground">
+                {t('storage.pending')}
+              </div>
             </div>
             <div className="text-center p-4 bg-muted rounded-lg">
               <div className="text-2xl font-bold">{pausedCount}</div>
-              <div className="text-xs text-muted-foreground">Queued</div>
+              <div className="text-xs text-muted-foreground">
+                {t('storage.queued')}
+              </div>
             </div>
             <div className="text-center p-4 bg-muted rounded-lg">
               <div className="text-2xl font-bold text-destructive">
                 {failedCount}
               </div>
-              <div className="text-xs text-muted-foreground">Failed</div>
+              <div className="text-xs text-muted-foreground">
+                {t('storage.failed')}
+              </div>
             </div>
           </div>
 
           {/* Last deduplication result */}
           {lastResult && lastResult.actions.length > 0 && (
             <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
-              <strong>Last optimization:</strong>{' '}
+              <strong>{t('storage.lastOptimization')}:</strong>{' '}
               {lastResult.actions.join(', ')}
             </div>
           )}
@@ -232,12 +244,12 @@ export function StorageTab() {
             {isDeduplicating ? (
               <>
                 <RefreshCw className="h-4 w-4 animate-spin" />
-                Syncing...
+                {t('storage.syncing')}
               </>
             ) : (
               <>
                 <RefreshCw className="h-4 w-4" />
-                Sync Now
+                {t('storage.syncNow')}
               </>
             )}
           </Button>
@@ -249,11 +261,9 @@ export function StorageTab() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Trash2 className="h-5 w-5" />
-            Clear Cache
+            {t('storage.clearCache')}
           </CardTitle>
-          <CardDescription>
-            Remove cached data to free up storage space
-          </CardDescription>
+          <CardDescription>{t('storage.clearCacheDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           <AlertDialog>
@@ -266,29 +276,29 @@ export function StorageTab() {
                 {isClearing ? (
                   <>
                     <RefreshCw className="h-4 w-4 animate-spin" />
-                    Clearing...
+                    {t('storage.clearing')}
                   </>
                 ) : (
                   <>
                     <Trash2 className="h-4 w-4" />
-                    Clear Cache
+                    {t('storage.clearCache')}
                   </>
                 )}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Clear Cache?</AlertDialogTitle>
+                <AlertDialogTitle>
+                  {t('storage.clearCacheDialogTitle')}
+                </AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will remove cached data to free up storage space. Your
-                  pending changes will NOT be affected. You may need to reload
-                  some data when you next access it.
+                  {t('storage.clearCacheDialogDesc')}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel>{t('common:cancel')}</AlertDialogCancel>
                 <AlertDialogAction onClick={handleClearCache}>
-                  Clear Cache
+                  {t('storage.clearCache')}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

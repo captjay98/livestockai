@@ -117,7 +117,10 @@ export function FeedFormDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="batch">
+            <Label
+              htmlFor="batch"
+              className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+            >
               {t('feed:labels.batch', { defaultValue: 'Batch' })}
             </Label>
             <Select
@@ -129,7 +132,10 @@ export function FeedFormDialog({
                 }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger
+                className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                style={{ color: 'var(--text-landing-primary)' }}
+              >
                 <SelectValue>
                   {formData.batchId
                     ? batches.find((b) => b.id === formData.batchId)?.species
@@ -149,7 +155,10 @@ export function FeedFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="feedType">
+            <Label
+              htmlFor="feedType"
+              className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+            >
               {t('feed:labels.feedType', {
                 defaultValue: 'Feed Type',
               })}
@@ -163,7 +172,10 @@ export function FeedFormDialog({
                 }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger
+                className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                style={{ color: 'var(--text-landing-primary)' }}
+              >
                 <SelectValue>
                   {formData.feedType
                     ? FEED_TYPES.find(
@@ -197,7 +209,10 @@ export function FeedFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="quantity">
+            <Label
+              htmlFor="quantity"
+              className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+            >
               {t('feed:labels.quantity', {
                 defaultValue: 'Quantity',
               })}{' '}
@@ -216,11 +231,16 @@ export function FeedFormDialog({
                 }))
               }
               required
+              className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+              style={{ color: 'var(--text-landing-primary)' }}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="cost">
+            <Label
+              htmlFor="cost"
+              className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+            >
               {t('feed:labels.cost', { defaultValue: 'Cost' })} (
               {currencySymbol})
             </Label>
@@ -237,11 +257,16 @@ export function FeedFormDialog({
                 }))
               }
               required
+              className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+              style={{ color: 'var(--text-landing-primary)' }}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="date">
+            <Label
+              htmlFor="date"
+              className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+            >
               {t('feed:labels.date', { defaultValue: 'Date' })}
             </Label>
             <Input
@@ -255,6 +280,8 @@ export function FeedFormDialog({
                 }))
               }
               required
+              className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+              style={{ color: 'var(--text-landing-primary)' }}
             />
           </div>
 

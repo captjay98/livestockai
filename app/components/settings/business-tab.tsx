@@ -29,7 +29,7 @@ export function BusinessTab({
   const { t } = useTranslation(['settings', 'common'])
 
   return (
-    <Card className="p-6 space-y-6">
+    <Card className="p-4 sm:p-6 space-y-6 bg-white/30 dark:bg-black/30 backdrop-blur-md border-white/20 dark:border-white/10 shadow-sm rounded-2xl">
       <h2 className="text-lg font-semibold">{t('business.title')}</h2>
 
       <div className="space-y-4">

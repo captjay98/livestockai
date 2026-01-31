@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+
 interface OptimizationResultsProps {
   result: {
     totalCostPerKg: number
@@ -24,6 +26,7 @@ export function OptimizationResults({
   batchSize,
   formatCurrency,
 }: OptimizationResultsProps) {
+  const { t } = useTranslation(['feedFormulation'])
   return (
     <div className="space-y-6">
       {/* Cost Summary */}
@@ -32,7 +35,9 @@ export function OptimizationResults({
           <div className="text-2xl font-bold">
             {formatCurrency(result.totalCostPerKg)}
           </div>
-          <div className="text-sm text-muted-foreground">Cost per kg</div>
+          <div className="text-sm text-muted-foreground">
+            {t('feedFormulation:costPerKg', { defaultValue: 'Cost per kg' })}
+          </div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold">
@@ -40,11 +45,17 @@ export function OptimizationResults({
               parseFloat(batchSize || '100') * result.totalCostPerKg,
             )}
           </div>
-          <div className="text-sm text-muted-foreground">Total batch cost</div>
+          <div className="text-sm text-muted-foreground">
+            {t('feedFormulation:totalBatchCost', {
+              defaultValue: 'Total batch cost',
+            })}
+          </div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold">{batchSize || '100'}kg</div>
-          <div className="text-sm text-muted-foreground">Batch size</div>
+          <div className="text-sm text-muted-foreground">
+            {t('feedFormulation:batchSize', { defaultValue: 'Batch size' })}
+          </div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold">{result.ingredients.length}</div>
@@ -54,7 +65,11 @@ export function OptimizationResults({
 
       {/* Ingredient Breakdown */}
       <div>
-        <h4 className="font-medium mb-3">Ingredient Breakdown</h4>
+        <h4 className="font-medium mb-3">
+          {t('feedFormulation:ingredientBreakdown', {
+            defaultValue: 'Ingredient Breakdown',
+          })}
+        </h4>
         <div className="space-y-2">
           {result.ingredients.map((ing) => (
             <div
@@ -77,7 +92,11 @@ export function OptimizationResults({
 
       {/* Nutritional Analysis */}
       <div>
-        <h4 className="font-medium mb-3">Nutritional Analysis</h4>
+        <h4 className="font-medium mb-3">
+          {t('feedFormulation:nutritionalAnalysis', {
+            defaultValue: 'Nutritional Analysis',
+          })}
+        </h4>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center p-3 bg-muted rounded-lg">
             <div className="text-lg font-bold">

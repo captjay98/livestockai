@@ -5,7 +5,7 @@ import { PageHeader } from '~/components/page-header'
 
 export function UsersSkeleton() {
   const { t } = useTranslation('settings')
-  
+
   return (
     <div className="space-y-6">
       <PageHeader

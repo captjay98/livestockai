@@ -108,7 +108,7 @@ export function CustomerFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg bg-white/80 dark:bg-black/80 backdrop-blur-xl border-white/20 dark:border-white/10 rounded-3xl shadow-2xl">
         <DialogHeader>
           <DialogTitle>
             {mode === 'create'
@@ -141,6 +141,9 @@ export function CustomerFormDialog({
                   name: e.target.value,
                 }))
               }
+              placeholder={t('customers:placeholders.customerName', {
+                defaultValue: 'Customer name',
+              })}
               required
             />
           </div>
@@ -159,6 +162,9 @@ export function CustomerFormDialog({
                   phone: e.target.value,
                 }))
               }
+              placeholder={t('customers:placeholders.phone', {
+                defaultValue: 'Phone number',
+              })}
               required
             />
           </div>
@@ -177,6 +183,9 @@ export function CustomerFormDialog({
                   location: e.target.value,
                 }))
               }
+              placeholder={t('customers:placeholders.location', {
+                defaultValue: 'Location/Address',
+              })}
             />
           </div>
           <div className="space-y-2">
@@ -228,6 +237,9 @@ export function CustomerFormDialog({
                   email: e.target.value,
                 }))
               }
+              placeholder={t('customers:placeholders.email', {
+                defaultValue: 'customer@email.com',
+              })}
             />
           </div>
 

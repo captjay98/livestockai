@@ -27,7 +27,7 @@ export function IntegrationsTab({ integrations = [] }: IntegrationsTabProps) {
 
   const handleTestEmail = async () => {
     if (!testEmail) {
-      toast.error('Please enter an email address')
+      toast.error(t('integrations.messages.enterEmail'))
       return
     }
     setIsSendingEmail(true)
@@ -35,12 +35,12 @@ export function IntegrationsTab({ integrations = [] }: IntegrationsTabProps) {
       const { testEmailFn } = await import('~/features/integrations')
       const result = await testEmailFn({ data: { to: testEmail } })
       if (result.success) {
-        toast.success('Test email sent!')
+        toast.success(t('integrations.messages.testEmailSuccess'))
       } else {
-        toast.error(result.error || 'Failed to send email')
+        toast.error(result.error || t('integrations.messages.testEmailFailed'))
       }
     } catch {
-      toast.error('Failed to send test email')
+      toast.error(t('integrations.messages.testEmailFailed'))
     } finally {
       setIsSendingEmail(false)
     }
@@ -48,7 +48,7 @@ export function IntegrationsTab({ integrations = [] }: IntegrationsTabProps) {
 
   const handleTestSMS = async () => {
     if (!testPhone) {
-      toast.error('Please enter a phone number')
+      toast.error(t('integrations.messages.enterPhone'))
       return
     }
     setIsSendingSMS(true)
@@ -56,12 +56,12 @@ export function IntegrationsTab({ integrations = [] }: IntegrationsTabProps) {
       const { testSMSFn } = await import('~/features/integrations')
       const result = await testSMSFn({ data: { to: testPhone } })
       if (result.success) {
-        toast.success('Test SMS sent!')
+        toast.success(t('integrations.messages.testSMSSuccess'))
       } else {
-        toast.error(result.error || 'Failed to send SMS')
+        toast.error(result.error || t('integrations.messages.testSMSFailed'))
       }
     } catch {
-      toast.error('Failed to send test SMS')
+      toast.error(t('integrations.messages.testSMSFailed'))
     } finally {
       setIsSendingSMS(false)
     }
@@ -72,7 +72,7 @@ export function IntegrationsTab({ integrations = [] }: IntegrationsTabProps) {
 
   return (
     <div className="space-y-4">
-      <Card className="p-6 space-y-4">
+      <Card className="p-4 sm:p-6 space-y-4 bg-white/30 dark:bg-black/30 backdrop-blur-md border-white/20 dark:border-white/10 shadow-sm rounded-2xl">
         <div className="flex items-center gap-3">
           <Mail className="h-5 w-5" />
           <div className="flex-1">
@@ -97,7 +97,9 @@ export function IntegrationsTab({ integrations = [] }: IntegrationsTabProps) {
           <div className="flex gap-2">
             <Input
               type="email"
-              placeholder="your@email.com"
+              placeholder={t('placeholders.emailPlaceholder', {
+                defaultValue: 'your@email.com',
+              })}
               value={testEmail}
               onChange={(e) => setTestEmail(e.target.value)}
               className="flex-1"
@@ -111,14 +113,13 @@ export function IntegrationsTab({ integrations = [] }: IntegrationsTabProps) {
             </Button>
           </div>
         ) : (
-          <div className="bg-muted p-3 rounded-md">
-            <p className="text-xs text-muted-foreground mb-2">
-              Add to your .env file:
+          <div className="bg-white/20 dark:bg-white/5 p-3 rounded-xl border border-white/10">
+            <p className="text-xs text-muted-foreground mb-2 font-medium">
+              {t('common:setupRequired', { defaultValue: 'Setup Required' })}
             </p>
-            <code className="text-xs">EMAIL_PROVIDER=smtp</code>
-            <p className="text-xs text-muted-foreground mt-2">
-              Options: <code>smtp</code> (Mailpit, Gmail), <code>resend</code>
-            </p>
+            <code className="text-xs font-mono bg-black/20 dark:bg-white/10 px-1.5 py-0.5 rounded">
+              EMAIL_PROVIDER=smtp
+            </code>
           </div>
         )}
       </Card>
@@ -146,7 +147,9 @@ export function IntegrationsTab({ integrations = [] }: IntegrationsTabProps) {
           <div className="flex gap-2">
             <Input
               type="tel"
-              placeholder="+234..."
+              placeholder={t('placeholders.smsPlaceholder', {
+                defaultValue: '+234...',
+              })}
               value={testPhone}
               onChange={(e) => setTestPhone(e.target.value)}
               className="flex-1"
@@ -160,20 +163,18 @@ export function IntegrationsTab({ integrations = [] }: IntegrationsTabProps) {
             </Button>
           </div>
         ) : (
-          <div className="bg-muted p-3 rounded-md">
-            <p className="text-xs text-muted-foreground mb-2">
-              Add to your .env file:
+          <div className="bg-white/20 dark:bg-white/5 p-3 rounded-xl border border-white/10">
+            <p className="text-xs text-muted-foreground mb-2 font-medium">
+              {t('common:setupRequired', { defaultValue: 'Setup Required' })}
             </p>
-            <code className="text-xs">SMS_PROVIDER=termii</code>
-            <p className="text-xs text-muted-foreground mt-2">
-              Options: <code>termii</code> (Africa), <code>twilio</code>{' '}
-              (Global)
-            </p>
+            <code className="text-xs font-mono bg-black/20 dark:bg-white/10 px-1.5 py-0.5 rounded">
+              SMS_PROVIDER=termii
+            </code>
           </div>
         )}
       </Card>
 
-      <Card className="p-6">
+      <Card className="p-4 sm:p-6 bg-white/30 dark:bg-black/30 backdrop-blur-md border-white/20 dark:border-white/10 shadow-sm rounded-2xl border-l-4 border-l-primary/50">
         <h4 className="font-medium mb-2">{t('integrations.howItWorks')}</h4>
         <ul className="text-sm text-muted-foreground space-y-1">
           <li>• {t('integrations.howItWorksDesc1')}</li>

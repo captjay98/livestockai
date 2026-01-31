@@ -29,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select'
+import { cn } from '~/lib/utils'
 
 interface FeedInventoryTableProps {
   items: Array<FeedInventoryItem>
@@ -122,7 +123,9 @@ export function FeedInventoryTable({
   }
 
   return (
-    <Card>
+    <Card className="bg-white/30 dark:bg-black/50 backdrop-blur-xl border-white/20 dark:border-white/10 shadow-2xl rounded-3xl overflow-hidden relative border">
+      {/* Decorative Orbs */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-32 translate-x-32 pointer-events-none" />
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle>{t('feed.title')}</CardTitle>
@@ -234,8 +237,15 @@ export function FeedInventoryTable({
               return (
                 <Card
                   key={item.id}
-                  className={lowStock ? 'border-warning/50' : ''}
+                  className={cn(
+                    'bg-white/50 dark:bg-white/5 backdrop-blur-md border-white/20 dark:border-white/10 shadow-xl rounded-2xl overflow-hidden hover:bg-white/60 dark:hover:bg-white/10 transition-all group relative border',
+                    lowStock ? 'border-amber-500/50' : '',
+                  )}
                 >
+                  {/* Warning Accent */}
+                  {lowStock && (
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-orange-500/10 rounded-full blur-xl -translate-y-4 translate-x-4 pointer-events-none" />
+                  )}
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-lg capitalize">

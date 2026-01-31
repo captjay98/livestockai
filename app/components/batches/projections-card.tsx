@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { Activity, Calendar, TrendingUp } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Progress } from '~/components/ui/progress'
 import { getEnhancedProjectionFn } from '~/features/batches/forecasting'
@@ -12,6 +13,7 @@ interface ProjectionsCardProps {
 }
 
 export function ProjectionsCard({ batchId }: ProjectionsCardProps) {
+  const { t } = useTranslation(['batches', 'common'])
   const { symbol: currency } = useFormatCurrency()
   const { data: projection, isLoading } = useQuery({
     queryKey: ['batch', batchId, 'enhanced-projection'],
@@ -56,41 +58,55 @@ export function ProjectionsCard({ batchId }: ProjectionsCardProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+    <Card className="bg-white/30 dark:bg-black/30 backdrop-blur-md border-white/20 dark:border-white/10 shadow-sm rounded-2xl overflow-hidden relative">
+      {/* Decorative Orbs */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -translate-y-12 translate-x-12 pointer-events-none" />
+      <CardHeader className="relative z-10 pb-2">
+        <CardTitle className="flex items-center justify-between text-lg font-bold tracking-tight">
           <div className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-primary" />
             Growth & Financial Projections
           </div>
           {batchData?.batch.breedName ? (
-            <span className="text-[10px] font-normal px-2 py-0.5 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300 rounded-full border border-green-200 dark:border-green-800">
+            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-green-500/10 text-green-600 dark:text-green-400 rounded-lg border border-green-500/20">
               ✓ {batchData.batch.breedName} data
             </span>
           ) : (
-            <span className="text-[10px] font-normal px-2 py-0.5 bg-muted text-muted-foreground rounded-full border">
+            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-muted/50 text-muted-foreground rounded-lg border border-white/10">
               Generic {batchData?.batch.species} data
             </span>
           )}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 relative z-10">
         {/* Performance Metrics */}
         <div className="grid grid-cols-3 gap-4 pb-4 border-b">
           <div>
-            <p className="text-xs text-muted-foreground">Current Weight</p>
+            <p className="text-xs text-muted-foreground">
+              {t('batches:projections.currentWeight', {
+                defaultValue: 'Current Weight',
+              })}
+            </p>
             <p className="text-lg font-bold">
               {(projection.currentWeightG / 1000).toFixed(2)} kg
             </p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground">Expected Weight</p>
+            <p className="text-xs text-muted-foreground">
+              {t('batches:projections.expectedWeight', {
+                defaultValue: 'Expected Weight',
+              })}
+            </p>
             <p className="text-lg font-bold text-muted-foreground">
               {(projection.expectedWeightG / 1000).toFixed(2)} kg
             </p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground">Performance Index</p>
+            <p className="text-xs text-muted-foreground">
+              {t('batches:projections.performanceIndex', {
+                defaultValue: 'Performance Index',
+              })}
+            </p>
             <p
               className={`text-lg font-bold ${
                 projection.performanceIndex >= 95 &&
@@ -124,7 +140,11 @@ export function ProjectionsCard({ batchId }: ProjectionsCardProps) {
             </p>
           </div>
           <div>
-            <p className="text-xs text-muted-foreground">Expected ADG</p>
+            <p className="text-xs text-muted-foreground">
+              {t('batches:projections.expectedAdg', {
+                defaultValue: 'Expected ADG',
+              })}
+            </p>
             <p className="text-sm font-medium text-muted-foreground">
               {projection.expectedAdgGramsPerDay.toFixed(1)} g/day
             </p>
@@ -142,7 +162,11 @@ export function ProjectionsCard({ batchId }: ProjectionsCardProps) {
             </span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Days Remaining</span>
+            <span className="text-muted-foreground">
+              {t('batches:projections.daysRemaining', {
+                defaultValue: 'Days Remaining',
+              })}
+            </span>
             <span
               className={`font-medium ${projection.daysRemaining < 0 ? 'text-destructive' : ''}`}
             >

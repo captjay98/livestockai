@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { AlertCircle, Check, ChevronDown, Loader2, Save } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import { AlertCircle, Check, ChevronDown, Loader2, Save } from 'lucide-react'
 
 import type { ModuleKey } from '~/features/modules/types'
 import { useModules } from '~/features/modules/context'
@@ -13,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { cn } from '~/lib/utils'
 
 export function ModuleSelector() {
+  const { t } = useTranslation(['common'])
   const { enabledModules, toggleModule, canDisableModule } = useModules()
   const [localEnabled, setLocalEnabled] = useState<Array<ModuleKey>>([])
   const [expandedModule, setExpandedModule] = useState<ModuleKey | null>(null)
@@ -44,10 +46,16 @@ export function ModuleSelector() {
         const result = await getSpeciesForModuleFn({
           data: { moduleKey: expandedModule },
         })
-        setModuleSpecies((prev) => ({
-          ...prev,
-          [expandedModule]: result,
-        }))
+        setModuleSpecies(
+          (
+            prev: Partial<
+              Record<ModuleKey, Array<{ value: string; label: string }>>
+            >,
+          ) => ({
+            ...prev,
+            [expandedModule]: result,
+          }),
+        )
       } catch (err) {
         logger.error('Failed to fetch species:', err)
       } finally {
@@ -65,7 +73,7 @@ export function ModuleSelector() {
   const handleToggle = (moduleKey: ModuleKey) => {
     const isEnabled = localEnabled.includes(moduleKey)
     if (isEnabled) {
-      setLocalEnabled(localEnabled.filter((k) => k !== moduleKey))
+      setLocalEnabled(localEnabled.filter((k: ModuleKey) => k !== moduleKey))
     } else {
       setLocalEnabled([...localEnabled, moduleKey])
     }
@@ -90,12 +98,18 @@ export function ModuleSelector() {
       }
 
       // Apply changes
-      const toEnable = localEnabled.filter((k) => !enabledModules.includes(k))
+      const toEnable = localEnabled.filter(
+        (k: ModuleKey) => !enabledModules.includes(k),
+      )
       for (const moduleKey of [...toDisable, ...toEnable]) {
         await toggleModule(moduleKey)
       }
 
-      toast.success('Modules updated')
+      toast.success(
+        t('common:messages.modulesUpdated', {
+          defaultValue: 'Modules updated',
+        }),
+      )
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update modules')
     } finally {
@@ -187,14 +201,16 @@ export function ModuleSelector() {
                           Loading...
                         </span>
                       ) : (moduleSpecies[moduleKey]?.length ?? 0) > 0 ? (
-                        moduleSpecies[moduleKey]!.map((species) => (
-                          <span
-                            key={species.value}
-                            className="text-xs px-2 py-0.5 bg-muted rounded"
-                          >
-                            {species.label}
-                          </span>
-                        ))
+                        moduleSpecies[moduleKey]!.map(
+                          (species: { value: string; label: string }) => (
+                            <span
+                              key={species.value}
+                              className="text-xs px-2 py-0.5 bg-muted rounded"
+                            >
+                              {species.label}
+                            </span>
+                          ),
+                        )
                       ) : (
                         <span className="text-xs text-muted-foreground">
                           No species configured

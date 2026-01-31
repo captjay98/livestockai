@@ -1,6 +1,8 @@
 import { Link, useLocation } from '@tanstack/react-router'
 import {
+  Activity,
   BarChart3,
+  Bird,
   Building2,
   CheckSquare,
   Clock,
@@ -43,8 +45,164 @@ import { useExtensionNav } from '~/features/extension/use-extension-nav'
 
 // Navigation structure helper (internal)
 export const getNavigationSections = (t: any, userType?: string) => {
-  const sections = [
-    {
+  const sections = []
+
+  // 1. Overview
+  if (userType !== 'buyer') {
+    sections.push({
+      title: t('common:overview', { defaultValue: 'Overview' }),
+      items: [
+        {
+          name: t('common:dashboard', { defaultValue: 'Dashboard' }),
+          href: '/dashboard',
+          icon: Home,
+        },
+        {
+          name: t('common:tasks', { defaultValue: 'Tasks' }),
+          href: '/tasks',
+          icon: CheckSquare,
+        },
+      ],
+    })
+  } else {
+    // Buyer Overview
+    sections.push({
+      title: t('common:overview', { defaultValue: 'Overview' }),
+      items: [
+        {
+          name: t('common:browseListings', { defaultValue: 'Browse Listings' }),
+          href: '/marketplace',
+          icon: ShoppingCart,
+        },
+      ],
+    })
+  }
+
+  // 2. Operations (Farmers only)
+  if (userType !== 'buyer') {
+    sections.push({
+      title: t('common:operations', { defaultValue: 'Operations' }),
+      items: [
+        {
+          name: t('common:batches', { defaultValue: 'Livestock' }),
+          href: '/batches',
+          icon: Package,
+        },
+        {
+          name: t('common:feed', { defaultValue: 'Feed' }),
+          href: '/feed',
+          icon: Wheat,
+        },
+        {
+          name: t('common:health', { defaultValue: 'Health' }),
+          href: '/vaccinations',
+          icon: Syringe,
+        },
+        {
+          name: t('common:mortality', { defaultValue: 'Mortality' }),
+          href: '/mortality',
+          icon: TrendingDown,
+        },
+        {
+          name: t('common:weight', { defaultValue: 'Weight' }),
+          href: '/weight',
+          icon: Scale,
+        },
+        {
+          name: t('common:water', { defaultValue: 'Water Quality' }),
+          href: '/water-quality',
+          icon: Droplets,
+        },
+        {
+          name: t('common:eggs', { defaultValue: 'Eggs' }),
+          href: '/eggs',
+          icon: Bird,
+        },
+        {
+          name: t('common:inventory', { defaultValue: 'Inventory' }),
+          href: '/inventory',
+          icon: Warehouse,
+        },
+        {
+          name: t('common:sensors', { defaultValue: 'Sensors' }),
+          href: '/sensors',
+          icon: Activity,
+        },
+      ],
+    })
+  }
+
+  // 3. Financials (Farmers only)
+  if (userType !== 'buyer') {
+    sections.push({
+      title: t('common:financials', { defaultValue: 'Financials' }),
+      items: [
+        {
+          name: t('common:sales', { defaultValue: 'Sales' }),
+          href: '/sales',
+          icon: ShoppingCart,
+        },
+        {
+          name: t('common:expenses', { defaultValue: 'Expenses' }),
+          href: '/expenses',
+          icon: Receipt,
+        },
+        {
+          name: t('common:invoices', { defaultValue: 'Invoices' }),
+          href: '/invoices',
+          icon: FileText,
+        },
+        {
+          name: t('common:payroll', { defaultValue: 'Payroll' }),
+          href: '/payroll',
+          icon: DollarSign,
+        },
+        {
+          name: t('common:reports', { defaultValue: 'Reports' }),
+          href: '/reports',
+          icon: BarChart3,
+        },
+        {
+          name: t('common:creditPassport', { defaultValue: 'Credit Passport' }),
+          href: '/credit-passport',
+          icon: FileCheck,
+        },
+      ],
+    })
+  }
+
+  // 4. People (Farmers only)
+  if (userType !== 'buyer') {
+    sections.push({
+      title: t('common:people', { defaultValue: 'People' }),
+      items: [
+        {
+          name: t('common:workers', { defaultValue: 'Staff' }),
+          href: '/workers',
+          icon: Users,
+        },
+        {
+          name: t('common:attendance', { defaultValue: 'Attendance' }),
+          href: '/attendance',
+          icon: Clock,
+        },
+        {
+          name: t('common:customers', { defaultValue: 'Customers' }),
+          href: '/customers',
+          icon: UserCircle,
+        },
+        {
+          name: t('common:suppliers', { defaultValue: 'Suppliers' }),
+          href: '/suppliers',
+          icon: Truck,
+        },
+      ],
+    })
+  }
+
+  // 5. Marketplace (Farmers see this too)
+  if (userType !== 'buyer') {
+    sections.push({
       title: t('common:marketplace', { defaultValue: 'Marketplace' }),
       items: [
         {
@@ -52,153 +210,42 @@ export const getNavigationSections = (t: any, userType?: string) => {
           href: '/marketplace',
           icon: ShoppingCart,
         },
-        // Buyer-specific items
-        ...(userType === 'buyer' || userType === 'both'
-          ? [
-              {
-                name: t('common:myContacts', { defaultValue: 'My Contacts' }),
-                href: '/buyer/contacts',
-                icon: UserCircle,
-              },
-            ]
-          : []),
       ],
-    },
-  ]
+    })
+  }
 
-  // Only show farm operations for farmers
-  if (userType !== 'buyer') {
-    sections.push(
-      {
-        title: t('common:operations', { defaultValue: 'Operations' }),
-        items: [
-      {
-        name: t('common:batches', { defaultValue: 'Batches' }),
-        href: '/batches',
-        icon: Package,
-      },
-      {
-        name: t('common:tasks', { defaultValue: 'Tasks' }),
-        href: '/vaccinations',
-        icon: CheckSquare,
-      }, // Using vaccinations as proxy for tasks/health
-      {
-        name: t('common:mortality', { defaultValue: 'Health Alerts' }),
-        href: '/mortality',
-        icon: TrendingDown,
-      }, // Using mortality for alerts
-    ],
-  },
-  {
-    title: t('common:digitalForeman', { defaultValue: 'Digital Foreman' }),
+  // Buyer Contacts
+  if (userType === 'buyer' || userType === 'both') {
+    // Modify the first section or add new?
+    // Simpler to just add it.
+    sections.push({
+      title: t('common:contacts', { defaultValue: 'Contacts' }),
+      items: [
+        {
+          name: t('common:myContacts', { defaultValue: 'My Contacts' }),
+          href: '/buyer/contacts',
+          icon: UserCircle,
+        },
+      ],
+    })
+  }
+
+  // 6. Settings (Everyone)
+  sections.push({
+    title: t('common:settings', { defaultValue: 'Settings' }),
     items: [
       {
-        name: t('common:workers', { defaultValue: 'Workers' }),
-        href: '/workers',
-        icon: Users,
-      },
-      {
-        name: t('common:attendance', { defaultValue: 'Attendance' }),
-        href: '/attendance',
-        icon: Clock,
-      },
-      {
-        name: t('common:payroll', { defaultValue: 'Payroll' }),
-        href: '/payroll',
-        icon: DollarSign,
-      },
-    ],
-  },
-  {
-    title: t('common:inventory', { defaultValue: 'Inventory' }),
-    items: [
-      {
-        name: t('common:feed', { defaultValue: 'Feed Stock' }),
-        href: '/feed',
-        icon: Wheat,
-      },
-      {
-        name: t('common:inventory', {
-          defaultValue: 'General Inventory',
-        }),
-        href: '/inventory',
-        icon: Warehouse,
-      },
-      {
-        name: t('common:medicine', { defaultValue: 'Medicine' }),
-        href: '/vaccinations',
-        icon: Syringe,
-      }, // Using vaccinations
-    ],
-  },
-  {
-    title: t('common:analysis', { defaultValue: 'Analysis' }),
-    items: [
-      {
-        name: t('common:dashboard', { defaultValue: 'Dashboard' }),
-        href: '/dashboard',
-        icon: Home,
-      },
-      {
-        name: t('common:reports', { defaultValue: 'P&L Reports' }),
-        href: '/reports',
-        icon: BarChart3,
-      },
-      {
-        name: t('common:creditPassport', {
-          defaultValue: 'Credit Passport',
-        }),
-        href: '/credit-passport',
-        icon: FileCheck,
-      },
-      {
-        name: t('common:sales', { defaultValue: 'Sales' }),
-        href: '/sales',
-        icon: ShoppingCart,
-      },
-      {
-        name: t('common:expenses', { defaultValue: 'Expenses' }),
-        href: '/expenses',
-        icon: Receipt,
-      },
-    ],
-  },
-  {
-    title: t('common:ecosystem', { defaultValue: 'Ecosystem' }),
-    items: [
-      {
-        name: t('common:customers', { defaultValue: 'Customers' }),
-        href: '/customers',
-        icon: UserCircle,
-      },
-      {
-        name: t('common:suppliers', { defaultValue: 'Suppliers' }),
-        href: '/suppliers',
-        icon: Truck,
-      },
-      {
-        name: t('common:invoices', { defaultValue: 'Invoices' }),
-        href: '/invoices',
-        icon: FileText,
-      },
-    ],
-  },
-  {
-    title: t('common:setup', { defaultValue: 'Setup' }),
-    items: [
-      {
-        name: t('common:farms', { defaultValue: 'Farms' }),
+        name: t('common:farms', { defaultValue: 'My Farms' }),
         href: '/farms',
         icon: Building2,
       },
       {
-        name: t('common:settings', { defaultValue: 'Settings' }),
+        name: t('common:settings', { defaultValue: 'Preferences' }),
         href: '/settings',
         icon: Settings,
       },
     ],
-  },
-  ]
+  })
 
   return sections
 }
@@ -318,7 +365,7 @@ export function Navigation() {
           variant="ghost"
           size="icon"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          aria-label="Toggle menu"
+          aria-label={t('common:toggleMenu', { defaultValue: 'Toggle menu' })}
         >
           {isMobileMenuOpen ? (
             <X className="h-5 w-5" />

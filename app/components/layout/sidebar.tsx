@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useQuery } from '@tanstack/react-query'
 import { NavSection } from './nav-section'
 import { RoleSwitcher } from './role-switcher'
 import type { User } from '~/features/auth/types'
@@ -22,6 +23,7 @@ import { useModules } from '~/features/modules/context'
 import { filterNavigationByModules } from '~/hooks/useModuleNavigation'
 import { useExtensionNav } from '~/features/extension/use-extension-nav'
 import { useFarm } from '~/features/farms/context'
+import { getFarmsForUserFn } from '~/features/farms/server'
 
 interface SidebarProps {
   className?: string
@@ -35,11 +37,20 @@ export function Sidebar({ className, onClose, user }: SidebarProps) {
   const { isExtensionWorker, isSupervisor } = useExtensionNav()
   const { selectedFarmId } = useFarm()
 
+  // Fetch user's farms
+  const { data: farms = [] } = useQuery({
+    queryKey: ['farms', 'user'],
+    queryFn: () => getFarmsForUserFn({ data: {} }),
+  })
+
   // Check if user has both farm ownership and extension access
-  const hasFarmAccess = !!selectedFarmId
+  const hasFarmAccess = !!selectedFarmId || farms.length > 0
   const hasExtensionAccess = isExtensionWorker
 
-  const sections = useMemo(() => getNavigationSections(t, (user as any).userType), [t, user])
+  const sections = useMemo(
+    () => getNavigationSections(t, (user as any).userType),
+    [t, user],
+  )
 
   const filteredSections = useMemo(() => {
     // Show all navigation when no modules loaded (no farm selected or loading)
@@ -99,42 +110,56 @@ export function Sidebar({ className, onClose, user }: SidebarProps) {
   return (
     <div
       className={cn(
-        'flex flex-col h-full text-sidebar-foreground transition-all duration-300',
+        'flex flex-col h-full text-foreground transition-all duration-300 backdrop-blur-xl bg-white/40 dark:bg-black/40 border-r border-white/20 dark:border-white/10 shadow-2xl relative overflow-hidden',
         className,
       )}
     >
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-6">
+      {/* Sidebar background gradient mesh */}
+      <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
+
+      <div className="p-6 relative z-10">
+        <div className="flex items-center justify-between mb-8">
           <Link
             to="/"
-            className="flex items-center gap-3 transition-transform hover:scale-[1.02]"
+            className="flex items-center gap-3 transition-transform hover:scale-[1.02] group"
             onClick={onClose}
           >
-            <Logo className="h-8" variant="full" />
+            <div className="bg-gradient-to-br from-primary/20 to-primary/5 p-2 rounded-xl backdrop-blur-md border border-white/10 shadow-lg group-hover:shadow-primary/20 transition-all">
+              <Logo className="h-6 w-auto text-primary" variant="icon" />
+            </div>
+            <span className="font-bold text-lg bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              LivestockAL
+            </span>
           </Link>
           {onClose && (
             <Button
               variant="ghost"
               size="icon"
               onClick={onClose}
-              className="md:hidden"
+              className="md:hidden text-muted-foreground hover:text-foreground hover:bg-white/10 rounded-full"
             >
               <X className="h-5 w-5" />
             </Button>
           )}
         </div>
 
-        <FarmSelector className="w-full shadow-sm rounded-lg" />
+        <FarmSelector
+          farms={farms}
+          className="w-full shadow-lg rounded-xl border-white/10 bg-white/50 dark:bg-black/50 backdrop-blur-xl hover:bg-white/60 dark:hover:bg-black/60 transition-all"
+        />
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3 py-2 no-scrollbar space-y-4">
+      <div className="flex-1 overflow-y-auto px-4 py-2 no-scrollbar space-y-6 relative z-10">
         {allSections.map((section) => (
           <NavSection
             key={section.title}
             title={section.title}
             items={section.items}
-            defaultOpen={section.title !== 'Setup'}
+            defaultOpen={
+              section.title === 'Overview' || section.title === 'Operations'
+            }
             onItemClick={onClose}
+            className="glass-nav-section"
           />
         ))}
       </div>
@@ -145,16 +170,18 @@ export function Sidebar({ className, onClose, user }: SidebarProps) {
         hasExtensionAccess={hasExtensionAccess}
       />
 
-      <div className="p-4 m-4 mt-2 bg-sidebar-accent rounded-lg border border-sidebar-border shadow-sm">
+      <div className="p-4 m-4 mt-2 bg-gradient-to-br from-white/10 to-white/5 dark:from-white/5 dark:to-transparent rounded-2xl border border-white/10 shadow-lg backdrop-blur-md relative z-10 group hover:border-white/20 transition-all">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="h-10 w-10 rounded-full bg-background border border-border shadow-sm flex items-center justify-center shrink-0">
-              <UserIcon className="h-5 w-5 text-muted-foreground" />
+            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 border border-white/10 shadow-inner flex items-center justify-center shrink-0">
+              <UserIcon className="h-5 w-5 text-primary" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold truncate">{userName}</p>
+              <p className="text-sm font-semibold truncate group-hover:text-primary transition-colors">
+                {userName}
+              </p>
               {userEmail && (
-                <p className="text-xs text-muted-foreground truncate">
+                <p className="text-xs text-muted-foreground/80 truncate">
                   {userEmail}
                 </p>
               )}
@@ -164,8 +191,8 @@ export function Sidebar({ className, onClose, user }: SidebarProps) {
         </div>
         <Link to="/login" onClick={onClose}>
           <Button
-            variant="outline"
-            className="w-full justify-start gap-2 rounded-lg bg-background/50 hover:bg-background border-border/50"
+            variant="ghost"
+            className="w-full justify-start gap-2 rounded-xl hover:bg-red-500/10 hover:text-red-500 transition-all text-muted-foreground"
             size="sm"
           >
             <LogOut className="h-4 w-4" />

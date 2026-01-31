@@ -1,4 +1,5 @@
 import { Activity, Droplets, Gauge, Thermometer, Wind } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Line, LineChart, ResponsiveContainer } from 'recharts'
 import type { SensorType } from '~/lib/db/types'
 import { Card, CardContent } from '~/components/ui/card'
@@ -55,6 +56,7 @@ export function SensorCard({
   latestReading,
   readings,
 }: SensorCardProps) {
+  const { t } = useTranslation(['sensors', 'common'])
   const iconKey = sensor.sensorType as keyof typeof SENSOR_ICONS
   const Icon = iconKey in SENSOR_ICONS ? SENSOR_ICONS[iconKey] : Activity
   const config = SENSOR_TYPE_CONFIG[sensor.sensorType]
@@ -96,7 +98,9 @@ export function SensorCard({
         </div>
 
         <div className="text-xs text-muted-foreground mb-3">
-          {lastReading ? formatTimeAgo(lastReading) : 'No recent data'}
+          {lastReading
+            ? formatTimeAgo(lastReading)
+            : t('sensors:noRecentData', { defaultValue: 'No recent data' })}
         </div>
 
         <div className="h-8">
@@ -130,7 +134,9 @@ export function SensorCard({
             </ResponsiveContainer>
           ) : (
             <div className="h-8 bg-muted/20 rounded flex items-center justify-center">
-              <span className="text-xs text-muted-foreground">No data</span>
+              <span className="text-xs text-muted-foreground">
+                {t('common:noData', { defaultValue: 'No data' })}
+              </span>
             </div>
           )}
         </div>

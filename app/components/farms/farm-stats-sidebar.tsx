@@ -1,6 +1,6 @@
 import { TrendingDown, TrendingUp, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import { SummaryCard } from '~/components/ui/summary-card'
 import { useFormatCurrency } from '~/features/settings'
 
 interface FarmStatsSidebarProps {
@@ -26,65 +26,38 @@ export function FarmStatsSidebar({ stats }: FarmStatsSidebarProps) {
 
   return (
     <div className="space-y-6">
-      <Card className="glass">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
-            {t('farms:dashboard.livestock')}
-          </CardTitle>
-          <Users className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {stats.batches.totalLivestock.toLocaleString()}
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            {t('farms:dashboard.activeBatches', {
-              count: stats.batches.active,
-            })}
-          </p>
-        </CardContent>
-      </Card>
-      <Card className="glass">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
-            {t('farms:dashboard.revenue')}
-          </CardTitle>
-          <TrendingUp className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {formatCurrency(stats.sales.revenue)}
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            {t('farms:dashboard.salesTransactions', {
-              count: stats.sales.count,
-            })}
-          </p>
-        </CardContent>
-      </Card>
-      <Card className="glass">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
-            {t('farms:dashboard.expenses')}
-          </CardTitle>
-          <TrendingDown className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {formatCurrency(stats.expenses.amount)}
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            {t('farms:dashboard.expenseRecords', {
-              count: stats.expenses.count,
-            })}
-          </p>
-        </CardContent>
-      </Card>
-      <div className="p-4 rounded-lg bg-muted/50 border border-muted text-sm text-muted-foreground">
-        <h4 className="font-semibold text-foreground mb-1">
+      <SummaryCard
+        title={t('farms:dashboard.livestock')}
+        value={stats.batches.totalLivestock.toLocaleString()}
+        icon={Users}
+        description={t('farms:dashboard.activeBatches', {
+          count: stats.batches.active,
+        })}
+      />
+      <SummaryCard
+        title={t('farms:dashboard.revenue')}
+        value={formatCurrency(stats.sales.revenue)}
+        icon={TrendingUp}
+        description={t('farms:dashboard.salesTransactions', {
+          count: stats.sales.count,
+        })}
+      />
+      <SummaryCard
+        title={t('farms:dashboard.expenses')}
+        value={formatCurrency(stats.expenses.amount)}
+        icon={TrendingDown}
+        description={t('farms:dashboard.expenseRecords', {
+          count: stats.expenses.count,
+        })}
+      />
+      <div className="p-5 rounded-2xl bg-white/30 dark:bg-black/30 border border-white/20 dark:border-white/10 backdrop-blur-md text-sm text-foreground/80 shadow-sm relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl -translate-y-16 translate-x-16 pointer-events-none" />
+        <h4 className="font-bold text-foreground mb-1.5 relative z-10">
           {t('farms:quickActions.tip.title')}
         </h4>
-        <p>{t('farms:quickActions.tip.text')}</p>
+        <p className="leading-relaxed relative z-10">
+          {t('farms:quickActions.tip.text')}
+        </p>
       </div>
     </div>
   )

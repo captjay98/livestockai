@@ -1,11 +1,11 @@
-import { toast } from 'sonner'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRouter } from '@tanstack/react-router'
 import { Receipt } from 'lucide-react'
+import { toast } from 'sonner'
 import type { ExpenseCategory } from '~/features/expenses/server'
 import { logger } from '~/lib/logger'
-import { EXPENSE_CATEGORIES, createExpenseFn } from '~/features/expenses/server'
+import { EXPENSE_CATEGORIES } from '~/features/expenses/server'
+import { useExpenseMutations } from '~/features/expenses/mutations'
 import { getSuppliersFn } from '~/features/suppliers/server'
 import { useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
@@ -45,7 +45,7 @@ export function ExpenseDialog({
   onOpenChange,
 }: ExpenseDialogProps) {
   const { t } = useTranslation(['expenses', 'common', 'suppliers'])
-  const router = useRouter()
+  const { createExpense } = useExpenseMutations()
   const { symbol: currencySymbol } = useFormatCurrency()
   const [suppliers, setSuppliers] = useState<Array<Supplier>>([])
   const [formData, setFormData] = useState({
@@ -56,7 +56,6 @@ export function ExpenseDialog({
     supplierId: '',
     isRecurring: false,
   })
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
   // Load suppliers when dialog opens
@@ -79,48 +78,43 @@ export function ExpenseDialog({
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
     setError('')
 
-    try {
-      await createExpenseFn({
-        data: {
-          expense: {
-            farmId,
-            category: formData.category as ExpenseCategory,
-            amount: parseFloat(formData.amount),
-            date: new Date(formData.date),
-            description: formData.description,
-            supplierId: formData.supplierId || undefined,
-          },
+    createExpense.mutate(
+      {
+        expense: {
+          farmId,
+          category: formData.category as ExpenseCategory,
+          amount: parseFloat(formData.amount),
+          date: new Date(formData.date),
+          description: formData.description,
+          supplierId: formData.supplierId || undefined,
         },
-      })
-      toast.success(
-        t('messages.recorded', { defaultValue: 'Expense recorded' }),
-      )
-      handleOpenChange(false)
-      setFormData({
-        category: '',
-        amount: '',
-        date: new Date().toISOString().split('T')[0],
-        description: '',
-        supplierId: '',
-        isRecurring: false,
-      })
-      router.invalidate()
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : t('messages.recordError', {
-              defaultValue: 'Failed to record expense',
-            }),
-      )
-    } finally {
-      setIsSubmitting(false)
-    }
+      },
+      {
+        onSuccess: () => {
+          handleOpenChange(false)
+          setFormData({
+            category: '',
+            amount: '',
+            date: new Date().toISOString().split('T')[0],
+            description: '',
+            supplierId: '',
+            isRecurring: false,
+          })
+        },
+        onError: (err) =>
+          setError(
+            err instanceof Error
+              ? err.message
+              : t('messages.recordError', {
+                  defaultValue: 'Failed to record expense',
+                }),
+          ),
+      },
+    )
   }
 
   return (
@@ -139,7 +133,10 @@ export function ExpenseDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="category">
+            <Label
+              htmlFor="category"
+              className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+            >
               {t('labels.category', { defaultValue: 'Category' })}
             </Label>
             <Select
@@ -152,7 +149,10 @@ export function ExpenseDialog({
                 }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger
+                className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                style={{ color: 'var(--text-landing-primary)' }}
+              >
                 <SelectValue>
                   {formData.category
                     ? EXPENSE_CATEGORIES.find(
@@ -176,7 +176,10 @@ export function ExpenseDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">
+            <Label
+              htmlFor="description"
+              className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+            >
               {t('common:description', {
                 defaultValue: 'Description',
               })}
@@ -194,12 +197,17 @@ export function ExpenseDialog({
                 defaultValue: 'e.g., 50 bags of starter feed',
               })}
               required
+              className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+              style={{ color: 'var(--text-landing-primary)' }}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="amount">
+              <Label
+                htmlFor="amount"
+                className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+              >
                 {t('common:amount', {
                   symbol: currencySymbol,
                   defaultValue: 'Amount ({{symbol}})',
@@ -217,12 +225,19 @@ export function ExpenseDialog({
                     amount: e.target.value,
                   }))
                 }
-                placeholder="0.00"
+                placeholder={t('placeholders.amount', {
+                  defaultValue: '0.00',
+                })}
                 required
+                className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                style={{ color: 'var(--text-landing-primary)' }}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="date">
+              <Label
+                htmlFor="date"
+                className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+              >
                 {t('common:date', { defaultValue: 'Date' })}
               </Label>
               <Input
@@ -236,13 +251,18 @@ export function ExpenseDialog({
                   }))
                 }
                 required
+                className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                style={{ color: 'var(--text-landing-primary)' }}
               />
             </div>
           </div>
 
           {suppliers.length > 0 && (
             <div className="space-y-2">
-              <Label htmlFor="supplierId">
+              <Label
+                htmlFor="supplierId"
+                className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+              >
                 {t('suppliers:supplierOptional', {
                   defaultValue: 'Supplier (Optional)',
                 })}
@@ -256,7 +276,10 @@ export function ExpenseDialog({
                   }))
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger
+                  className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                  style={{ color: 'var(--text-landing-primary)' }}
+                >
                   <SelectValue>
                     {formData.supplierId
                       ? suppliers.find((s) => s.id === formData.supplierId)
@@ -306,20 +329,20 @@ export function ExpenseDialog({
               type="button"
               variant="outline"
               onClick={() => handleOpenChange(false)}
-              disabled={isSubmitting}
+              disabled={createExpense.isPending}
             >
               {t('common:cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button
               type="submit"
               disabled={
-                isSubmitting ||
+                createExpense.isPending ||
                 !formData.category ||
                 !formData.amount ||
                 !formData.description
               }
             >
-              {isSubmitting
+              {createExpense.isPending
                 ? t('dialog.recording', {
                     defaultValue: 'Recording...',
                   })

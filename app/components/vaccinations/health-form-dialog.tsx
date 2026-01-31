@@ -215,7 +215,9 @@ export function HealthFormDialog({
                   }))
                 }
                 required
-                placeholder="e.g. 10ml"
+                placeholder={t('vaccinations:placeholders.dosage', {
+                  defaultValue: 'e.g. 10ml',
+                })}
               />
             </div>
           </div>

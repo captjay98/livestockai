@@ -8,7 +8,7 @@
 import { useTranslation } from 'react-i18next'
 import { Package } from 'lucide-react'
 import { useOnboarding } from '~/features/onboarding/context'
-import { BatchDialog } from '~/components/dialogs/batch-dialog'
+import { BatchForm } from '~/components/batches/batch-form'
 import { Button } from '~/components/ui/button'
 
 export function CreateBatchStep() {
@@ -64,16 +64,16 @@ export function CreateBatchStep() {
         </p>
       </div>
 
-      <BatchDialog
-        open={true}
-        onOpenChange={() => {}}
-        onboardingMode={true}
-        farmIdOverride={progress.farmId}
-        structureIdOverride={progress.structureId}
-        enabledModulesFilter={enabledModules}
-        onSuccess={handleBatchCreated}
-        onSkip={skipStep}
-      />
+      <div className="max-w-xl mx-auto border-white/10 bg-white/20 dark:bg-black/40 backdrop-blur-2xl shadow-2xl overflow-hidden glass-card rounded-[2rem] p-6 sm:p-8">
+        <BatchForm
+          onSuccess={handleBatchCreated}
+          onCancel={skipStep}
+          onboardingMode={true}
+          farmIdOverride={progress.farmId}
+          structureIdOverride={progress.structureId}
+          enabledModulesFilter={enabledModules}
+        />
+      </div>
     </div>
   )
 }

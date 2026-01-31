@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Download, RefreshCw, Wifi, WifiOff, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from './ui/button'
 import { cn } from '~/lib/utils'
 
@@ -153,6 +154,7 @@ export function useRegisterSW() {
  * PWA prompt component. **Validates: Requirements 9.1, 9.2, 9.3**
  */
 export function PWAPrompt() {
+  const { t } = useTranslation(['pwa'])
   const {
     needRefresh,
     offlineReady,
@@ -178,9 +180,15 @@ export function PWAPrompt() {
             <Download className="h-5 w-5 text-primary" />
           </div>
           <div className="flex-1">
-            <h4 className="font-medium text-sm">Update Available</h4>
+            <h4 className="font-medium text-sm">
+              {t('pwa:updateAvailable.title', {
+                defaultValue: 'Update Available',
+              })}
+            </h4>
             <p className="text-sm text-muted-foreground mt-1">
-              A new version is available. Reload to update.
+              {t('pwa:updateAvailable.description', {
+                defaultValue: 'A new version is available. Reload to update.',
+              })}
             </p>
             <div className="flex gap-2 mt-3">
               <Button
@@ -189,7 +197,7 @@ export function PWAPrompt() {
                 onClick={dismissRefresh}
                 disabled={isUpdating}
               >
-                Later
+                {t('pwa:actions.later', { defaultValue: 'Later' })}
               </Button>
               <Button
                 size="sm"
@@ -199,10 +207,10 @@ export function PWAPrompt() {
                 {isUpdating ? (
                   <>
                     <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
-                    Updating...
+                    {t('pwa:actions.updating', { defaultValue: 'Updating...' })}
                   </>
                 ) : (
-                  'Reload'
+                  t('pwa:actions.reload', { defaultValue: 'Reload' })
                 )}
               </Button>
             </div>
@@ -228,9 +236,15 @@ export function PWAPrompt() {
             <WifiOff className="h-5 w-5 text-success" />
           </div>
           <div className="flex-1">
-            <h4 className="font-medium text-sm">Ready for Offline</h4>
+            <h4 className="font-medium text-sm">
+              {t('pwa:offlineReady.title', {
+                defaultValue: 'Ready for Offline',
+              })}
+            </h4>
             <p className="text-sm text-muted-foreground mt-1">
-              App has been cached and can work offline.
+              {t('pwa:offlineReady.description', {
+                defaultValue: 'App has been cached and can work offline.',
+              })}
             </p>
           </div>
           <Button
@@ -254,7 +268,9 @@ export function PWAPrompt() {
             <Wifi className="h-5 w-5 text-destructive" />
           </div>
           <div className="flex-1">
-            <h4 className="font-medium text-sm text-destructive">PWA Error</h4>
+            <h4 className="font-medium text-sm text-destructive">
+              {t('pwa:error.title', { defaultValue: 'PWA Error' })}
+            </h4>
             <p className="text-sm text-muted-foreground mt-1">
               {error.message}
             </p>
@@ -268,6 +284,7 @@ export function PWAPrompt() {
 }
 
 export function PWAStatusIndicator({ className }: { className?: string }) {
+  const { t } = useTranslation(['pwa'])
   const { registration, offlineReady, needRefresh } = useRegisterSW()
   if (!registration) return null
   return (
@@ -275,17 +292,25 @@ export function PWAStatusIndicator({ className }: { className?: string }) {
       {needRefresh ? (
         <>
           <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-          <span className="text-primary">Update available</span>
+          <span className="text-primary">
+            {t('pwa:status.updateAvailable', {
+              defaultValue: 'Update available',
+            })}
+          </span>
         </>
       ) : offlineReady ? (
         <>
           <span className="h-2 w-2 rounded-full bg-success" />
-          <span className="text-success">Offline ready</span>
+          <span className="text-success">
+            {t('pwa:status.offlineReady', { defaultValue: 'Offline ready' })}
+          </span>
         </>
       ) : (
         <>
           <span className="h-2 w-2 rounded-full bg-muted-foreground" />
-          <span className="text-muted-foreground">PWA active</span>
+          <span className="text-muted-foreground">
+            {t('pwa:status.active', { defaultValue: 'PWA active' })}
+          </span>
         </>
       )}
     </div>

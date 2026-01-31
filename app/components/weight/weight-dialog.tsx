@@ -1,10 +1,9 @@
-import { toast } from 'sonner'
 import React, { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { ChevronDown, ChevronUp, Scale } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { createWeightSampleFn } from '~/features/weight/server'
 import { useFormatWeight } from '~/features/settings'
+import { useWeightMutations } from '~/features/weight/mutations'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -57,7 +56,7 @@ export function WeightDialog({
     maxWeightKg: '',
     notes: '',
   })
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { createWeight, isPending } = useWeightMutations()
   const [error, setError] = useState('')
 
   const selectedBatch = batches.find((b) => b.id === formData.batchId)
@@ -68,51 +67,50 @@ export function WeightDialog({
         )
       : null
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
     setError('')
 
-    try {
-      await createWeightSampleFn({
+    createWeight.mutate(
+      {
+        farmId,
         data: {
-          farmId,
-          data: {
-            batchId: formData.batchId,
-            date: new Date(formData.date),
-            sampleSize: parseInt(formData.sampleSize),
-            averageWeightKg: parseFloat(formData.averageWeightKg),
-            minWeightKg: formData.minWeightKg
-              ? parseFloat(formData.minWeightKg)
-              : null,
-            maxWeightKg: formData.maxWeightKg
-              ? parseFloat(formData.maxWeightKg)
-              : null,
-            notes: formData.notes || null,
-          },
+          batchId: formData.batchId,
+          date: new Date(formData.date),
+          sampleSize: parseInt(formData.sampleSize),
+          averageWeightKg: parseFloat(formData.averageWeightKg),
+          minWeightKg: formData.minWeightKg
+            ? parseFloat(formData.minWeightKg)
+            : null,
+          maxWeightKg: formData.maxWeightKg
+            ? parseFloat(formData.maxWeightKg)
+            : null,
+          notes: formData.notes || null,
         },
-      })
-      toast.success(t('recorded', { defaultValue: 'Weight recorded' }))
-      onOpenChange(false)
-      setFormData({
-        batchId: '',
-        date: new Date().toISOString().split('T')[0],
-        sampleSize: '',
-        averageWeightKg: '',
-        minWeightKg: '',
-        maxWeightKg: '',
-        notes: '',
-      })
-      router.invalidate()
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : t('error.record', { defaultValue: 'Failed to record' }),
-      )
-    } finally {
-      setIsSubmitting(false)
-    }
+      },
+      {
+        onSuccess: () => {
+          onOpenChange(false)
+          setFormData({
+            batchId: '',
+            date: new Date().toISOString().split('T')[0],
+            sampleSize: '',
+            averageWeightKg: '',
+            minWeightKg: '',
+            maxWeightKg: '',
+            notes: '',
+          })
+          router.invalidate()
+        },
+        onError: (err) => {
+          setError(
+            err instanceof Error
+              ? err.message
+              : t('error.record', { defaultValue: 'Failed to record' }),
+          )
+        },
+      },
+    )
   }
 
   return (
@@ -131,7 +129,9 @@ export function WeightDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label>{t('batches:batch', { defaultValue: 'Batch' })} *</Label>
+            <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1">
+              {t('batches:batch', { defaultValue: 'Batch' })} *
+            </Label>
             <Select
               value={formData.batchId}
               onValueChange={(value) =>
@@ -142,7 +142,10 @@ export function WeightDialog({
                 }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger
+                className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                style={{ color: 'var(--text-landing-primary)' }}
+              >
                 <SelectValue>
                   {formData.batchId
                     ? batches.find((b) => b.id === formData.batchId)?.species
@@ -163,7 +166,9 @@ export function WeightDialog({
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label>{t('common:date', { defaultValue: 'Date' })} *</Label>
+              <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1">
+                {t('common:date', { defaultValue: 'Date' })} *
+              </Label>
               <Input
                 type="date"
                 value={formData.date}
@@ -174,10 +179,12 @@ export function WeightDialog({
                   }))
                 }
                 required
+                className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                style={{ color: 'var(--text-landing-primary)' }}
               />
             </div>
             <div className="space-y-2">
-              <Label>
+              <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1">
                 {t('sampleSize', {
                   defaultValue: 'Sample Size',
                 })}{' '}
@@ -197,12 +204,14 @@ export function WeightDialog({
                   defaultValue: 'e.g., 10',
                 })}
                 required
+                className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                style={{ color: 'var(--text-landing-primary)' }}
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label>
+            <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1">
               {t('averageWeight', {
                 defaultValue: 'Average Weight (kg)',
               })}{' '}
@@ -223,6 +232,8 @@ export function WeightDialog({
                 defaultValue: 'e.g., 1.5',
               })}
               required
+              className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+              style={{ color: 'var(--text-landing-primary)' }}
             />
           </div>
 
@@ -257,7 +268,7 @@ export function WeightDialog({
             <div className="space-y-3 p-3 border rounded-lg bg-muted/30">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label>
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1">
                     {t('minWeight', {
                       defaultValue: 'Min Weight (kg)',
                     })}
@@ -273,10 +284,12 @@ export function WeightDialog({
                         minWeightKg: e.target.value,
                       }))
                     }
+                    className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                    style={{ color: 'var(--text-landing-primary)' }}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1">
                     {t('maxWeight', {
                       defaultValue: 'Max Weight (kg)',
                     })}
@@ -292,11 +305,13 @@ export function WeightDialog({
                         maxWeightKg: e.target.value,
                       }))
                     }
+                    className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                    style={{ color: 'var(--text-landing-primary)' }}
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1">
                   {t('common:notes', {
                     defaultValue: 'Notes',
                   })}
@@ -313,6 +328,8 @@ export function WeightDialog({
                     defaultValue: 'Additional observations',
                   })}
                   rows={2}
+                  className="bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm p-4 rounded-xl resize-none"
+                  style={{ color: 'var(--text-landing-primary)' }}
                 />
               </div>
             </div>
@@ -329,20 +346,20 @@ export function WeightDialog({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
+              disabled={isPending}
             >
               {t('common:cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button
               type="submit"
               disabled={
-                isSubmitting ||
+                isPending ||
                 !formData.batchId ||
                 !formData.sampleSize ||
                 !formData.averageWeightKg
               }
             >
-              {isSubmitting
+              {isPending
                 ? t('common:recording', {
                     defaultValue: 'Recording...',
                   })

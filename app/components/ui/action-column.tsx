@@ -1,4 +1,5 @@
 import { Edit, Eye, MoreHorizontal, Trash2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,11 +20,16 @@ export function ActionColumn({
   onView,
   entity = 'item',
 }: ActionColumnProps) {
+  const { t } = useTranslation(['common'])
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         className="h-8 w-8 p-0 bg-transparent border-none hover:bg-muted rounded-md flex items-center justify-center"
-        aria-label={`Actions for ${entity}`}
+        aria-label={t('common:a11y.actionsFor', {
+          entity,
+          defaultValue: 'Actions for {{entity}}',
+        })}
       >
         <MoreHorizontal className="h-4 w-4" />
       </DropdownMenuTrigger>
@@ -31,19 +37,19 @@ export function ActionColumn({
         {onView && (
           <DropdownMenuItem onClick={onView}>
             <Eye className="mr-2 h-4 w-4" />
-            View
+            {t('common:a11y.view', { defaultValue: 'View' })}
           </DropdownMenuItem>
         )}
         {onEdit && (
           <DropdownMenuItem onClick={onEdit}>
             <Edit className="mr-2 h-4 w-4" />
-            Edit
+            {t('common:a11y.edit', { defaultValue: 'Edit' })}
           </DropdownMenuItem>
         )}
         {onDelete && (
           <DropdownMenuItem onClick={onDelete} variant="destructive">
             <Trash2 className="mr-2 h-4 w-4" />
-            Delete
+            {t('common:a11y.delete', { defaultValue: 'Delete' })}
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>

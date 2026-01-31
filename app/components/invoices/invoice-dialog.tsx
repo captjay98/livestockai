@@ -1,10 +1,9 @@
 import { toast } from 'sonner'
 import React, { useEffect, useState } from 'react'
-import { useRouter } from '@tanstack/react-router'
 import { FileText, Plus, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { logger } from '~/lib/logger'
-import { createInvoiceFn } from '~/features/invoices/server'
+import { useInvoiceMutations } from '~/features/invoices/mutations'
 import { getCustomersFn } from '~/features/customers/server'
 import { useBusinessSettings, useFormatCurrency } from '~/features/settings'
 import { Button } from '~/components/ui/button'
@@ -50,7 +49,7 @@ export function InvoiceDialog({
   onOpenChange,
 }: InvoiceDialogProps) {
   const { t } = useTranslation(['invoices', 'common'])
-  const router = useRouter()
+  const { createInvoice } = useInvoiceMutations()
   const { format: formatCurrency } = useFormatCurrency()
   const { defaultPaymentTermsDays } = useBusinessSettings()
   const [customers, setCustomers] = useState<Array<Customer>>([])
@@ -59,7 +58,6 @@ export function InvoiceDialog({
   const [items, setItems] = useState<Array<LineItem>>([
     { description: '', quantity: '', unitPrice: '' },
   ])
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -115,14 +113,13 @@ export function InvoiceDialog({
   const isValid =
     customerId && items.every((i) => i.description && i.quantity && i.unitPrice)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
     setError('')
 
-    try {
-      await createInvoiceFn({
-        data: {
+    createInvoice.mutate(
+      {
+        invoice: {
           customerId,
           farmId,
           items: items.map((i) => ({
@@ -132,24 +129,18 @@ export function InvoiceDialog({
           })),
           dueDate: dueDate ? new Date(dueDate) : null,
         },
-      })
-      toast.success(t('messages.created', { defaultValue: 'Invoice created' }))
-      onOpenChange(false)
-      setCustomerId('')
-      setDueDate('')
-      setItems([{ description: '', quantity: '', unitPrice: '' }])
-      router.invalidate()
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : t('error.create', {
-              defaultValue: 'Failed to create invoice',
-            }),
-      )
-    } finally {
-      setIsSubmitting(false)
-    }
+      },
+      {
+        onSuccess: () => {
+          onOpenChange(false)
+          setCustomerId('')
+          setDueDate('')
+          setItems([{ description: '', quantity: '', unitPrice: '' }])
+        },
+        onError: (err) =>
+          setError(err instanceof Error ? err.message : t('error.create')),
+      },
+    )
   }
 
   return (
@@ -168,14 +159,17 @@ export function InvoiceDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label>
+            <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1">
               {t('common:customer', { defaultValue: 'Customer' })} *
             </Label>
             <Select
               value={customerId}
               onValueChange={(v) => v && setCustomerId(v)}
             >
-              <SelectTrigger>
+              <SelectTrigger
+                className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                style={{ color: 'var(--text-landing-primary)' }}
+              >
                 <SelectValue>
                   {customerId
                     ? customers.find((c) => c.id === customerId)?.name
@@ -195,17 +189,23 @@ export function InvoiceDialog({
           </div>
 
           <div className="space-y-2">
-            <Label>{t('dueDate', { defaultValue: 'Due Date' })}</Label>
+            <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1">
+              {t('dueDate', { defaultValue: 'Due Date' })}
+            </Label>
             <Input
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
+              className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+              style={{ color: 'var(--text-landing-primary)' }}
             />
           </div>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>{t('lineItems', { defaultValue: 'Line Items' })} *</Label>
+              <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1">
+                {t('lineItems', { defaultValue: 'Line Items' })} *
+              </Label>
               <Button
                 type="button"
                 variant="outline"
@@ -227,7 +227,8 @@ export function InvoiceDialog({
                     onChange={(e) =>
                       updateItem(i, 'description', e.target.value)
                     }
-                    className="flex-1"
+                    className="flex-1 h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                    style={{ color: 'var(--text-landing-primary)' }}
                     required
                   />
                   <Input
@@ -237,7 +238,8 @@ export function InvoiceDialog({
                     })}
                     value={item.quantity}
                     onChange={(e) => updateItem(i, 'quantity', e.target.value)}
-                    className="w-16"
+                    className="w-16 h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                    style={{ color: 'var(--text-landing-primary)' }}
                     min="1"
                     required
                   />
@@ -248,7 +250,8 @@ export function InvoiceDialog({
                     })}
                     value={item.unitPrice}
                     onChange={(e) => updateItem(i, 'unitPrice', e.target.value)}
-                    className="w-24"
+                    className="w-24 h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                    style={{ color: 'var(--text-landing-primary)' }}
                     min="0"
                     step="0.01"
                     required
@@ -286,12 +289,15 @@ export function InvoiceDialog({
               type="button"
               variant="outline"
               onClick={() => handleOpenChange(false)}
-              disabled={isSubmitting}
+              disabled={createInvoice.isPending}
             >
               {t('common:cancel', { defaultValue: 'Cancel' })}
             </Button>
-            <Button type="submit" disabled={isSubmitting || !isValid}>
-              {isSubmitting
+            <Button
+              type="submit"
+              disabled={createInvoice.isPending || !isValid}
+            >
+              {createInvoice.isPending
                 ? t('common:creating', {
                     defaultValue: 'Creating...',
                   })

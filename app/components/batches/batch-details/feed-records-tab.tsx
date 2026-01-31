@@ -62,16 +62,16 @@ export function FeedRecordsTab({ records, isLoading }: FeedRecordsTabProps) {
   ]
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>
+    <Card className="bg-white/30 dark:bg-black/30 backdrop-blur-md border-white/20 dark:border-white/10 shadow-sm rounded-2xl overflow-hidden relative">
+      <CardHeader className="relative z-10">
+        <CardTitle className="text-lg font-bold tracking-tight">
           {t('feed.history', { defaultValue: 'Feeding History' })}
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-muted-foreground/80 font-medium">
           {t('feed.recent', { defaultValue: 'Recent records' })}
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="relative z-10 p-0 sm:p-6 sm:pt-0">
         <DataTable
           columns={columns}
           data={records}

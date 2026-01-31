@@ -1,9 +1,7 @@
-import { toast } from 'sonner'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRouter } from '@tanstack/react-router'
 import { Building2 } from 'lucide-react'
-import { createFarmFn, updateFarmFn } from '~/features/farms/server'
+import { useFarmMutations } from '~/features/farms/mutations'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -60,7 +58,7 @@ export function FarmDialog({
   onSkip,
 }: FarmDialogProps) {
   const { t } = useTranslation(['farms', 'common'])
-  const router = useRouter()
+  const { createFarm, updateFarm } = useFarmMutations()
   const isEditing = !!farm
 
   const [formData, setFormData] = useState({
@@ -69,7 +67,6 @@ export function FarmDialog({
     type: 'poultry' as FarmType,
   })
 
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
   // Initialize form data when opening/changing farm
@@ -93,52 +90,53 @@ export function FarmDialog({
     }
   }, [open, farm])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const isPending = createFarm.isPending || updateFarm.isPending
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
     setError('')
 
-    try {
-      if (isEditing) {
-        await updateFarmFn({
+    if (isEditing) {
+      updateFarm.mutate(
+        {
           data: {
             farmId: farm.id,
             name: formData.name,
             location: formData.location,
             type: formData.type,
           },
-        })
-        toast.success(t('farms:updated', { defaultValue: 'Farm updated' }))
-        onOpenChange(false)
-        router.invalidate()
-      } else {
-        const farmId = await createFarmFn({
+        },
+        {
+          onSuccess: () => onOpenChange(false),
+          onError: (err) =>
+            setError(
+              err instanceof Error ? err.message : t('farms:error.update'),
+            ),
+        },
+      )
+    } else {
+      createFarm.mutate(
+        {
           data: {
             name: formData.name,
             location: formData.location,
             type: formData.type,
           },
-        })
-        toast.success(t('farms:created', { defaultValue: 'Farm created' }))
-
-        // In onboarding mode, call onSuccess callback instead of router.invalidate
-        if (onboardingMode && onSuccess && farmId) {
-          onSuccess(farmId, formData.type)
-        } else {
-          onOpenChange(false)
-          router.invalidate()
-        }
-      }
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : t(isEditing ? 'farms:error.update' : 'farms:error.create', {
-              defaultValue: `Failed to ${isEditing ? 'update' : 'create'} farm`,
-            }),
+        },
+        {
+          onSuccess: (farmId) => {
+            if (onboardingMode && onSuccess && farmId) {
+              onSuccess(farmId, formData.type)
+            } else {
+              onOpenChange(false)
+            }
+          },
+          onError: (err) =>
+            setError(
+              err instanceof Error ? err.message : t('farms:error.create'),
+            ),
+        },
       )
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
@@ -166,7 +164,10 @@ export function FarmDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">
+            <Label
+              htmlFor="name"
+              className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+            >
               {t('farms:farmName', { defaultValue: 'Farm Name' })}
             </Label>
             <Input
@@ -182,11 +183,16 @@ export function FarmDialog({
                 defaultValue: 'e.g. Green Valley Farms',
               })}
               required
+              className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+              style={{ color: 'var(--text-landing-primary)' }}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="location">
+            <Label
+              htmlFor="location"
+              className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+            >
               {t('farms:location', { defaultValue: 'Location' })}
             </Label>
             <Input
@@ -202,11 +208,16 @@ export function FarmDialog({
                 defaultValue: 'e.g. Lagos, Nigeria',
               })}
               required
+              className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+              style={{ color: 'var(--text-landing-primary)' }}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="type">
+            <Label
+              htmlFor="type"
+              className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+            >
               {t('farms:farmType', { defaultValue: 'Farm Type' })}
             </Label>
             <Select
@@ -220,7 +231,10 @@ export function FarmDialog({
                 }
               }}
             >
-              <SelectTrigger>
+              <SelectTrigger
+                className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                style={{ color: 'var(--text-landing-primary)' }}
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -288,7 +302,7 @@ export function FarmDialog({
                 type="button"
                 variant="outline"
                 onClick={onSkip}
-                disabled={isSubmitting}
+                disabled={isPending}
               >
                 {t('common:skip', { defaultValue: 'Skip' })}
               </Button>
@@ -297,16 +311,16 @@ export function FarmDialog({
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                disabled={isSubmitting}
+                disabled={isPending}
               >
                 {t('common:cancel', { defaultValue: 'Cancel' })}
               </Button>
             )}
             <Button
               type="submit"
-              disabled={isSubmitting || !formData.name || !formData.location}
+              disabled={isPending || !formData.name || !formData.location}
             >
-              {isSubmitting
+              {isPending
                 ? isEditing
                   ? t('common:saving', {
                       defaultValue: 'Saving...',

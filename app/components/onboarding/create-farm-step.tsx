@@ -11,15 +11,16 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ArrowRight, Check, Home, Layers } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import type { ModuleKey } from '~/features/modules/types'
 import { useOnboarding } from '~/features/onboarding/context'
 import { toggleModuleFn } from '~/features/modules/server'
 import { getDefaultModulesForFarmType } from '~/features/modules/utils'
 import { MODULE_METADATA } from '~/features/modules/constants'
-import { FarmDialog } from '~/components/dialogs/farm-dialog'
+import { FarmDialog } from '~/components/farms/farm-dialog'
 import { Button } from '~/components/ui/button'
-import { Card, CardContent } from '~/components/ui/card'
+import { cn } from '~/lib/utils'
 
 type FarmCreationPhase = 'farm' | 'modules'
 
@@ -69,14 +70,19 @@ export function CreateFarmStep() {
   ) => {
     setIsSubmitting(true)
     try {
-      // Enable each module in the database
-      for (const moduleKey of modules) {
-        await toggleModuleFn({
-          data: { farmId, moduleKey, enabled: true },
-        })
-      }
+      // Enable all modules in parallel
+      await Promise.all(
+        modules.map((moduleKey) =>
+          toggleModuleFn({
+            data: { farmId, moduleKey, enabled: true },
+          }),
+        ),
+      )
 
       setEnabledModules(modules)
+      toast.success(
+        t('createFarm.success', { defaultValue: 'Farm created successfully' }),
+      )
       completeStep('create-farm')
     } catch (err) {
       toast.error(
@@ -102,105 +108,197 @@ export function CreateFarmStep() {
     )
   }
 
-  // Phase 1: Farm creation using FarmDialog
   if (phase === 'farm') {
     return (
-      <div className="space-y-6">
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary">
-            <Home className="h-6 w-6" />
+      <div className="flex flex-col items-center justify-center space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 w-full max-w-2xl mx-auto">
+        <div className="text-center space-y-4 px-4">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 shadow-xl shadow-emerald-500/5 relative overflow-hidden"
+          >
+            <Home className="h-8 w-8 relative z-10" />
+            <motion.div
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.3, 0.5, 0.3],
+              }}
+              transition={{ duration: 4, repeat: Infinity }}
+              className="absolute inset-0 bg-primary/20 blur-xl"
+            />
+          </motion.div>
+
+          <div className="space-y-2">
+            <h2
+              className="text-3xl font-bold tracking-tight"
+              style={{ color: 'var(--text-landing-primary)' }}
+            >
+              {t('createFarm.title', { defaultValue: 'Create Your Farm' })}
+            </h2>
+            <p
+              className="text-base font-light max-w-md mx-auto leading-relaxed"
+              style={{ color: 'var(--text-landing-secondary)' }}
+            >
+              {t('createFarm.desc', {
+                defaultValue:
+                  'A farm is your main workspace where you manage your livestock, structures, and records.',
+              })}
+            </p>
           </div>
-          <h2 className="text-2xl font-bold">
-            {t('createFarm.title', {
-              defaultValue: 'Create Your Farm',
-            })}
-          </h2>
-          <p className="text-muted-foreground max-w-md mx-auto">
-            {t('createFarm.desc', {
-              defaultValue:
-                'A farm is your main workspace with its own batches and records.',
-            })}
-          </p>
         </div>
 
-        <FarmDialog
-          open={true}
-          onOpenChange={() => {}}
-          onboardingMode={true}
-          onSuccess={handleFarmCreated}
-          onSkip={skipStep}
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="w-full"
+        >
+          <FarmDialog
+            open={true}
+            onOpenChange={() => {}}
+            onboardingMode={true}
+            onSuccess={handleFarmCreated}
+            onSkip={skipStep}
+          />
+        </motion.div>
       </div>
     )
   }
 
   // Phase 2: Module selection for 'multi' farm type
   return (
-    <div className="space-y-6">
-      <div className="text-center space-y-2">
-        <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary">
-          <Layers className="h-6 w-6" />
+    <div className="flex flex-col items-center justify-center space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="text-center space-y-4 max-w-2xl px-4">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-secondary/10 text-secondary border border-secondary/20 shadow-xl shadow-secondary/5 relative overflow-hidden"
+        >
+          <Layers className="h-10 w-10 relative z-10" />
+          <motion.div
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.3, 0.5, 0.3],
+            }}
+            transition={{ duration: 4, repeat: Infinity }}
+            className="absolute inset-0 bg-secondary/20 blur-xl"
+          />
+        </motion.div>
+
+        <div className="space-y-3">
+          <h2 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground/80 to-foreground/60 bg-clip-text text-transparent">
+            {t('enableModules.title', { defaultValue: 'Choose Your Modules' })}
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-md mx-auto leading-relaxed">
+            {t('enableModules.desc', {
+              defaultValue:
+                'Select all the livestock types you plan to manage. You can always change this later.',
+            })}
+          </p>
         </div>
-        <h2 className="text-2xl font-bold">
-          {t('enableModules.title', {
-            defaultValue: 'Choose Your Modules',
-          })}
-        </h2>
-        <p className="text-muted-foreground max-w-md mx-auto">
-          {t('enableModules.desc', {
-            defaultValue: 'Select the livestock types you manage on this farm.',
-          })}
-        </p>
       </div>
 
-      <Card className="max-w-lg mx-auto">
-        <CardContent className="pt-6 space-y-3">
-          {ALL_MODULES.map((key) => {
-            const m = MODULE_METADATA[key]
-            const selected = selectedModules.includes(key)
-            return (
-              <button
-                key={key}
-                type="button"
-                onClick={() => handleToggleModule(key)}
-                className={`flex items-center gap-4 p-4 rounded-lg border-2 text-left transition-all w-full ${
-                  selected
-                    ? 'border-primary bg-primary/5'
-                    : 'border-border hover:border-primary/50'
-                }`}
-              >
-                <div className="text-3xl">{m.icon}</div>
-                <div className="flex-1">
-                  <span className="font-semibold">{m.name}</span>
-                  <p className="text-sm text-muted-foreground">
-                    {m.description}
-                  </p>
-                </div>
-                {selected && (
-                  <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                    <Check className="h-4 w-4 text-primary-foreground" />
-                  </div>
-                )}
-              </button>
-            )
-          })}
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-5xl px-6">
+        {ALL_MODULES.map((key, index) => {
+          const m = MODULE_METADATA[key]
+          const selected = selectedModules.includes(key)
 
-      <div className="flex justify-center gap-3 pt-4">
-        <Button variant="outline" onClick={skipStep}>
-          {t('common:skip', { defaultValue: 'Skip' })}
-        </Button>
+          return (
+            <motion.button
+              key={key}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 + index * 0.05 }}
+              onClick={() => handleToggleModule(key)}
+              className={cn(
+                'group relative flex flex-col items-center text-center gap-3 p-6 rounded-[2rem] border transition-all duration-300 outline-none overflow-hidden glass-card',
+                selected
+                  ? 'bg-primary/5 border-primary/20 shadow-xl shadow-primary/5 ring-1 ring-primary/10'
+                  : 'bg-white/5 dark:bg-black/20 border-white/10 hover:bg-white/10 dark:hover:bg-black/30 hover:border-white/20',
+              )}
+            >
+              <div
+                className={cn(
+                  'w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3',
+                  selected
+                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+                    : 'bg-white/10 dark:bg-white/5 shadow-sm',
+                )}
+              >
+                {m.icon}
+              </div>
+
+              <div className="space-y-1 relative z-10">
+                <h3
+                  className={cn(
+                    'font-bold text-base transition-colors',
+                    selected ? 'text-primary' : 'text-foreground',
+                  )}
+                >
+                  {m.name}
+                </h3>
+                <p className="text-xs text-muted-foreground leading-relaxed px-1 line-clamp-2">
+                  {m.description}
+                </p>
+              </div>
+
+              {selected && (
+                <motion.div
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="absolute top-4 right-4 w-7 h-7 rounded-full bg-primary flex items-center justify-center shadow-lg"
+                >
+                  <Check className="h-4 w-4 text-primary-foreground stroke-[3]" />
+                </motion.div>
+              )}
+
+              {!selected && (
+                <div className="absolute top-4 right-4 w-7 h-7 rounded-full border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="h-2 w-2 rounded-full bg-white/20" />
+                </div>
+              )}
+            </motion.button>
+          )
+        })}
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 w-full max-w-md px-6"
+      >
+        <button
+          type="button"
+          onClick={skipStep}
+          className="w-full sm:w-auto px-10 py-4 text-sm font-semibold text-muted-foreground hover:text-foreground transition-all duration-300 rounded-2xl hover:bg-white/5"
+          disabled={isSubmitting}
+        >
+          {t('common:skip', { defaultValue: 'Skip for now' })}
+        </button>
         <Button
           onClick={handleModulesConfirmed}
           disabled={selectedModules.length === 0 || isSubmitting}
+          className="w-full sm:w-auto h-14 px-12 text-lg font-bold rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-2xl shadow-primary/20 transition-all group overflow-hidden relative"
         >
-          {isSubmitting
-            ? t('common:saving', { defaultValue: 'Saving...' })
-            : t('common:continue', { defaultValue: 'Continue' })}{' '}
-          <ArrowRight className="ml-2 h-4 w-4" />
+          <span className="relative z-10 flex items-center justify-center gap-2">
+            {isSubmitting
+              ? t('common:saving', { defaultValue: 'Initializing...' })
+              : t('common:continue', {
+                  defaultValue: 'Everything Looks Correct',
+                })}{' '}
+            {!isSubmitting && (
+              <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            )}
+          </span>
+          <motion.div
+            className="absolute inset-0 bg-white/20"
+            initial={{ x: '-100%' }}
+            whileHover={{ x: '100%' }}
+            transition={{ duration: 0.6 }}
+          />
         </Button>
-      </div>
+      </motion.div>
     </div>
   )
 }

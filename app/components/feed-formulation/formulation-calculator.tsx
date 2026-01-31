@@ -306,7 +306,9 @@ export function FormulationCalculator({
                   type="number"
                   value={customBatchSize}
                   onChange={(e) => setCustomBatchSize(e.target.value)}
-                  placeholder="Enter size"
+                  placeholder={t('feedFormulation:placeholders.enterSize', {
+                    defaultValue: 'Enter size',
+                  })}
                   className="h-12"
                 />
               </div>
@@ -387,7 +389,12 @@ export function FormulationCalculator({
                         onChange={(e) =>
                           handlePriceChange(ingredient.id, e.target.value)
                         }
-                        placeholder="Price per kg"
+                        placeholder={t(
+                          'feedFormulation:placeholders.pricePerKg',
+                          {
+                            defaultValue: 'Price per kg',
+                          },
+                        )}
                         className="h-12"
                       />
                     </div>

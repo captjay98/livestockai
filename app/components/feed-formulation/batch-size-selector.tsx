@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Label } from '~/components/ui/label'
 import { Input } from '~/components/ui/input'
 import {
@@ -23,6 +24,7 @@ export function BatchSizeSelector({
   onCustomChange,
   options,
 }: BatchSizeSelectorProps) {
+  const { t } = useTranslation(['feedFormulation'])
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div className="space-y-2">
@@ -48,7 +50,9 @@ export function BatchSizeSelector({
             type="number"
             value={customValue}
             onChange={(e) => onCustomChange(e.target.value)}
-            placeholder="Enter size"
+            placeholder={t('feedFormulation:placeholders.enterSize', {
+              defaultValue: 'Enter size',
+            })}
             className="h-12"
           />
         </div>

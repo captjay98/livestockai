@@ -6,7 +6,7 @@ import { Skeleton } from '~/components/ui/skeleton'
 
 export function SuppliersSkeleton() {
   const { t } = useTranslation('suppliers')
-  
+
   return (
     <div className="space-y-6">
       <PageHeader

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ArrowUpDown, Eye, Trash2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import type { SensorType } from '~/lib/db/types'
 import { SENSOR_TYPES, SENSOR_TYPE_CONFIG } from '~/features/sensors/constants'
 import {
@@ -48,6 +49,7 @@ export function SensorList({
   onDelete,
   onView,
 }: SensorListProps) {
+  const { t } = useTranslation(['sensors', 'common'])
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [structureFilter, setStructureFilter] = useState<string>('all')
   const [typeFilter, setTypeFilter] = useState<string>('all')
@@ -97,7 +99,11 @@ export function SensorList({
           onValueChange={(v) => setStatusFilter(v || 'all')}
         >
           <SelectTrigger className="w-48">
-            <SelectValue placeholder="Filter by status" />
+            <SelectValue
+              placeholder={t('filters.statusPlaceholder', {
+                defaultValue: 'Filter by status',
+              })}
+            />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Statuses</SelectItem>
@@ -112,7 +118,11 @@ export function SensorList({
           onValueChange={(v) => setStructureFilter(v || 'all')}
         >
           <SelectTrigger className="w-48">
-            <SelectValue placeholder="Filter by structure" />
+            <SelectValue
+              placeholder={t('filters.structurePlaceholder', {
+                defaultValue: 'Filter by structure',
+              })}
+            />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Structures</SelectItem>
@@ -129,7 +139,11 @@ export function SensorList({
           onValueChange={(v) => setTypeFilter(v || 'all')}
         >
           <SelectTrigger className="w-48">
-            <SelectValue placeholder="Filter by type" />
+            <SelectValue
+              placeholder={t('filters.typePlaceholder', {
+                defaultValue: 'Filter by type',
+              })}
+            />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Types</SelectItem>

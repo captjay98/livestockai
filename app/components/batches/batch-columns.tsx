@@ -122,7 +122,7 @@ export const getBatchColumns = ({
             defaultValue: 'View Details',
           })}
         >
-          <Link to={`/batches/${row.original.id}` as any}>
+          <Link to="/batches/$batchId" params={{ batchId: row.original.id }}>
             <Eye className="h-4 w-4" />
           </Link>
         </Button>

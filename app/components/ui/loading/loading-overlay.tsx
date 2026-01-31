@@ -1,4 +1,5 @@
-import { Spinner } from './spinner'
+import { AnimatePresence, motion } from 'framer-motion'
+import { LogoSpinner } from './logo-spinner'
 import { cn } from '~/lib/utils'
 
 interface LoadingOverlayProps {
@@ -17,14 +18,28 @@ export function LoadingOverlay({
   return (
     <div className={cn('relative', className)}>
       {children}
-      {isLoading && (
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="flex flex-col items-center gap-2">
-            <Spinner size="lg" />
-            <p className="text-sm text-muted-foreground">{message}</p>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {isLoading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-background/60 backdrop-blur-md flex items-center justify-center z-50 rounded-[inherit]"
+          >
+            <div className="flex flex-col items-center gap-4">
+              <LogoSpinner size="md" variant="pulse" />
+              <motion.p
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="text-sm font-medium bg-gradient-to-r from-foreground/80 to-foreground/60 bg-clip-text text-transparent"
+              >
+                {message}
+              </motion.p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

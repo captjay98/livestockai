@@ -81,8 +81,8 @@ export function ExtensionSection() {
           className={`transition-all duration-1000 ease-out flex flex-col items-start mb-24 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
         >
           <div className="flex items-center gap-4 mb-6">
-            <Minus className="w-8 h-8 text-purple-500 stroke-[3]" />
-            <span className="text-xs font-mono uppercase tracking-[0.4em] text-purple-500 font-bold">
+            <Minus className="w-8 h-8 text-emerald-500 stroke-[3]" />
+            <span className="text-xs font-mono uppercase tracking-[0.4em] text-emerald-500 font-bold">
               For Government & NGOs
             </span>
           </div>
@@ -92,7 +92,7 @@ export function ExtensionSection() {
             style={{ color: 'var(--text-landing-primary)' }}
           >
             Built for Agricultural <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500 dark:from-purple-400 dark:to-pink-400">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500 dark:from-emerald-400 dark:to-teal-400">
               Extension Services
             </span>
           </h2>
@@ -118,7 +118,7 @@ export function ExtensionSection() {
               style={{ transitionDelay: `${idx * 150}ms` }}
             >
               {/* Card Gradient Border */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent group-hover:from-purple-500/20 transition-all duration-500" />
+              <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent group-hover:from-emerald-500/20 transition-all duration-500" />
 
               {/* Inner Card */}
               <div
@@ -128,13 +128,13 @@ export function ExtensionSection() {
                   borderColor: 'var(--border-landing-subtle)',
                 }}
               >
-                <div className="w-12 h-12 rounded-xl border bg-gradient-to-br from-purple-500/20 to-pink-500/20 text-purple-600 dark:text-purple-400 border-purple-500/30 transition-all duration-500 group-hover:scale-110 group-hover:-rotate-6 flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-xl border bg-gradient-to-br from-emerald-500/20 to-teal-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 transition-all duration-500 group-hover:scale-110 group-hover:-rotate-6 flex items-center justify-center flex-shrink-0">
                   <benefit.icon className="w-6 h-6 stroke-[1.5]" />
                 </div>
 
                 <div>
                   <h3
-                    className="text-xl font-semibold mb-2 tracking-tight uppercase group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors"
+                    className="text-xl font-semibold mb-2 tracking-tight uppercase group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors"
                     style={{
                       color: 'var(--text-landing-primary)',
                     }}
@@ -153,7 +153,7 @@ export function ExtensionSection() {
                 </div>
 
                 {/* Decorative bottom line */}
-                <div className="absolute bottom-0 left-0 h-[1px] w-0 group-hover:w-full bg-gradient-to-r from-purple-500/40 to-transparent transition-all duration-700" />
+                <div className="absolute bottom-0 left-0 h-[1px] w-0 group-hover:w-full bg-gradient-to-r from-emerald-500/40 to-transparent transition-all duration-700" />
               </div>
             </div>
           ))}
@@ -161,40 +161,61 @@ export function ExtensionSection() {
 
         {/* CTA Buttons */}
         <div
-          className={`flex flex-col sm:flex-row gap-4 justify-center transition-all duration-1000 ease-out ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
+          className={`flex flex-col items-center transition-all duration-1000 ease-out ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}
           style={{ transitionDelay: '600ms' }}
         >
-          <Link
-            to="/support"
-            className="relative px-8 py-4 rounded-xl overflow-hidden group/btn font-mono text-sm font-bold tracking-[0.2em] uppercase transition-all duration-500 bg-purple-500 text-white hover:bg-purple-400"
-          >
-            <span className="relative z-20 flex items-center justify-center gap-2">
-              Request Enterprise Demo
-              <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-            </span>
-            <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
-          </Link>
-
-          <Link
-            to="/features"
-            hash="extension"
-            className="relative px-8 py-4 rounded-xl overflow-hidden group/btn font-mono text-sm font-bold tracking-[0.2em] uppercase transition-all duration-500 bg-black/5 dark:bg-white/5 border hover:border-purple-500/50 hover:bg-purple-500/5 dark:hover:bg-white/10"
+          {/* Pricing Info */}
+          <div
+            className="mb-8 p-6 rounded-2xl border text-center max-w-md transition-colors duration-500"
             style={{
-              color: 'var(--text-landing-primary)',
+              backgroundColor: 'var(--bg-landing-card)',
               borderColor: 'var(--border-landing-subtle)',
             }}
           >
-            <span className="relative z-20 flex items-center justify-center gap-2">
-              Learn More
-              <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-            </span>
-          </Link>
+            <div className="text-xs font-mono uppercase tracking-[0.3em] text-emerald-500 mb-2">
+              GOV-05 • Custom Pricing
+            </div>
+            <p
+              className="text-sm font-light mb-4 transition-colors duration-500"
+              style={{ color: 'var(--text-landing-secondary)' }}
+            >
+              Unlimited extension workers • Multi-district management • SLA
+              guarantees • Dedicated account manager
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Link
+              to="/support"
+              className="relative px-8 py-4 rounded-xl overflow-hidden group/btn font-mono text-sm font-bold tracking-[0.2em] uppercase transition-all duration-500 bg-emerald-500 text-white hover:bg-emerald-400"
+            >
+              <span className="relative z-20 flex items-center justify-center gap-2">
+                Request Enterprise Demo
+                <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+              </span>
+              <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
+            </Link>
+
+            <Link
+              to="/extension-workers"
+              className="relative px-8 py-4 rounded-xl overflow-hidden group/btn font-mono text-sm font-bold tracking-[0.2em] uppercase transition-all duration-500 bg-black/5 dark:bg-white/5 border hover:border-emerald-500/50 hover:bg-emerald-500/5 dark:hover:bg-white/10"
+              style={{
+                color: 'var(--text-landing-primary)',
+                borderColor: 'var(--border-landing-subtle)',
+              }}
+            >
+              <span className="relative z-20 flex items-center justify-center gap-2">
+                Learn More
+                <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+              </span>
+            </Link>
+          </div>
         </div>
       </div>
 
       {/* Background Glows */}
-      <div className="absolute -top-24 -left-24 w-[600px] h-[600px] bg-purple-500/[0.03] blur-[150px] rounded-full pointer-events-none" />
-      <div className="absolute -bottom-24 -right-24 w-[600px] h-[600px] bg-pink-500/[0.03] blur-[150px] rounded-full pointer-events-none" />
+      <div className="absolute -top-24 -left-24 w-[600px] h-[600px] bg-emerald-500/[0.03] blur-[150px] rounded-full pointer-events-none" />
+      <div className="absolute -bottom-24 -right-24 w-[600px] h-[600px] bg-teal-500/[0.03] blur-[150px] rounded-full pointer-events-none" />
     </section>
   )
 }

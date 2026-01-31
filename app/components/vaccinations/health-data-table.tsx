@@ -61,7 +61,11 @@ export function HealthDataTable({
           onTypeChange={onTypeChange}
         />
       }
-      emptyIcon={<Activity className="h-12 w-12 text-muted-foreground" />}
+      emptyIcon={
+        <div className="p-4 rounded-full bg-white/40 dark:bg-white/10 w-fit mx-auto mb-6 shadow-inner border border-white/20">
+          <Activity className="h-10 w-10 text-primary/40" />
+        </div>
+      }
       emptyTitle={t('empty.title')}
       emptyDescription={t('empty.description')}
     />

@@ -116,13 +116,19 @@ export function AuditLogTable({
                             </DialogTitle>
                           </DialogHeader>
                           <pre className="bg-muted p-4 rounded-md overflow-x-auto text-xs font-mono">
-                            {JSON.stringify(
-                              typeof log.details === 'string'
-                                ? JSON.parse(log.details)
-                                : log.details,
-                              null,
-                              2,
-                            )}
+                            {(() => {
+                              try {
+                                const details =
+                                  typeof log.details === 'string'
+                                    ? JSON.parse(log.details)
+                                    : log.details
+                                return JSON.stringify(details, null, 2)
+                              } catch (error) {
+                                return typeof log.details === 'string'
+                                  ? log.details
+                                  : JSON.stringify(log.details, null, 2)
+                              }
+                            })()}
                           </pre>
                         </DialogContent>
                       </Dialog>

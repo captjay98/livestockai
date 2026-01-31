@@ -1,10 +1,9 @@
-import { toast } from 'sonner'
 import React, { useEffect, useState } from 'react'
-import { useRouter } from '@tanstack/react-router'
 import { Building2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { logger } from '~/lib/logger'
-import { getFarmByIdFn, updateFarmFn } from '~/features/farms/server'
+import { useQuery } from '@tanstack/react-query'
+import { getFarmByIdFn } from '~/features/farms/server'
+import { useFarmMutations } from '~/features/farms/mutations'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -38,72 +37,54 @@ export function EditFarmDialog({
   onSuccess,
 }: EditFarmDialogProps) {
   const { t } = useTranslation(['farms', 'common'])
-  const router = useRouter()
+  const { updateFarm } = useFarmMutations()
   const [formData, setFormData] = useState({
     name: '',
     location: '',
     type: 'poultry' as 'poultry' | 'aquaculture' | 'mixed',
   })
-  const [isLoading, setIsLoading] = useState(true)
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
-  useEffect(() => {
-    const loadFarm = async () => {
-      if (open && farmId) {
-        try {
-          const farmData = await getFarmByIdFn({ data: { farmId } })
-          if (farmData) {
-            setFormData({
-              name: farmData.name,
-              location: farmData.location,
-              type: farmData.type as 'poultry' | 'aquaculture' | 'mixed',
-            })
-          }
-        } catch (err) {
-          logger.error('Failed to load farm:', err)
-          toast.error(
-            t('common:errors.operationFailed', {
-              defaultValue: 'Operation failed',
-            }),
-          )
-        } finally {
-          setIsLoading(false)
-        }
-      }
-    }
-    loadFarm()
-  }, [open, farmId])
+  const { data: farmData, isLoading } = useQuery({
+    queryKey: ['farm', farmId],
+    queryFn: () => getFarmByIdFn({ data: { farmId } }),
+    enabled: open && !!farmId,
+  })
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  useEffect(() => {
+    if (farmData) {
+      setFormData({
+        name: farmData.name,
+        location: farmData.location,
+        type: farmData.type as 'poultry' | 'aquaculture' | 'mixed',
+      })
+    }
+  }, [farmData])
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
     setError('')
 
-    try {
-      await updateFarmFn({
+    updateFarm.mutate(
+      {
         data: {
           farmId,
           name: formData.name,
           location: formData.location,
           type: formData.type,
         },
-      })
-      toast.success(t('farms:updated', { defaultValue: 'Farm updated' }))
-      onOpenChange(false)
-      if (onSuccess) onSuccess()
-      router.invalidate()
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : t('farms:error.update', {
-              defaultValue: 'Failed to update farm',
-            }),
-      )
-    } finally {
-      setIsSubmitting(false)
-    }
+      },
+      {
+        onSuccess: () => {
+          onOpenChange(false)
+          onSuccess?.()
+        },
+        onError: (err) =>
+          setError(
+            err instanceof Error ? err.message : t('farms:error.update'),
+          ),
+      },
+    )
   }
 
   return (
@@ -228,15 +209,17 @@ export function EditFarmDialog({
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                disabled={isSubmitting}
+                disabled={updateFarm.isPending}
               >
                 {t('common:cancel', { defaultValue: 'Cancel' })}
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting || !formData.name || !formData.location}
+                disabled={
+                  updateFarm.isPending || !formData.name || !formData.location
+                }
               >
-                {isSubmitting
+                {updateFarm.isPending
                   ? t('common:updating', {
                       defaultValue: 'Updating...',
                     })

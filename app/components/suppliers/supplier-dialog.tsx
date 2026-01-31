@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'sonner'
 import { Button } from '~/components/ui/button'
 import {
   Dialog,
@@ -19,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select'
-import { createSupplierFn } from '~/features/suppliers/server'
+import { useSupplierMutations } from '~/features/suppliers/mutations'
 
 interface SupplierDialogProps {
   open: boolean
@@ -63,7 +62,7 @@ export function SupplierDialog({
 }: SupplierDialogProps) {
   const { t } = useTranslation(['suppliers', 'common'])
   const supplier_types = getSupplierTypes(t)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { createSupplier } = useSupplierMutations()
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -80,12 +79,11 @@ export function SupplierDialog({
       | 'other',
   })
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
-    try {
-      await createSupplierFn({
-        data: {
+    createSupplier.mutate(
+      {
+        supplier: {
           ...formData,
           products: formData.products
             ? formData.products.split(',').map((p) => p.trim())
@@ -94,33 +92,22 @@ export function SupplierDialog({
           location: formData.location || null,
           supplierType: formData.supplierType || null,
         },
-      })
-      onOpenChange(false)
-      toast.success(
-        t('suppliers:form.addSuccess', {
-          defaultValue: 'Supplier added',
-        }),
-      )
-      setFormData({
-        name: '',
-        phone: '',
-        email: '',
-        location: '',
-        products: '',
-        supplierType: '',
-      })
-      onSuccess()
-    } catch (err) {
-      toast.error(
-        err instanceof Error
-          ? err.message
-          : t('suppliers:error.create', {
-              defaultValue: 'Failed to create supplier',
-            }),
-      )
-    } finally {
-      setIsSubmitting(false)
-    }
+      },
+      {
+        onSuccess: () => {
+          onOpenChange(false)
+          setFormData({
+            name: '',
+            phone: '',
+            email: '',
+            location: '',
+            products: '',
+            supplierType: '',
+          })
+          onSuccess()
+        },
+      },
+    )
   }
 
   return (
@@ -132,7 +119,12 @@ export function SupplierDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">{t('suppliers:form.name')}</Label>
+            <Label
+              htmlFor="name"
+              className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+            >
+              {t('suppliers:form.name')}
+            </Label>
             <Input
               id="name"
               value={formData.name}
@@ -143,11 +135,18 @@ export function SupplierDialog({
                 }))
               }
               required
+              className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+              style={{ color: 'var(--text-landing-primary)' }}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">{t('suppliers:form.phone')}</Label>
+            <Label
+              htmlFor="phone"
+              className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+            >
+              {t('suppliers:form.phone')}
+            </Label>
             <Input
               id="phone"
               value={formData.phone}
@@ -158,11 +157,18 @@ export function SupplierDialog({
                 }))
               }
               required
+              className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+              style={{ color: 'var(--text-landing-primary)' }}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">{t('suppliers:form.email')}</Label>
+            <Label
+              htmlFor="email"
+              className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+            >
+              {t('suppliers:form.email')}
+            </Label>
             <Input
               id="email"
               type="email"
@@ -173,11 +179,18 @@ export function SupplierDialog({
                   email: e.target.value,
                 }))
               }
+              className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+              style={{ color: 'var(--text-landing-primary)' }}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="location">{t('suppliers:form.location')}</Label>
+            <Label
+              htmlFor="location"
+              className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+            >
+              {t('suppliers:form.location')}
+            </Label>
             <Input
               id="location"
               value={formData.location}
@@ -187,11 +200,18 @@ export function SupplierDialog({
                   location: e.target.value,
                 }))
               }
+              className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+              style={{ color: 'var(--text-landing-primary)' }}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="supplierType">{t('suppliers:form.type')}</Label>
+            <Label
+              htmlFor="supplierType"
+              className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+            >
+              {t('suppliers:form.type')}
+            </Label>
             <Select
               value={formData.supplierType}
               onValueChange={(value) =>
@@ -201,7 +221,10 @@ export function SupplierDialog({
                 }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger
+                className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                style={{ color: 'var(--text-landing-primary)' }}
+              >
                 <SelectValue>
                   {formData.supplierType
                     ? supplier_types.find(
@@ -221,7 +244,12 @@ export function SupplierDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="products">{t('suppliers:form.products')}</Label>
+            <Label
+              htmlFor="products"
+              className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+            >
+              {t('suppliers:form.products')}
+            </Label>
             <Input
               id="products"
               value={formData.products}
@@ -231,7 +259,11 @@ export function SupplierDialog({
                   products: e.target.value,
                 }))
               }
-              placeholder={t('suppliers:form.productsPlaceholder')}
+              placeholder={t('suppliers:form.productsPlaceholder', {
+                defaultValue: 'e.g., Chicks, Feed, Vaccines',
+              })}
+              className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+              style={{ color: 'var(--text-landing-primary)' }}
             />
           </div>
 
@@ -245,9 +277,13 @@ export function SupplierDialog({
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting || !formData.name || !formData.phone}
+              disabled={
+                createSupplier.isPending || !formData.name || !formData.phone
+              }
             >
-              {isSubmitting ? t('common:saving') : t('suppliers:form.add')}
+              {createSupplier.isPending
+                ? t('common:saving')
+                : t('suppliers:form.add')}
             </Button>
           </DialogFooter>
         </form>

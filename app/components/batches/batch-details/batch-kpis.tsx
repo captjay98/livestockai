@@ -4,14 +4,14 @@ import {
   Package,
   TrendingUp as Performance,
   Scale,
-  Target,
+  Timer,
   TrendingDown,
   TrendingUp,
   Utensils,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import { SummaryCard } from '~/components/ui/summary-card'
 import { useFormatCurrency, useFormatWeight } from '~/features/settings'
 import { getEnhancedProjectionFn } from '~/features/batches/forecasting'
 import { cn } from '~/lib/utils'
@@ -35,12 +35,52 @@ export interface BatchMetrics {
 interface BatchKPIsProps {
   metrics: BatchMetrics
   batchId: string
+  acquisitionDate: Date
+  targetHarvestDate?: Date | null
 }
 
-export function BatchKPIs({ metrics, batchId }: BatchKPIsProps) {
+export function BatchKPIs({
+  metrics,
+  batchId,
+  acquisitionDate,
+  targetHarvestDate,
+}: BatchKPIsProps) {
   const { t } = useTranslation(['batches', 'common', 'dashboard'])
   const { format: formatCurrency } = useFormatCurrency()
-  const { label: weightLabel } = useFormatWeight()
+  const { label: weightLabel, format: formatWeight } = useFormatWeight()
+
+  // Calculate generic metrics
+  const today = new Date()
+  const acquisition = new Date(acquisitionDate)
+  const ageInDays = Math.max(
+    1,
+    Math.floor(
+      (today.getTime() - acquisition.getTime()) / (1000 * 60 * 60 * 24),
+    ),
+  )
+
+  // Calculate Time metrics
+  let daysRemaining = null
+  let progress = 0
+
+  if (targetHarvestDate) {
+    const target = new Date(targetHarvestDate)
+    const totalDuration = Math.max(
+      1,
+      Math.floor(
+        (target.getTime() - acquisition.getTime()) / (1000 * 60 * 60 * 24),
+      ),
+    )
+    daysRemaining = Math.max(
+      0,
+      Math.floor((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)),
+    )
+    progress = Math.min(100, Math.max(0, (ageInDays / totalDuration) * 100))
+  }
+
+  // Calculate Feed metrics
+  const avgDailyFeed =
+    metrics.feedTotalKg > 0 ? metrics.feedTotalKg / ageInDays : 0
 
   // Fetch enhanced projection data
   const { data: projection, isLoading: isLoadingProjection } = useQuery({
@@ -53,217 +93,203 @@ export function BatchKPIs({ metrics, batchId }: BatchKPIsProps) {
     if (!index) return 'text-muted-foreground'
     if (index >= 95 && index <= 105) return 'text-green-600'
     if (index >= 90 && index < 95) return 'text-amber-600'
-    return 'text-red-600'
+    return 'text-red-500'
   }
 
   return (
-    <div className="grid gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3">
-          <CardTitle className="text-xs font-medium text-muted-foreground uppercase">
-            {t('detail.currentStock', {
-              defaultValue: 'Current Stock',
-            })}
-          </CardTitle>
-          <Package className="h-4 w-4 text-emerald-600" />
-        </CardHeader>
-        <CardContent className="p-3 pt-0">
-          <div className="text-2xl font-bold">
-            {metrics.currentQuantity.toLocaleString()}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            {metrics.initialQuantity.toLocaleString()}{' '}
-            {t('detail.initial', { defaultValue: 'initial' })}
-          </p>
-        </CardContent>
-      </Card>
+    <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
+      <SummaryCard
+        title={t('detail.currentStock', { defaultValue: 'Current Stock' })}
+        value={metrics.currentQuantity.toLocaleString()}
+        icon={Package}
+        description={`${metrics.initialQuantity.toLocaleString()} ${t('detail.initial', { defaultValue: 'initial' })}`}
+        iconClassName="bg-emerald-500/10 text-emerald-600"
+      />
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3">
-          <CardTitle className="text-xs font-medium text-muted-foreground uppercase">
-            {t('common:mortality', { defaultValue: 'Mortality' })}
-          </CardTitle>
-          <HeartPulse className="h-4 w-4 text-red-600" />
-        </CardHeader>
-        <CardContent className="p-3 pt-0">
-          <div className="text-2xl font-bold">{metrics.mortalityCount}</div>
-          <div className="flex items-center text-xs text-muted-foreground">
+      <SummaryCard
+        title={t('common:mortality', { defaultValue: 'Mortality' })}
+        value={metrics.mortalityCount}
+        icon={HeartPulse}
+        iconClassName="bg-red-500/10 text-red-600"
+        description={
+          <span className="flex items-center gap-1 font-bold">
             <span
-              className={
+              className={cn(
+                'px-1.5 py-0.5 rounded-full bg-opacity-10',
                 metrics.mortalityRate > 5
-                  ? 'text-red-500 font-medium'
-                  : 'text-green-500'
-              }
+                  ? 'text-red-500 bg-red-500'
+                  : 'text-green-500 bg-green-500',
+              )}
             >
               {metrics.mortalityRate.toFixed(1)}%
             </span>
-            <span className="ml-1">
+            <span className="text-muted-foreground uppercase opacity-70">
               {t('dashboard:rate', { defaultValue: 'rate' })}
             </span>
-          </div>
-        </CardContent>
-      </Card>
+          </span>
+        }
+      />
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3">
-          <CardTitle className="text-xs font-medium text-muted-foreground uppercase">
-            {t('common:feed', { defaultValue: 'Feed' })} ({weightLabel})
-          </CardTitle>
-          <Utensils className="h-4 w-4 text-orange-600" />
-        </CardHeader>
-        <CardContent className="p-3 pt-0">
-          <div className="text-2xl font-bold">
+      <SummaryCard
+        title={t('common:feed', { defaultValue: 'Feed' })}
+        value={
+          <>
             {metrics.feedTotalKg.toLocaleString()}
+            <span className="text-[10px] ml-0.5 font-bold uppercase">
+              {weightLabel}
+            </span>
+          </>
+        }
+        icon={Utensils}
+        iconClassName="bg-orange-500/10 text-orange-600"
+        description={
+          <div className="flex flex-col gap-0.5 mt-0.5">
+            <span className="font-bold uppercase tracking-tighter text-[10px]">
+              {t('batches:fcr', { defaultValue: 'FCR' })}:{' '}
+              <span className="text-foreground">
+                {metrics.feedFcr ? metrics.feedFcr.toFixed(2) : '--'}
+              </span>
+            </span>
+            <span className="text-[10px] text-muted-foreground uppercase">
+              {formatWeight(avgDailyFeed)} / day
+            </span>
           </div>
-          <p className="text-xs text-muted-foreground">
-            {t('batches:fcr', { defaultValue: 'FCR' })}:{' '}
-            {metrics.feedFcr ? metrics.feedFcr.toFixed(2) : '--'}
-          </p>
-        </CardContent>
-      </Card>
+        }
+      />
 
-      {/* Current Weight */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3">
-          <CardTitle className="text-xs font-medium text-muted-foreground uppercase">
-            {t('batches:currentWeight', {
-              defaultValue: 'Current Weight',
-            })}
-          </CardTitle>
-          <Scale className="h-4 w-4 text-blue-600" />
-        </CardHeader>
-        <CardContent className="p-3 pt-0">
-          {isLoadingProjection ? (
-            <div className="text-lg font-bold text-muted-foreground">--</div>
+      <SummaryCard
+        title={t('batches:schedule', { defaultValue: 'Schedule' })}
+        value={
+          daysRemaining !== null ? (
+            <>
+              {daysRemaining}
+              <span className="text-[10px] ml-1 font-bold uppercase text-muted-foreground">
+                days left
+              </span>
+            </>
           ) : (
-            <div className="text-lg font-bold">
+            <span className="text-sm">
+              {t('batches:noTarget', { defaultValue: 'No Target' })}
+            </span>
+          )
+        }
+        icon={Timer}
+        iconClassName="bg-violet-500/10 text-violet-600"
+        description={
+          targetHarvestDate ? (
+            <div className="w-full mt-2 space-y-1">
+              <div className="flex justify-between text-[10px] font-medium uppercase text-muted-foreground">
+                <span>{progress.toFixed(0)}% Done</span>
+                <span>{ageInDays}d Old</span>
+              </div>
+              <div className="h-1.5 w-full bg-secondary/50 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-violet-500 rounded-full transition-all duration-500"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+          ) : (
+            <span className="text-[10px] text-muted-foreground">
+              Set target date
+            </span>
+          )
+        }
+      />
+
+      <SummaryCard
+        title={t('batches:currentWeight', { defaultValue: 'Weight' })}
+        value={
+          isLoadingProjection ? (
+            <span className="animate-pulse">--</span>
+          ) : (
+            <>
               {projection?.currentWeightG
                 ? (projection.currentWeightG / 1000).toFixed(2)
-                : '--'}{' '}
-              kg
-            </div>
-          )}
-          <p className="text-xs text-muted-foreground">
-            {t('batches:avgWeight', { defaultValue: 'avg weight' })}
-          </p>
-        </CardContent>
-      </Card>
-
-      {/* Expected Weight */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3">
-          <CardTitle className="text-xs font-medium text-muted-foreground uppercase">
-            {t('batches:expectedWeight', {
-              defaultValue: 'Expected Weight',
-            })}
-          </CardTitle>
-          <Target className="h-4 w-4 text-purple-600" />
-        </CardHeader>
-        <CardContent className="p-3 pt-0">
-          {isLoadingProjection ? (
-            <div className="text-lg font-bold text-muted-foreground">--</div>
-          ) : (
-            <div className="text-lg font-bold">
-              {projection?.expectedWeightG
-                ? (projection.expectedWeightG / 1000).toFixed(2)
-                : '--'}{' '}
-              kg
-            </div>
-          )}
-          <p className="text-xs text-muted-foreground">
-            {t('batches:standard', { defaultValue: 'standard' })}
-          </p>
-        </CardContent>
-      </Card>
-
-      {/* Performance Index */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3">
-          <CardTitle className="text-xs font-medium text-muted-foreground uppercase">
-            {t('batches:performanceIndex', {
-              defaultValue: 'Performance',
-            })}
-          </CardTitle>
-          <Performance className="h-4 w-4 text-indigo-600" />
-        </CardHeader>
-        <CardContent className="p-3 pt-0">
-          {isLoadingProjection ? (
-            <div className="text-lg font-bold text-muted-foreground">--</div>
-          ) : (
-            <div
-              className={cn(
-                'text-lg font-bold',
-                getPerformanceColor(projection?.performanceIndex ?? null),
-              )}
-            >
-              {projection?.performanceIndex
-                ? projection.performanceIndex.toFixed(0)
                 : '--'}
-            </div>
-          )}
-          <p className="text-xs text-muted-foreground">
-            {t('batches:index', { defaultValue: 'index' })}
-          </p>
-        </CardContent>
-      </Card>
+              <span className="text-[10px] ml-0.5 font-bold uppercase">kg</span>
+            </>
+          )
+        }
+        icon={Scale}
+        iconClassName="bg-blue-500/10 text-blue-600"
+        description={
+          <span className="uppercase truncate">
+            {t('batches:avgWeight', { defaultValue: 'Avg Weight' })}
+          </span>
+        }
+      />
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3">
-          <CardTitle className="text-xs font-medium text-muted-foreground uppercase">
-            {t('common:expenses', { defaultValue: 'Expenses' })}
-          </CardTitle>
-          <TrendingDown className="h-4 w-4 text-red-600" />
-        </CardHeader>
-        <CardContent className="p-3 pt-0">
-          <div className="text-lg font-bold truncate">
-            {formatCurrency(metrics.totalInvestment)}
-          </div>
-          <p className="text-xs text-muted-foreground">
+      <SummaryCard
+        title={t('batches:performanceIndex', { defaultValue: 'PI' })}
+        value={
+          isLoadingProjection ? (
+            <span className="animate-pulse">--</span>
+          ) : projection?.performanceIndex ? (
+            projection.performanceIndex.toFixed(0)
+          ) : (
+            '--'
+          )
+        }
+        valueClassName={getPerformanceColor(
+          projection?.performanceIndex ?? null,
+        )}
+        icon={Performance}
+        iconClassName="bg-indigo-500/10 text-indigo-600"
+        description={
+          <span className="uppercase">
+            {t('batches:index', { defaultValue: 'Index' })}
+          </span>
+        }
+      />
+
+      <SummaryCard
+        title={t('common:expenses', { defaultValue: 'Expenses' })}
+        value={formatCurrency(metrics.totalInvestment)}
+        icon={TrendingDown}
+        iconClassName="bg-red-500/10 text-red-600"
+        description={
+          <span className="uppercase font-medium">
             {formatCurrency(metrics.costPerUnit)}{' '}
             {t('common:perUnit', { defaultValue: '/ unit' })}
-          </p>
-        </CardContent>
-      </Card>
+          </span>
+        }
+      />
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3">
-          <CardTitle className="text-xs font-medium text-muted-foreground uppercase">
-            {t('common:revenue', { defaultValue: 'Revenue' })}
-          </CardTitle>
-          <TrendingUp className="h-4 w-4 text-green-600" />
-        </CardHeader>
-        <CardContent className="p-3 pt-0">
-          <div className="text-lg font-bold truncate">
-            {formatCurrency(metrics.totalRevenue)}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            {metrics.totalSold} {t('statuses.sold', { defaultValue: 'sold' })} @{' '}
-            {formatCurrency(metrics.avgSalesPrice)}
-          </p>
-        </CardContent>
-      </Card>
+      <SummaryCard
+        title={t('common:revenue', { defaultValue: 'Revenue' })}
+        value={formatCurrency(metrics.totalRevenue)}
+        icon={TrendingUp}
+        iconClassName="bg-green-500/10 text-green-600"
+        description={
+          <span className="uppercase truncate font-medium">
+            {metrics.totalSold} sold @ {formatCurrency(metrics.avgSalesPrice)}
+          </span>
+        }
+      />
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-3">
-          <CardTitle className="text-xs font-medium text-muted-foreground uppercase">
-            {t('detail.profit', { defaultValue: 'Profit / Loss' })}
-          </CardTitle>
-          <DollarSign className="h-4 w-4 text-blue-600" />
-        </CardHeader>
-        <CardContent className="p-3 pt-0">
-          <div
-            className={cn(
-              'text-lg font-bold truncate',
-              metrics.netProfit >= 0 ? 'text-green-600' : 'text-red-500',
-            )}
-          >
-            {formatCurrency(metrics.netProfit)}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            {metrics.roi.toFixed(1)}% {t('detail.roi', { defaultValue: 'ROI' })}
-          </p>
-        </CardContent>
-      </Card>
+      <SummaryCard
+        title={t('detail.profit', { defaultValue: 'Profit / Loss' })}
+        value={formatCurrency(metrics.netProfit)}
+        valueClassName={
+          metrics.netProfit >= 0 ? 'text-green-600' : 'text-red-500'
+        }
+        icon={DollarSign}
+        iconClassName="bg-blue-500/10 text-blue-600"
+        className="col-span-2 md:col-span-1 lg:col-span-1 min-w-[140px]"
+        description={
+          <span className="font-bold uppercase">
+            <span
+              className={metrics.roi >= 0 ? 'text-green-600' : 'text-red-500'}
+            >
+              {metrics.roi.toFixed(1)}%
+            </span>{' '}
+            <span className="text-muted-foreground">
+              {t('detail.roi', { defaultValue: 'ROI' })}
+            </span>
+          </span>
+        }
+      />
     </div>
   )
 }

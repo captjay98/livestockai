@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Label } from '~/components/ui/label'
 import {
   Select,
@@ -20,16 +21,23 @@ export function SpeciesSelector({
   options,
   disabled,
 }: SpeciesSelectorProps) {
+  const { t } = useTranslation(['feedFormulation', 'common'])
   return (
     <div className="space-y-2">
-      <Label>Species</Label>
+      <Label>
+        {t('feedFormulation:labels.species', { defaultValue: 'Species' })}
+      </Label>
       <Select
         value={value}
         onValueChange={(v) => onChange(v || '')}
         disabled={disabled}
       >
         <SelectTrigger className="h-12">
-          <SelectValue placeholder="Select species" />
+          <SelectValue
+            placeholder={t('feedFormulation:placeholders.selectSpecies', {
+              defaultValue: 'Select species',
+            })}
+          />
         </SelectTrigger>
         <SelectContent>
           {options.map((option) => (

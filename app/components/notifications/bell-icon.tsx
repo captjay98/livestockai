@@ -1,6 +1,7 @@
 import { Bell, Check, X } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNotifications } from '~/features/notifications'
 import { Button } from '~/components/ui/button'
 import { Badge } from '~/components/ui/badge'
@@ -8,13 +9,9 @@ import { useFormatDate } from '~/features/settings'
 import { cn } from '~/lib/utils'
 
 export function NotificationBell() {
-  const {
-    notifications,
-    unreadCount,
-    markAsRead,
-    markAllAsRead,
-    deleteNotification,
-  } = useNotifications()
+  const { t } = useTranslation(['notifications', 'common'])
+  const { notifications, unreadCount, markAsRead, markAllAsRead } =
+    useNotifications()
   const { format: formatDate } = useFormatDate()
   const [isOpen, setIsOpen] = useState(false)
 
@@ -51,10 +48,14 @@ export function NotificationBell() {
           <div
             className="absolute right-0 top-full mt-2 w-80 bg-background border rounded-lg shadow-lg z-50"
             role="menu"
-            aria-label="Notifications"
+            aria-label={t('notifications:ariaLabel', {
+              defaultValue: 'Notifications',
+            })}
           >
             <div className="flex items-center justify-between p-4 border-b">
-              <h3 className="font-semibold">Notifications</h3>
+              <h3 className="font-semibold">
+                {t('notifications:title', { defaultValue: 'Notifications' })}
+              </h3>
               {unreadCount > 0 && (
                 <Button
                   variant="ghost"
@@ -62,7 +63,9 @@ export function NotificationBell() {
                   onClick={() => markAllAsRead()}
                   className="h-8 text-xs"
                 >
-                  Mark all read
+                  {t('notifications:markAllRead', {
+                    defaultValue: 'Mark all read',
+                  })}
                 </Button>
               )}
             </div>
@@ -70,7 +73,11 @@ export function NotificationBell() {
               {recentNotifications.length === 0 ? (
                 <div className="p-8 text-center text-muted-foreground">
                   <Bell className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No notifications</p>
+                  <p className="text-sm">
+                    {t('notifications:empty', {
+                      defaultValue: 'No notifications',
+                    })}
+                  </p>
                 </div>
               ) : (
                 <div className="divide-y">
@@ -124,7 +131,9 @@ export function NotificationBell() {
                               size="icon"
                               className="h-6 w-6"
                               onClick={() => markAsRead(notification.id)}
-                              title="Mark as read"
+                              title={t('notifications:markAsRead', {
+                                defaultValue: 'Mark as read',
+                              })}
                             >
                               <Check className="h-3 w-3" />
                             </Button>
@@ -132,9 +141,12 @@ export function NotificationBell() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-6 w-6"
-                            onClick={() => deleteNotification(notification.id)}
-                            title="Delete"
+                            aria-label={t('common:a11y.deleteNotification', {
+                              defaultValue: 'Delete notification',
+                            })}
+                            title={t('common:a11y.deleteNotification', {
+                              defaultValue: 'Delete notification',
+                            })}
                           >
                             <X className="h-3 w-3" />
                           </Button>

@@ -50,7 +50,7 @@ function TabsList({
   return (
     <div
       className={cn(
-        'flex h-auto flex-wrap items-center justify-between gap-1 rounded-md bg-muted p-1 text-muted-foreground',
+        'flex h-auto flex-wrap items-center justify-start gap-1 rounded-xl bg-white/40 dark:bg-black/40 backdrop-blur-md p-1 text-muted-foreground border border-white/20 dark:border-white/10 shadow-sm',
         className,
       )}
       {...props}
@@ -70,10 +70,10 @@ function TabsTrigger({
     <button
       type="button"
       className={cn(
-        'inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+        'inline-flex items-center justify-center whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-bold tracking-tight ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none',
         isSelected
-          ? 'bg-background text-foreground shadow-sm'
-          : 'hover:bg-background/50 hover:text-foreground',
+          ? 'bg-white/80 dark:bg-white/20 text-foreground shadow-sm scale-[1.02]'
+          : 'hover:bg-white/20 hover:text-foreground text-muted-foreground/70',
         className,
       )}
       onClick={() => context?.onValueChange(value)}
@@ -93,7 +93,7 @@ function TabsContent({
   return (
     <div
       className={cn(
-        'mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        'mt-4 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 animate-in fade-in-50 duration-200',
         className,
       )}
       {...props}

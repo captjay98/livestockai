@@ -1,5 +1,6 @@
-import { Label } from '~/components/ui/label'
+import { useTranslation } from 'react-i18next'
 import { Input } from '~/components/ui/input'
+import { Label } from '~/components/ui/label'
 
 interface PriceEditorProps {
   ingredients: Array<{
@@ -20,9 +21,14 @@ export function PriceEditor({
   userPrices,
   formatCurrency,
 }: PriceEditorProps) {
+  const { t } = useTranslation(['feedFormulation'])
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-medium">Ingredient Prices</h3>
+      <h3 className="text-lg font-medium">
+        {t('feedFormulation:ingredientPrices', {
+          defaultValue: 'Ingredient Prices',
+        })}
+      </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {ingredients.map((ingredient) => {
           const userPrice = userPrices?.find(

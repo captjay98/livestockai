@@ -275,7 +275,9 @@ export function ExpenseFormDialog({
                     amount: e.target.value,
                   }))
                 }
-                placeholder="0.00"
+                placeholder={t('placeholders.amount', {
+                  defaultValue: '0.00',
+                })}
                 required
               />
             </div>

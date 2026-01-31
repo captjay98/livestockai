@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export function DocsHero() {
+  const { t } = useTranslation('common')
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
@@ -68,7 +70,9 @@ export function DocsHero() {
           </div>
           <input
             type="text"
-            placeholder="Search documentation..."
+            placeholder={t('docs.searchPlaceholder', {
+              defaultValue: 'Search documentation...',
+            })}
             className="w-full pl-12 pr-4 py-4 rounded-xl border focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-light"
             style={{
               backgroundColor: 'var(--bg-landing-card)',

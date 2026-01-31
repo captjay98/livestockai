@@ -42,7 +42,7 @@ export function RegionalTab({
   const previewDate = new Date()
 
   return (
-    <Card className="p-6 space-y-8">
+    <Card className="p-4 sm:p-6 space-y-8 bg-white/30 dark:bg-black/30 backdrop-blur-md border-white/20 dark:border-white/10 shadow-sm rounded-2xl">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">{t('regional.title')}</h2>
         <Button

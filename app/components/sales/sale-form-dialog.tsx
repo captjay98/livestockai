@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Bird, Egg, Fish } from 'lucide-react'
+import { Bird, Bug, Fish } from 'lucide-react'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -68,7 +68,13 @@ export function SaleFormDialog({
   const { t } = useTranslation(['sales', 'common'])
   const [error, setError] = useState('')
   const [formData, setFormData] = useState({
-    livestockType: 'poultry' as 'poultry' | 'fish' | 'eggs',
+    livestockType: 'poultry' as
+      | 'poultry'
+      | 'fish'
+      | 'cattle'
+      | 'goats'
+      | 'sheep'
+      | 'bees',
     batchId: '',
     customerId: '',
     quantity: '',
@@ -79,7 +85,13 @@ export function SaleFormDialog({
   useEffect(() => {
     if (initialData) {
       setFormData({
-        livestockType: initialData.livestockType as 'poultry' | 'fish' | 'eggs',
+        livestockType: initialData.livestockType as
+          | 'poultry'
+          | 'fish'
+          | 'cattle'
+          | 'goats'
+          | 'sheep'
+          | 'bees',
         batchId: initialData.batchId || '',
         customerId: initialData.customerId || '',
         quantity: initialData.quantity.toString(),
@@ -158,10 +170,28 @@ export function SaleFormDialog({
                       {t('livestockTypes.fish')}
                     </span>
                   </SelectItem>
-                  <SelectItem value="eggs">
+                  <SelectItem value="cattle">
                     <span className="flex items-center gap-2">
-                      <Egg className="h-4 w-4" />
-                      {t('livestockTypes.eggs')}
+                      <span>🐄</span>
+                      {t('livestockTypes.cattle')}
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="goats">
+                    <span className="flex items-center gap-2">
+                      <span>🐐</span>
+                      {t('livestockTypes.goats')}
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="sheep">
+                    <span className="flex items-center gap-2">
+                      <span>🐑</span>
+                      {t('livestockTypes.sheep')}
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="bees">
+                    <span className="flex items-center gap-2">
+                      <Bug className="h-4 w-4" />
+                      {t('livestockTypes.bees')}
                     </span>
                   </SelectItem>
                 </SelectContent>
@@ -169,7 +199,7 @@ export function SaleFormDialog({
             </div>
           )}
 
-          {batches.length > 0 && formData.livestockType !== 'eggs' && (
+          {batches.length > 0 && (
             <div className="space-y-2">
               <Label>
                 {t('labels.batch')} ({t('common.optional')})
@@ -246,7 +276,9 @@ export function SaleFormDialog({
                     quantity: e.target.value,
                   }))
                 }
-                placeholder="0"
+                placeholder={t('placeholders.quantity', {
+                  defaultValue: '0',
+                })}
                 required
               />
             </div>
@@ -265,7 +297,9 @@ export function SaleFormDialog({
                     unitPrice: e.target.value,
                   }))
                 }
-                placeholder="0.00"
+                placeholder={t('placeholders.unitPrice', {
+                  defaultValue: '0.00',
+                })}
                 required
               />
             </div>

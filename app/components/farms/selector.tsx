@@ -1,4 +1,5 @@
 import { Building2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useFarm } from '~/features/farms/context'
 import {
   Select,
@@ -15,13 +16,16 @@ interface FarmSelectorProps {
 }
 
 export function FarmSelector({ className, farms = [] }: FarmSelectorProps) {
+  const { t } = useTranslation(['common'])
   const { selectedFarmId, setSelectedFarmId } = useFarm()
 
   if (farms.length === 0) {
     return (
       <div className={cn('flex items-center gap-2', className)}>
         <Building2 className="h-4 w-4 text-muted-foreground" />
-        <span className="text-sm text-muted-foreground">No farms</span>
+        <span className="text-sm text-muted-foreground">
+          {t('common:noFarms', { defaultValue: 'No farms' })}
+        </span>
       </div>
     )
   }
@@ -39,11 +43,13 @@ export function FarmSelector({ className, farms = [] }: FarmSelectorProps) {
           <SelectValue>
             {selectedFarmId
               ? farms.find((f) => f.id === selectedFarmId)?.name
-              : 'All Farms'}
+              : t('common:allFarms', { defaultValue: 'All Farms' })}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Farms</SelectItem>
+          <SelectItem value="all">
+            {t('common:allFarms', { defaultValue: 'All Farms' })}
+          </SelectItem>
           {farms.map((farm) => (
             <SelectItem key={farm.id} value={farm.id}>
               {farm.name}

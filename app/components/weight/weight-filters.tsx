@@ -26,7 +26,7 @@ export function WeightFilters({
       <Select
         value={batchId || 'all'}
         onValueChange={(value) => {
-          if (value === null) return
+          if (!value) return
           onBatchChange(value === 'all' ? undefined : value)
         }}
       >

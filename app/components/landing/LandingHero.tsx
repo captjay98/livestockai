@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { ArrowRight } from 'lucide-react'
+import { useSession } from '~/features/auth/client'
 
 export function LandingHero() {
   const textRef = useRef<HTMLDivElement>(null)
   const visualRef = useRef<HTMLDivElement>(null)
+  const { data: session } = useSession()
 
   // Trigger entry animation
   const [isVisible, setIsVisible] = useState(false)
@@ -110,15 +112,27 @@ export function LandingHero() {
           <div
             className={`mt-8 flex flex-wrap gap-4 transform transition-all duration-1000 ease-out translate-y-8 opacity-0 delay-700 ${isVisible ? 'translate-y-0 opacity-100' : ''}`}
           >
-            <Link
-              to="/register"
-              className="group relative px-6 py-3 rounded-lg bg-emerald-500 text-black text-sm font-semibold tracking-tight overflow-hidden hover:bg-emerald-400 transition-colors"
-            >
-              <span className="relative z-10 flex items-center gap-2">
-                Start Free
-                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-              </span>
-            </Link>
+            {session?.user ? (
+              <Link
+                to="/dashboard"
+                className="group relative px-6 py-3 rounded-lg bg-emerald-500 text-black text-sm font-semibold tracking-tight overflow-hidden hover:bg-emerald-400 transition-colors"
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  Go to Dashboard
+                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                </span>
+              </Link>
+            ) : (
+              <Link
+                to="/register"
+                className="group relative px-6 py-3 rounded-lg bg-emerald-500 text-black text-sm font-semibold tracking-tight overflow-hidden hover:bg-emerald-400 transition-colors"
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  Start Free
+                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                </span>
+              </Link>
+            )}
             <Link
               to="/features"
               className="px-6 py-3 rounded-lg border text-sm font-medium hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center gap-2"

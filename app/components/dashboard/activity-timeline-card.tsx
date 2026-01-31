@@ -59,10 +59,13 @@ export function ActivityTimelineCard() {
     },
   ]
 
+  const cardClassName =
+    'bg-white/40 dark:bg-black/40 backdrop-blur-md border-white/20 dark:border-white/10 shadow-lg hover:bg-white/50 dark:hover:bg-black/50 transition-all rounded-3xl overflow-hidden'
+
   return (
-    <Card>
+    <Card className={cardClassName}>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm flex items-center gap-2">
+        <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
           <Calendar className="h-4 w-4" />
           {t('dashboard.recentActivity', {
             defaultValue: 'Recent Activity',
@@ -70,21 +73,30 @@ export function ActivityTimelineCard() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="relative pl-4 space-y-3 before:absolute before:left-1.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-border">
+        <div className="relative pl-4 space-y-4 before:absolute before:left-1.5 before:top-2 before:bottom-2 before:w-[2px] before:bg-gradient-to-b before:from-muted/50 before:to-transparent">
           {activityItems.map((item, i) => (
-            <div key={i} className="relative">
+            <div key={i} className="relative group">
               <div
                 className={cn(
-                  'absolute -left-[21px] top-0 h-7 w-7 rounded-full flex items-center justify-center',
-                  item.color.replace('text-', 'bg-').replace('600', '200'),
+                  'absolute -left-[22px] top-0 h-8 w-8 rounded-full flex items-center justify-center border-2 border-background shadow-sm transition-transform group-hover:scale-110',
+                  item.color.replace('text-', 'bg-').replace('600', '500/20'),
                 )}
               >
-                <item.icon className={cn('h-3.5 w-3.5', item.color)} />
+                <item.icon
+                  className={cn(
+                    'h-3.5 w-3.5',
+                    item.color.replace('bg-', 'text-').replace('100', '500'),
+                  )}
+                />
               </div>
-              <div className="pl-2">
-                <p className="text-sm font-medium">{item.title}</p>
-                <p className="text-xs text-muted-foreground">{item.desc}</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
+              <div className="pl-3 py-1">
+                <p className="text-sm font-bold text-foreground">
+                  {item.title}
+                </p>
+                <p className="text-xs text-muted-foreground font-medium">
+                  {item.desc}
+                </p>
+                <p className="text-[10px] text-muted-foreground/70 mt-1 uppercase tracking-wide">
                   {item.time}
                 </p>
               </div>

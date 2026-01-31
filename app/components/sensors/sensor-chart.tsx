@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { format, subHours } from 'date-fns'
+import { useTranslation } from 'react-i18next'
 import {
   Bar,
   ComposedChart,
@@ -40,6 +41,7 @@ export function SensorChart({
   structureId,
   showMortality = false,
 }: SensorChartProps) {
+  const { t } = useTranslation(['sensors'])
   const [timeRange, setTimeRange] = useState<TimeRange>('24h')
   const [data, setData] = useState<
     Array<{ timestamp: string; value: number; mortality?: number }>
@@ -102,7 +104,9 @@ export function SensorChart({
   if (loading) {
     return (
       <div className="h-80 flex items-center justify-center">
-        <div className="text-muted-foreground">Loading...</div>
+        <div className="text-muted-foreground">
+          {t('sensors:loading', { defaultValue: 'Loading...' })}
+        </div>
       </div>
     )
   }
@@ -110,7 +114,9 @@ export function SensorChart({
   if (data.length === 0) {
     return (
       <div className="h-80 flex items-center justify-center">
-        <div className="text-muted-foreground">No data available</div>
+        <div className="text-muted-foreground">
+          {t('sensors:noData', { defaultValue: 'No data available' })}
+        </div>
       </div>
     )
   }

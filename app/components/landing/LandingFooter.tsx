@@ -104,6 +104,14 @@ export function LandingFooter() {
               Features
             </Link>
             <Link
+              to="/marketplace"
+              search={{ page: 1, pageSize: 12, radiusKm: 50, sortBy: 'newest' }}
+              className="text-sm transition-colors hover:text-emerald-500"
+              style={{ color: 'var(--text-landing-secondary)' }}
+            >
+              Marketplace
+            </Link>
+            <Link
               to="/pricing"
               className="text-sm transition-colors hover:text-emerald-500"
               style={{ color: 'var(--text-landing-secondary)' }}
@@ -152,6 +160,13 @@ export function LandingFooter() {
               style={{ color: 'var(--text-landing-secondary)' }}
             >
               Support
+            </Link>
+            <Link
+              to="/extension-workers"
+              className="text-sm transition-colors hover:text-emerald-500"
+              style={{ color: 'var(--text-landing-secondary)' }}
+            >
+              Extension Workers
             </Link>
           </div>
         </div>

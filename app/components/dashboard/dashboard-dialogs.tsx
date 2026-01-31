@@ -1,11 +1,10 @@
 import type { DashboardFarm } from '~/features/dashboard/types'
-import { ExpenseDialog } from '~/components/dialogs/expense-dialog'
-import { EditFarmDialog } from '~/components/dialogs/edit-farm-dialog'
-import { BatchDialog } from '~/components/dialogs/batch-dialog'
-import { SaleDialog } from '~/components/dialogs/sale-dialog'
-import { FeedDialog } from '~/components/dialogs/feed-dialog'
-import { MortalityDialog } from '~/components/dialogs/mortality-dialog'
-import { EggDialog } from '~/components/dialogs/egg-dialog'
+import { ExpenseDialog } from '~/components/expenses/expense-dialog'
+import { EditFarmDialog } from '~/components/farms/edit-farm-dialog'
+import { BatchDialog } from '~/components/batches/batch-dialog'
+import { FeedDialog } from '~/components/feed/feed-dialog'
+import { MortalityDialog } from '~/components/mortality/mortality-dialog'
+import { EggDialog } from '~/components/eggs/egg-dialog'
 
 interface DashboardDialogsProps {
   selectedFarmId: string | null
@@ -16,8 +15,6 @@ interface DashboardDialogsProps {
   setEditFarmDialogOpen: (open: boolean) => void
   batchDialogOpen: boolean
   setBatchDialogOpen: (open: boolean) => void
-  saleDialogOpen: boolean
-  setSaleDialogOpen: (open: boolean) => void
   feedDialogOpen: boolean
   setFeedDialogOpen: (open: boolean) => void
   eggDialogOpen: boolean
@@ -35,8 +32,6 @@ export function DashboardDialogs({
   setEditFarmDialogOpen,
   batchDialogOpen,
   setBatchDialogOpen,
-  saleDialogOpen,
-  setSaleDialogOpen,
   feedDialogOpen,
   setFeedDialogOpen,
   eggDialogOpen,
@@ -56,11 +51,6 @@ export function DashboardDialogs({
           <BatchDialog
             open={batchDialogOpen}
             onOpenChange={setBatchDialogOpen}
-          />
-          <SaleDialog
-            farmId={selectedFarmId}
-            open={saleDialogOpen}
-            onOpenChange={setSaleDialogOpen}
           />
           <FeedDialog
             farmId={selectedFarmId}

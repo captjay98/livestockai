@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
+import { useBreedMutations } from '~/features/breeds/mutations'
 import { Button } from '~/components/ui/button'
 import {
   Dialog,
@@ -15,22 +16,18 @@ import { Textarea } from '~/components/ui/textarea'
 interface BreedRequestDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSubmit: (data: {
-    breedName: string
-    typicalMarketWeightG?: number
-    typicalDaysToMarket?: number
-    typicalFcr?: number
-    source?: string
-    userEmail?: string
-    notes?: string
-  }) => Promise<void>
+  moduleKey: string
+  speciesKey: string
 }
 
 export function BreedRequestDialog({
   open,
   onOpenChange,
-  onSubmit,
+  moduleKey,
+  speciesKey,
 }: BreedRequestDialogProps) {
+  const { t } = useTranslation(['breeds'])
+  const { submitBreedRequest, isPending } = useBreedMutations()
   const [formData, setFormData] = useState({
     breedName: '',
     typicalMarketWeightG: '',
@@ -40,13 +37,13 @@ export function BreedRequestDialog({
     userEmail: '',
     notes: '',
   })
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
     try {
-      await onSubmit({
+      await submitBreedRequest.mutateAsync({
+        moduleKey,
+        speciesKey,
         breedName: formData.breedName,
         typicalMarketWeightG: formData.typicalMarketWeightG
           ? parseInt(formData.typicalMarketWeightG)
@@ -61,7 +58,6 @@ export function BreedRequestDialog({
         userEmail: formData.userEmail || undefined,
         notes: formData.notes || undefined,
       })
-      toast.success("Breed request submitted! We'll review it soon.")
       onOpenChange(false)
       setFormData({
         breedName: '',
@@ -72,10 +68,8 @@ export function BreedRequestDialog({
         userEmail: '',
         notes: '',
       })
-    } catch (err) {
-      toast.error('Failed to submit request')
-    } finally {
-      setIsSubmitting(false)
+    } catch {
+      // Error handled by mutation
     }
   }
 
@@ -102,7 +96,9 @@ export function BreedRequestDialog({
                   breedName: e.target.value,
                 }))
               }
-              placeholder="e.g., Hubbard Classic"
+              placeholder={t('breeds:placeholders.breedName', {
+                defaultValue: 'e.g., Hubbard Classic',
+              })}
               required
             />
           </div>
@@ -120,7 +116,9 @@ export function BreedRequestDialog({
                     typicalMarketWeightG: e.target.value,
                   }))
                 }
-                placeholder="2800"
+                placeholder={t('breeds:placeholders.marketWeight', {
+                  defaultValue: '2800',
+                })}
               />
             </div>
             <div className="space-y-2">
@@ -135,7 +133,9 @@ export function BreedRequestDialog({
                     typicalDaysToMarket: e.target.value,
                   }))
                 }
-                placeholder="42"
+                placeholder={t('breeds:placeholders.daysToMarket', {
+                  defaultValue: '42',
+                })}
               />
             </div>
           </div>
@@ -153,7 +153,9 @@ export function BreedRequestDialog({
                   typicalFcr: e.target.value,
                 }))
               }
-              placeholder="1.65"
+              placeholder={t('breeds:placeholders.fcr', {
+                defaultValue: '1.65',
+              })}
             />
             <p className="text-xs text-muted-foreground">
               Feed Conversion Ratio (if known)
@@ -171,7 +173,9 @@ export function BreedRequestDialog({
                   source: e.target.value,
                 }))
               }
-              placeholder="e.g., Zartech Hatchery"
+              placeholder={t('breeds:placeholders.source', {
+                defaultValue: 'e.g., Zartech Hatchery',
+              })}
             />
           </div>
 
@@ -187,7 +191,9 @@ export function BreedRequestDialog({
                   userEmail: e.target.value,
                 }))
               }
-              placeholder="you@example.com"
+              placeholder={t('breeds:placeholders.email', {
+                defaultValue: 'you@example.com',
+              })}
             />
           </div>
 
@@ -202,7 +208,9 @@ export function BreedRequestDialog({
                   notes: e.target.value,
                 }))
               }
-              placeholder="Any additional information about this breed..."
+              placeholder={t('breeds:placeholders.notes', {
+                defaultValue: 'Any additional information about this breed...',
+              })}
               rows={3}
             />
           </div>
@@ -212,12 +220,12 @@ export function BreedRequestDialog({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
+              disabled={isPending}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Submitting...' : 'Submit Request'}
+            <Button type="submit" disabled={isPending}>
+              {isPending ? 'Submitting...' : 'Submit Request'}
             </Button>
           </div>
         </form>

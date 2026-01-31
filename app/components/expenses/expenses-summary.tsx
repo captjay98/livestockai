@@ -13,7 +13,8 @@ import {
   Wrench,
   Zap,
 } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import type { LucideIcon } from 'lucide-react'
+import { SummaryCard } from '~/components/ui/summary-card'
 
 interface ExpensesSummaryData {
   byCategory: Record<string, { count: number; amount: number }>
@@ -25,19 +26,19 @@ interface ExpensesSummaryProps {
   formatCurrency: (value: string | number) => string
 }
 
-const CATEGORY_ICONS: Record<string, React.ReactNode> = {
-  feed: <Package className="h-4 w-4" />,
-  medicine: <Pill className="h-4 w-4" />,
-  equipment: <Wrench className="h-4 w-4" />,
-  utilities: <Zap className="h-4 w-4" />,
-  labor: <Users className="h-4 w-4" />,
-  transport: <Truck className="h-4 w-4" />,
-  livestock: <Bird className="h-4 w-4" />,
-  livestock_chicken: <Bird className="h-4 w-4" />,
-  livestock_fish: <Fish className="h-4 w-4" />,
-  maintenance: <Hammer className="h-4 w-4" />,
-  marketing: <Megaphone className="h-4 w-4" />,
-  other: <Settings className="h-4 w-4" />,
+const CATEGORY_ICONS: Partial<Record<string, LucideIcon>> = {
+  feed: Package,
+  medicine: Pill,
+  equipment: Wrench,
+  utilities: Zap,
+  labor: Users,
+  transport: Truck,
+  livestock: Bird,
+  livestock_chicken: Bird,
+  livestock_fish: Fish,
+  maintenance: Hammer,
+  marketing: Megaphone,
+  other: Settings,
 }
 
 export function ExpensesSummary({
@@ -51,47 +52,25 @@ export function ExpensesSummary({
     .slice(0, 3)
 
   return (
-    <div className="grid gap-3 sm:gap-4 grid-cols-2 md:grid-cols-4 mb-6 md:mb-8">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2">
-          <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            {t('labels.totalExpenses')}
-          </CardTitle>
-          <Banknote className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent className="p-2 pt-0">
-          <div className="text-lg sm:text-2xl font-bold text-destructive">
-            {formatCurrency(summary.total.amount)}
-          </div>
-          <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-            {summary.total.count} {t('labels.records')}
-          </p>
-        </CardContent>
-      </Card>
+    <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4 mb-6 md:mb-8">
+      <SummaryCard
+        title={t('labels.totalExpenses')}
+        value={formatCurrency(summary.total.amount)}
+        icon={Banknote}
+        description={`${summary.total.count} ${t('labels.records')}`}
+        className="col-span-2 lg:col-span-1 border-red-500/20 bg-red-500/5 text-red-500"
+      />
 
       {topCategories.map(([category, data]) => (
-        <Card key={category}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 p-2">
-            <CardTitle className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider truncate">
-              {t('categories.' + category, {
-                defaultValue: category,
-              })}
-            </CardTitle>
-            <div className="text-muted-foreground">
-              {CATEGORY_ICONS[category] || (
-                <Settings className="h-3 w-3 sm:h-4 sm:w-4" />
-              )}
-            </div>
-          </CardHeader>
-          <CardContent className="p-2 pt-0">
-            <div className="text-lg sm:text-2xl font-bold">
-              {formatCurrency(data.amount)}
-            </div>
-            <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-              {data.count} {t('labels.records')}
-            </p>
-          </CardContent>
-        </Card>
+        <SummaryCard
+          key={category}
+          title={t('categories.' + category, {
+            defaultValue: category,
+          })}
+          value={formatCurrency(data.amount)}
+          icon={CATEGORY_ICONS[category] ?? Settings}
+          description={`${data.count} ${t('labels.records')}`}
+        />
       ))}
     </div>
   )

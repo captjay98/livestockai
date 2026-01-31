@@ -1,13 +1,9 @@
-import { toast } from 'sonner'
 import React, { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { Egg } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { logger } from '~/lib/logger'
-import {
-  createEggRecordFn,
-  getPoultryBatchesForEggsFn,
-} from '~/features/eggs/server'
+import { useEggMutations } from '~/features/eggs/mutations'
+import { usePoultryBatchesForEggs } from '~/features/eggs/queries'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -27,12 +23,6 @@ import {
   DialogTitle,
 } from '~/components/ui/dialog'
 
-interface Batch {
-  id: string
-  species: string
-  currentQuantity: number
-}
-
 interface EggDialogProps {
   farmId: string
   open: boolean
@@ -42,7 +32,7 @@ interface EggDialogProps {
 export function EggDialog({ farmId, open, onOpenChange }: EggDialogProps) {
   const { t } = useTranslation(['eggs', 'batches', 'common'])
   const router = useRouter()
-  const [batches, setBatches] = useState<Array<Batch>>([])
+  const { data: batches = [] } = usePoultryBatchesForEggs(farmId)
   const [formData, setFormData] = useState({
     batchId: '',
     date: new Date().toISOString().split('T')[0],
@@ -50,70 +40,52 @@ export function EggDialog({ farmId, open, onOpenChange }: EggDialogProps) {
     quantityBroken: '0',
     quantitySold: '0',
   })
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
-
-  const handleOpenChange = async (isOpen: boolean) => {
+  const handleOpenChange = (isOpen: boolean) => {
     onOpenChange(isOpen)
-    if (isOpen) {
-      try {
-        const batchesData = await getPoultryBatchesForEggsFn({
-          data: { farmId },
-        })
-        setBatches(batchesData)
-      } catch (err) {
-        logger.error('Failed to load batches:', err)
-        toast.error(
-          t('common:errors.operationFailed', {
-            defaultValue: 'Operation failed',
-          }),
-        )
-      }
-    }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const { createEgg } = useEggMutations()
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.batchId) return
-    setIsSubmitting(true)
     setError('')
 
-    try {
-      await createEggRecordFn({
-        data: {
-          farmId,
-          record: {
-            batchId: formData.batchId,
-            date: new Date(formData.date),
-            quantityCollected: parseInt(formData.quantityCollected),
-            quantityBroken: parseInt(formData.quantityBroken) || 0,
-            quantitySold: parseInt(formData.quantitySold) || 0,
-          },
+    createEgg.mutate(
+      {
+        farmId,
+        record: {
+          batchId: formData.batchId,
+          date: new Date(formData.date),
+          quantityCollected: parseInt(formData.quantityCollected),
+          quantityBroken: parseInt(formData.quantityBroken) || 0,
+          quantitySold: parseInt(formData.quantitySold) || 0,
         },
-      })
-      toast.success(
-        t('messages.recorded', { defaultValue: 'Egg record created' }),
-      )
-      handleOpenChange(false)
-      setFormData({
-        batchId: '',
-        date: new Date().toISOString().split('T')[0],
-        quantityCollected: '',
-        quantityBroken: '0',
-        quantitySold: '0',
-      })
-      router.invalidate()
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : t('error.record', {
-              defaultValue: 'Failed to record egg collection',
-            }),
-      )
-    } finally {
-      setIsSubmitting(false)
-    }
+      },
+      {
+        onSuccess: () => {
+          handleOpenChange(false)
+          setFormData({
+            batchId: '',
+            date: new Date().toISOString().split('T')[0],
+            quantityCollected: '',
+            quantityBroken: '0',
+            quantitySold: '0',
+          })
+          router.invalidate()
+        },
+        onError: (err: Error) => {
+          setError(
+            err instanceof Error
+              ? err.message
+              : t('error.record', {
+                  defaultValue: 'Failed to record egg collection',
+                }),
+          )
+        },
+      },
+    )
   }
 
   const selectedBatch = batches.find((b) => b.id === formData.batchId)
@@ -215,7 +187,9 @@ export function EggDialog({ farmId, open, onOpenChange }: EggDialogProps) {
                   quantityCollected: e.target.value,
                 }))
               }
-              placeholder="150"
+              placeholder={t('placeholders.quantityCollected', {
+                defaultValue: '150',
+              })}
               required
             />
           </div>
@@ -237,7 +211,9 @@ export function EggDialog({ farmId, open, onOpenChange }: EggDialogProps) {
                     quantityBroken: e.target.value,
                   }))
                 }
-                placeholder="0"
+                placeholder={t('placeholders.quantityBroken', {
+                  defaultValue: '0',
+                })}
               />
             </div>
             <div className="space-y-2">
@@ -256,7 +232,9 @@ export function EggDialog({ farmId, open, onOpenChange }: EggDialogProps) {
                     quantitySold: e.target.value,
                   }))
                 }
-                placeholder="0"
+                placeholder={t('placeholders.quantitySold', {
+                  defaultValue: '0',
+                })}
               />
             </div>
           </div>
@@ -300,17 +278,19 @@ export function EggDialog({ farmId, open, onOpenChange }: EggDialogProps) {
               type="button"
               variant="outline"
               onClick={() => handleOpenChange(false)}
-              disabled={isSubmitting}
+              disabled={createEgg.isPending}
             >
               {t('common:cancel', { defaultValue: 'Cancel' })}
             </Button>
             <Button
               type="submit"
               disabled={
-                isSubmitting || !formData.batchId || !formData.quantityCollected
+                createEgg.isPending ||
+                !formData.batchId ||
+                !formData.quantityCollected
               }
             >
-              {isSubmitting
+              {createEgg.isPending
                 ? t('common:recording', {
                     defaultValue: 'Recording...',
                   })

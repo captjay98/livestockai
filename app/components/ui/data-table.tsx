@@ -3,8 +3,9 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { ArrowDown, ArrowUp, ArrowUpDown, Loader2, Search } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpDown, Search } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Table,
   TableBody,
@@ -34,6 +35,7 @@ interface DataTableProps<TData, TValue> {
   emptyTitle?: string
   emptyDescription?: string
   filters?: React.ReactNode
+  containerClassName?: string
   onPaginationChange: (page: number, pageSize: number) => void
   onSortChange: (column: string, order: 'asc' | 'desc') => void
   onSearchChange?: (value: string) => void
@@ -59,6 +61,7 @@ export function DataTable<TData, TValue>({
   onSortChange,
   onSearchChange,
 }: DataTableProps<TData, TValue>) {
+  const { t } = useTranslation(['common'])
   const [localSearch, setLocalSearch] = useState(searchValue)
 
   // Sync local search with prop
@@ -123,65 +126,81 @@ export function DataTable<TData, TValue>({
         {onSearchChange && (
           <div className="relative flex-1 max-w-sm">
             <Search
-              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/50"
               aria-hidden="true"
             />
             <Input
               placeholder={searchPlaceholder}
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
-              className="pl-9 h-10"
+              className="pl-9 h-10 bg-white/40 dark:bg-black/40 backdrop-blur-md border-white/20 dark:border-white/10 focus:bg-white/60 dark:focus:bg-black/60 transition-all rounded-xl"
               aria-label={searchPlaceholder}
             />
           </div>
         )}
         {filters && (
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
             {filters}
           </div>
         )}
       </div>
 
       {/* Table */}
-      <div className="rounded-md border">
+      <div className="rounded-2xl border border-white/20 dark:border-white/10 overflow-hidden bg-white/30 dark:bg-black/30 backdrop-blur-md shadow-sm">
         {isLoading ? (
           <div
-            className="flex items-center justify-center py-12"
+            className="flex items-center justify-center py-24"
             role="status"
-            aria-label="Loading"
+            aria-label={t('common:loading', { defaultValue: 'Loading' })}
           >
-            <Loader2
-              className="h-8 w-8 animate-spin text-muted-foreground"
-              aria-hidden="true"
-            />
+            <div className="flex flex-col items-center gap-4">
+              <div className="relative">
+                <div className="h-12 w-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="h-4 w-4 rounded-full bg-primary/20"></div>
+                </div>
+              </div>
+              <p className="text-sm font-medium text-muted-foreground animate-pulse">
+                Loading data...
+              </p>
+            </div>
             <span className="sr-only">Loading...</span>
           </div>
         ) : data.length === 0 ? (
-          <div className="py-12 text-center">
+          <div className="py-24 text-center">
             {emptyIcon && (
-              <div className="flex justify-center mb-4 text-muted-foreground">
+              <div className="flex justify-center mb-4 text-muted-foreground/30">
                 {emptyIcon}
               </div>
             )}
-            <h3 className="text-lg font-semibold mb-2">{emptyTitle}</h3>
-            <p className="text-muted-foreground">{emptyDescription}</p>
+            <h3 className="text-lg font-bold text-foreground mb-1">
+              {emptyTitle}
+            </h3>
+            <p className="text-sm text-muted-foreground">{emptyDescription}</p>
           </div>
         ) : (
           <>
             {/* Desktop Table */}
-            <div className="hidden md:block">
+            <div className="hidden md:block overflow-x-auto">
               <Table>
-                <TableHeader>
+                <TableHeader className="bg-white/20 dark:bg-white/5 data-[state=selected]:bg-muted">
                   {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
+                    <TableRow
+                      key={headerGroup.id}
+                      className="hover:bg-transparent border-white/10 dark:border-white/5"
+                    >
                       {headerGroup.headers.map((header) => {
                         const canSort = header.column.getCanSort()
                         return (
-                          <TableHead key={header.id}>
+                          <TableHead
+                            key={header.id}
+                            className="h-11 text-[11px] uppercase tracking-wider font-bold text-muted-foreground"
+                          >
                             {header.isPlaceholder ? null : canSort ? (
                               <Button
                                 variant="ghost"
-                                className="-ml-4 h-8 hover:bg-transparent"
+                                size="sm"
+                                className="-ml-3 h-8 hover:bg-white/20 dark:hover:bg-white/10 data-[state=open]:bg-accent text-[11px] uppercase tracking-wider font-bold"
                                 onClick={() => handleSort(header.column.id)}
                                 aria-label={`Sort by ${header.column.columnDef.header}`}
                               >
@@ -208,9 +227,13 @@ export function DataTable<TData, TValue>({
                     <TableRow
                       key={row.id}
                       data-state={row.getIsSelected() && 'selected'}
+                      className="border-white/10 dark:border-white/5 hover:bg-white/30 dark:hover:bg-white/5 transition-colors group"
                     >
                       {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id}>
+                        <TableCell
+                          key={cell.id}
+                          className="py-3 text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors"
+                        >
                           {flexRender(
                             cell.column.columnDef.cell,
                             cell.getContext(),
@@ -224,7 +247,7 @@ export function DataTable<TData, TValue>({
             </div>
 
             {/* Mobile Cards */}
-            <div className="md:hidden divide-y">
+            <div className="md:hidden divide-y divide-white/10 dark:divide-white/5">
               {table.getRowModel().rows.map((row) => {
                 const cells = row.getVisibleCells()
                 const actionCell = cells.find((c) => c.column.id === 'actions')
@@ -249,15 +272,15 @@ export function DataTable<TData, TValue>({
                 return (
                   <div
                     key={row.id}
-                    className="p-3 flex items-center justify-between gap-2"
+                    className="p-4 flex items-center justify-between gap-3 hover:bg-white/10 dark:hover:bg-white/5 transition-colors active:scale-[0.99]"
                   >
-                    <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex-1 min-w-0 space-y-1.5">
                       {mainCells.map((cell, idx) => (
                         <div
                           key={cell.id}
                           className={
                             idx === 0
-                              ? 'font-medium'
+                              ? 'font-bold text-base text-foreground'
                               : 'text-sm text-muted-foreground truncate'
                           }
                         >
@@ -268,7 +291,7 @@ export function DataTable<TData, TValue>({
                         </div>
                       ))}
                       {dateCell && (
-                        <div className="text-xs text-muted-foreground mt-1">
+                        <div className="text-[10px] uppercase tracking-wide text-muted-foreground/70 font-medium">
                           {flexRender(
                             dateCell.column.columnDef.cell,
                             dateCell.getContext(),

@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import {
   CartesianGrid,
   Legend,
@@ -21,6 +22,7 @@ interface GrowthChartProps {
 }
 
 export function GrowthChart({ batchId, acquisitionDate }: GrowthChartProps) {
+  const { t } = useTranslation(['common'])
   const { data: chartData, isLoading } = useQuery({
     queryKey: ['batch', batchId, 'growth-chart'],
     queryFn: () =>
@@ -29,12 +31,14 @@ export function GrowthChart({ batchId, acquisitionDate }: GrowthChartProps) {
 
   if (isLoading) {
     return (
-      <Card>
+      <Card className="bg-white/30 dark:bg-black/30 backdrop-blur-md border-white/20 dark:border-white/10 shadow-sm rounded-2xl overflow-hidden">
         <CardHeader>
-          <CardTitle>Growth Chart</CardTitle>
+          <CardTitle className="text-lg font-bold">
+            {t('common:growthChart', { defaultValue: 'Growth Chart' })}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <Skeleton className="h-[400px] w-full" />
+          <Skeleton className="h-[400px] w-full rounded-xl bg-muted/20" />
         </CardContent>
       </Card>
     )
@@ -42,15 +46,22 @@ export function GrowthChart({ batchId, acquisitionDate }: GrowthChartProps) {
 
   if (!chartData || chartData.length === 0) {
     return (
-      <Card>
+      <Card className="bg-white/30 dark:bg-black/30 backdrop-blur-md border-white/20 dark:border-white/10 shadow-sm rounded-2xl overflow-hidden">
         <CardHeader>
-          <CardTitle>Growth Chart</CardTitle>
+          <CardTitle className="text-lg font-bold">
+            {t('common:growthChart', { defaultValue: 'Growth Chart' })}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground text-sm">
-            No growth data available. Growth standards are required for this
-            species.
-          </p>
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="p-3 rounded-full bg-muted/10 mb-4 text-muted-foreground/30">
+              <LineChart className="h-10 w-10" />
+            </div>
+            <p className="text-muted-foreground text-sm font-medium max-w-xs">
+              No growth data available. Growth standards are required for this
+              species.
+            </p>
+          </div>
         </CardContent>
       </Card>
     )
@@ -75,30 +86,48 @@ export function GrowthChart({ batchId, acquisitionDate }: GrowthChartProps) {
   }))
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Growth Chart</CardTitle>
-        <p className="text-sm text-muted-foreground">
+    <Card className="bg-white/30 dark:bg-black/30 backdrop-blur-md border-white/20 dark:border-white/10 shadow-sm rounded-2xl overflow-hidden relative">
+      {/* Background Accent */}
+      <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-x-12 -translate-y-12 pointer-events-none" />
+
+      <CardHeader className="relative z-10">
+        <CardTitle className="text-lg font-bold tracking-tight">
+          {t('common:growthChart', { defaultValue: 'Growth Chart' })}
+        </CardTitle>
+        <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">
           Comparing actual weight samples against expected growth curve
         </p>
       </CardHeader>
-      <CardContent>
+      <CardContent className="relative z-10">
         <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={formattedData}>
-            <CartesianGrid strokeDasharray="3 3" />
+          <LineChart
+            data={formattedData}
+            margin={{ top: 10, right: 10, left: -20, bottom: 20 }}
+          >
+            <CartesianGrid
+              strokeDasharray="3 3"
+              vertical={false}
+              stroke="hsl(var(--muted-foreground))"
+              opacity={0.1}
+            />
             <XAxis
               dataKey="day"
-              label={{
-                value: 'Days from Acquisition',
-                position: 'insideBottom',
-                offset: -5,
+              axisLine={false}
+              tickLine={false}
+              tick={{
+                fontSize: 10,
+                fontWeight: 600,
+                fill: 'hsl(var(--muted-foreground))',
               }}
+              dy={10}
             />
             <YAxis
-              label={{
-                value: 'Weight (kg)',
-                angle: -90,
-                position: 'insideLeft',
+              axisLine={false}
+              tickLine={false}
+              tick={{
+                fontSize: 10,
+                fontWeight: 600,
+                fill: 'hsl(var(--muted-foreground))',
               }}
             />
             <Tooltip
@@ -116,7 +145,7 @@ export function GrowthChart({ batchId, acquisitionDate }: GrowthChartProps) {
                 date.setDate(date.getDate() + day)
 
                 return (
-                  <div className="bg-background border rounded-lg p-3 shadow-lg">
+                  <div className="bg-white/80 dark:bg-black/80 backdrop-blur-lg border border-white/20 dark:border-white/10 rounded-xl p-3 shadow-xl">
                     <p className="font-medium text-sm mb-2">
                       Day {day} ({format(date, 'MMM d, yyyy')})
                     </p>

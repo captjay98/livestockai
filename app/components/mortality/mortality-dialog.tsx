@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import type { MortalityTable } from '~/lib/db/types'
 import { logger } from '~/lib/logger'
-import { recordMortalityFn } from '~/features/mortality/server'
+import { useMortalityMutations } from '~/features/mortality/mutations'
 import { getBatchesFn } from '~/features/batches/server'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -56,7 +54,7 @@ export function MortalityDialog({
   onSuccess,
 }: MortalityDialogProps) {
   const { t } = useTranslation(['mortality', 'batches', 'common'])
-  const queryClient = useQueryClient()
+  const { createMortality } = useMortalityMutations()
   const { selectedFarmId } = useFarm()
   const [batches, setBatches] = useState<
     Array<{
@@ -98,48 +96,38 @@ export function MortalityDialog({
     cause: '',
     notes: '',
   })
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const selectedBatch = activeBatches.find((b) => b.id === formData.batchId)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.batchId || !formData.quantity || !formData.cause) return
 
-    setIsSubmitting(true)
-    try {
-      await recordMortalityFn({
+    createMortality.mutate(
+      {
+        farmId: selectedFarmId!,
         data: {
-          farmId: selectedFarmId!,
-          data: {
-            batchId: formData.batchId,
-            quantity: parseInt(formData.quantity),
-            date: new Date(formData.date),
-            cause: formData.cause,
-            notes: formData.notes || undefined,
-          },
+          batchId: formData.batchId,
+          quantity: parseInt(formData.quantity),
+          date: new Date(formData.date),
+          cause: formData.cause,
+          notes: formData.notes || undefined,
         },
-      })
-      toast.success(t('recorded', { defaultValue: 'Mortality recorded' }))
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      onOpenChange(false)
-      setFormData({
-        batchId: '',
-        quantity: '',
-        date: new Date().toISOString().split('T')[0],
-        cause: '',
-        notes: '',
-      })
-      onSuccess?.()
-    } catch (err) {
-      toast.error(
-        err instanceof Error
-          ? err.message
-          : t('error.record', { defaultValue: 'Failed to record' }),
-      )
-    } finally {
-      setIsSubmitting(false)
-    }
+      },
+      {
+        onSuccess: () => {
+          onOpenChange(false)
+          setFormData({
+            batchId: '',
+            quantity: '',
+            date: new Date().toISOString().split('T')[0],
+            cause: '',
+            notes: '',
+          })
+          onSuccess?.()
+        },
+      },
+    )
   }
 
   return (
@@ -154,7 +142,10 @@ export function MortalityDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="batch">
+            <Label
+              htmlFor="batch"
+              className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+            >
               {t('batches:batch', { defaultValue: 'Batch' })} *
             </Label>
             <Select
@@ -163,7 +154,10 @@ export function MortalityDialog({
                 v && setFormData((p) => ({ ...p, batchId: v }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger
+                className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                style={{ color: 'var(--text-landing-primary)' }}
+              >
                 <SelectValue>
                   {formData.batchId
                     ? activeBatches.find((b) => b.id === formData.batchId)
@@ -190,7 +184,10 @@ export function MortalityDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="quantity">
+              <Label
+                htmlFor="quantity"
+                className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+              >
                 {t('common:quantity', {
                   defaultValue: 'Quantity',
                 })}{' '}
@@ -209,10 +206,15 @@ export function MortalityDialog({
                   }))
                 }
                 required
+                className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                style={{ color: 'var(--text-landing-primary)' }}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="date">
+              <Label
+                htmlFor="date"
+                className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+              >
                 {t('common:date', { defaultValue: 'Date' })} *
               </Label>
               <Input
@@ -226,12 +228,17 @@ export function MortalityDialog({
                   }))
                 }
                 required
+                className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                style={{ color: 'var(--text-landing-primary)' }}
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="cause">
+            <Label
+              htmlFor="cause"
+              className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+            >
               {t('cause', { defaultValue: 'Cause' })} *
             </Label>
             <Select
@@ -240,7 +247,10 @@ export function MortalityDialog({
                 v && setFormData((p) => ({ ...p, cause: v }))
               }
             >
-              <SelectTrigger>
+              <SelectTrigger
+                className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                style={{ color: 'var(--text-landing-primary)' }}
+              >
                 <SelectValue>
                   {formData.cause
                     ? t(`causes.${formData.cause}`, {
@@ -266,7 +276,10 @@ export function MortalityDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="notes">
+            <Label
+              htmlFor="notes"
+              className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+            >
               {t('common:notes', { defaultValue: 'Notes' })}
             </Label>
             <Textarea
@@ -282,6 +295,8 @@ export function MortalityDialog({
                 defaultValue: 'Optional notes...',
               })}
               rows={2}
+              className="bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm p-4 rounded-xl resize-none"
+              style={{ color: 'var(--text-landing-primary)' }}
             />
           </div>
 
@@ -296,13 +311,13 @@ export function MortalityDialog({
             <Button
               type="submit"
               disabled={
-                isSubmitting ||
+                createMortality.isPending ||
                 !formData.batchId ||
                 !formData.quantity ||
                 !formData.cause
               }
             >
-              {isSubmitting
+              {createMortality.isPending
                 ? t('common:recording', {
                     defaultValue: 'Recording...',
                   })

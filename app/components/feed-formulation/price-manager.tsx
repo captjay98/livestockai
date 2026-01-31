@@ -380,7 +380,9 @@ export function PriceManager() {
                 <Input
                   type="number"
                   step="0.01"
-                  placeholder="Price"
+                  placeholder={t('feedFormulation:placeholders.price', {
+                    defaultValue: 'Price',
+                  })}
                   className="w-24 h-12"
                   defaultValue={ingredient.pricePerKg?.toString()}
                   onBlur={(e) => {

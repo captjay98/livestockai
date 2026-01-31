@@ -1,4 +1,4 @@
-import { Edit, Home, Plus, Trash2 } from 'lucide-react'
+import { Edit, Home, Plus, Trash2, Warehouse } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -318,23 +318,31 @@ export function StructuresCard({
 
   return (
     <>
-      <Card className="glass">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
+      <Card className="bg-white/30 dark:bg-black/30 backdrop-blur-md border-white/20 dark:border-white/10 shadow-sm rounded-3xl overflow-hidden hover:bg-white/40 dark:hover:bg-black/40 transition-all group relative">
+        <CardHeader className="flex flex-row items-center justify-between pb-4 pt-6 px-6">
           <div>
-            <CardTitle>{t('farms:structures.title')}</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-lg font-bold flex items-center gap-2">
+              <Warehouse className="h-5 w-5 text-primary/80" />
+              {t('farms:structures.title')}
+            </CardTitle>
+            <CardDescription className="text-xs mt-1">
               {t('farms:structures.description')}
             </CardDescription>
           </div>
           <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
             <DialogTrigger
               render={
-                <Button size="sm" onClick={resetForm}>
+                <Button
+                  size="sm"
+                  onClick={resetForm}
+                  className="rounded-xl font-bold shadow-sm"
+                >
                   <Plus className="h-4 w-4 mr-1" />
                   {t('farms:structures.add')}
                 </Button>
               }
             />
+            {/* ... Dialog Content ... */}
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>{t('farms:structures.form.title')}</DialogTitle>
@@ -343,32 +351,44 @@ export function StructuresCard({
             </DialogContent>
           </Dialog>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-6 pb-6">
           {structures.length === 0 ? (
-            <div className="text-center py-6 text-muted-foreground">
+            <div className="text-center py-10 text-muted-foreground bg-white/20 dark:bg-white/5 rounded-2xl border border-dashed border-white/10">
               {t('farms:structures.noStructures')}
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {structures.map((structure) => (
                 <div
                   key={structure.id}
-                  className="flex items-center justify-between p-3 rounded-lg border bg-card"
+                  className="flex items-start justify-between p-4 rounded-2xl bg-white/40 dark:bg-black/20 border border-white/10 hover:border-primary/20 hover:bg-white/60 dark:hover:bg-white/5 transition-all group/item"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-md bg-muted">
-                      <Home className="h-4 w-4" />
+                  <div className="flex gap-3">
+                    <div className="p-2.5 rounded-xl bg-white/50 dark:bg-white/5 text-primary h-fit">
+                      <Home className="h-5 w-5" />
                     </div>
                     <div>
-                      <div className="font-medium">{structure.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {t(`farms:structures.types.${structure.type}`)}
-                        {structure.capacity &&
-                          ` • ${structure.capacity} capacity`}
+                      <div className="font-bold text-sm mb-0.5">
+                        {structure.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground font-medium space-y-0.5">
+                        <div className="capitalize">
+                          {t(`farms:structures.types.${structure.type}`)}
+                        </div>
+                        {structure.capacity && (
+                          <div className="opacity-80">
+                            {structure.capacity.toLocaleString()} max capacity
+                          </div>
+                        )}
+                        {structure.areaSqm && (
+                          <div className="opacity-60">
+                            {structure.areaSqm} sqm
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col items-end gap-2">
                     <Badge
                       variant={
                         structure.status === 'active'
@@ -377,24 +397,28 @@ export function StructuresCard({
                             ? 'secondary'
                             : 'outline'
                       }
+                      className="rounded-md px-1.5 py-0.5 text-[10px] uppercase font-bold"
                     >
                       {t(`farms:structures.statuses.${structure.status}`)}
                     </Badge>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => openEditDialog(structure)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive"
-                      onClick={() => openDeleteDialog(structure)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 rounded-lg hover:bg-white/20"
+                        onClick={() => openEditDialog(structure)}
+                      >
+                        <Edit className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive h-7 w-7 rounded-lg hover:bg-destructive/10"
+                        onClick={() => openDeleteDialog(structure)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}

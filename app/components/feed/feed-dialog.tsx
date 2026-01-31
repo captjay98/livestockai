@@ -268,7 +268,9 @@ export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
                     quantityKg: e.target.value,
                   }))
                 }
-                placeholder="10"
+                placeholder={t('placeholders.quantityKg', {
+                  defaultValue: '10',
+                })}
                 required
               />
               {formData.feedType && (
@@ -299,7 +301,9 @@ export function FeedDialog({ farmId, open, onOpenChange }: FeedDialogProps) {
                     cost: e.target.value,
                   }))
                 }
-                placeholder="5000"
+                placeholder={t('placeholders.cost', {
+                  defaultValue: '5000',
+                })}
                 required
               />
             </div>

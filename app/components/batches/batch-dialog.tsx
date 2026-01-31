@@ -1,12 +1,9 @@
 import React, { useMemo, useState } from 'react'
-import { toast } from 'sonner'
-import { useRouter } from '@tanstack/react-router'
-import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { AlertCircle, Users } from 'lucide-react'
 import type { ModuleKey } from '~/features/modules/types'
 import { useErrorMessage } from '~/hooks/useErrorMessage'
-import { createBatchFn } from '~/features/batches/server'
+import { useBatchMutations } from '~/features/batches/mutations'
 import { useFarm } from '~/features/farms/context'
 import { filterLivestockTypesByModules } from '~/features/modules/utils'
 import { Button } from '~/components/ui/button'
@@ -64,8 +61,7 @@ export function BatchDialog({
 }: BatchDialogProps) {
   const { t } = useTranslation(['batches', 'common'])
   const getErrorMessage = useErrorMessage()
-  const router = useRouter()
-  const queryClient = useQueryClient()
+  const { createBatch } = useBatchMutations()
   const { selectedFarmId } = useFarm()
 
   // Use farmIdOverride in onboarding mode, otherwise use selectedFarmId
@@ -100,10 +96,9 @@ export function BatchDialog({
     breedId: '',
     notes: '',
   })
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!effectiveFarmId) {
       setError(
@@ -114,71 +109,63 @@ export function BatchDialog({
       return
     }
     if (!formData.livestockType) return
-    setIsSubmitting(true)
     setError('')
 
-    try {
-      const batchId = await createBatchFn({
-        data: {
-          batch: {
-            farmId: effectiveFarmId,
-            livestockType: formData.livestockType,
-            species: formData.species,
-            initialQuantity: parseInt(formData.initialQuantity),
-            costPerUnit: parseFloat(formData.costPerUnit),
-            acquisitionDate: new Date(formData.acquisitionDate),
-            // Enhanced fields
-            batchName: formData.batchName || null,
-            sourceSize: formData.sourceSize || null,
-            structureId: formData.structureId || structureIdOverride || null,
-            targetHarvestDate: formData.targetHarvestDate
-              ? new Date(formData.targetHarvestDate)
-              : null,
-            target_weight_g: formData.target_weight_g
-              ? parseInt(formData.target_weight_g)
-              : null,
-            targetPricePerUnit: formData.targetPricePerUnit
-              ? parseFloat(formData.targetPricePerUnit)
-              : null,
-            supplierId: formData.supplierId || null,
-            breedId: formData.breedId || null,
-            notes: formData.notes || null,
-          },
+    createBatch.mutate(
+      {
+        batch: {
+          farmId: effectiveFarmId,
+          livestockType: formData.livestockType,
+          species: formData.species,
+          initialQuantity: parseInt(formData.initialQuantity),
+          costPerUnit: parseFloat(formData.costPerUnit),
+          acquisitionDate: new Date(formData.acquisitionDate),
+          // Enhanced fields
+          batchName: formData.batchName || null,
+          sourceSize: formData.sourceSize || null,
+          structureId: formData.structureId || structureIdOverride || null,
+          targetHarvestDate: formData.targetHarvestDate
+            ? new Date(formData.targetHarvestDate)
+            : null,
+          target_weight_g: formData.target_weight_g
+            ? parseInt(formData.target_weight_g)
+            : null,
+          targetPricePerUnit: formData.targetPricePerUnit
+            ? parseFloat(formData.targetPricePerUnit)
+            : null,
+          supplierId: formData.supplierId || null,
+          breedId: formData.breedId || null,
+          notes: formData.notes || null,
         },
-      })
-      toast.success(t('messages.created', { defaultValue: 'Batch created' }))
-
-      // In onboarding mode, call onSuccess callback instead of router.invalidate
-      if (onboardingMode && onSuccess && batchId) {
-        onSuccess(batchId)
-      } else {
-        onOpenChange(false)
-        queryClient.invalidateQueries({
-          queryKey: ['farm-modules', effectiveFarmId],
-        })
-        setFormData({
-          livestockType: '',
-          species: '',
-          initialQuantity: '',
-          costPerUnit: '',
-          acquisitionDate: new Date().toISOString().split('T')[0],
-          batchName: '',
-          sourceSize: '',
-          structureId: '',
-          targetHarvestDate: '',
-          target_weight_g: '',
-          targetPricePerUnit: '',
-          supplierId: '',
-          breedId: '',
-          notes: '',
-        })
-        router.invalidate()
-      }
-    } catch (err) {
-      setError(getErrorMessage(err))
-    } finally {
-      setIsSubmitting(false)
-    }
+      },
+      {
+        onSuccess: (batchId: string) => {
+          // In onboarding mode, call onSuccess callback
+          if (onboardingMode && onSuccess && batchId) {
+            onSuccess(batchId)
+          } else {
+            onOpenChange(false)
+            setFormData({
+              livestockType: '',
+              species: '',
+              initialQuantity: '',
+              costPerUnit: '',
+              acquisitionDate: new Date().toISOString().split('T')[0],
+              batchName: '',
+              sourceSize: '',
+              structureId: '',
+              targetHarvestDate: '',
+              target_weight_g: '',
+              targetPricePerUnit: '',
+              supplierId: '',
+              breedId: '',
+              notes: '',
+            })
+          }
+        },
+        onError: (err: Error) => setError(getErrorMessage(err)),
+      },
+    )
   }
 
   return (
@@ -245,7 +232,7 @@ export function BatchDialog({
                   type="button"
                   variant="outline"
                   onClick={onSkip}
-                  disabled={isSubmitting}
+                  disabled={createBatch.isPending}
                 >
                   {t('common:skip', { defaultValue: 'Skip' })}
                 </Button>
@@ -254,7 +241,7 @@ export function BatchDialog({
                   type="button"
                   variant="outline"
                   onClick={() => onOpenChange(false)}
-                  disabled={isSubmitting}
+                  disabled={createBatch.isPending}
                 >
                   {t('common:cancel', {
                     defaultValue: 'Cancel',
@@ -264,14 +251,14 @@ export function BatchDialog({
               <Button
                 type="submit"
                 disabled={
-                  isSubmitting ||
+                  createBatch.isPending ||
                   !formData.livestockType ||
                   !formData.species ||
                   !formData.initialQuantity ||
                   !formData.costPerUnit
                 }
               >
-                {isSubmitting
+                {createBatch.isPending
                   ? t('common:saving', {
                       defaultValue: 'Creating...',
                     })

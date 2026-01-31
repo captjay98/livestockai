@@ -41,15 +41,15 @@ export function MortalityRecordsTab({
   ]
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>
+    <Card className="bg-white/30 dark:bg-black/30 backdrop-blur-md border-white/20 dark:border-white/10 shadow-sm rounded-2xl overflow-hidden relative">
+      <CardHeader className="relative z-10">
+        <CardTitle className="text-lg font-bold tracking-tight">
           {t('mortality.records', {
             defaultValue: 'Mortality Records',
           })}
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="relative z-10 p-0 sm:p-6 sm:pt-0">
         <DataTable
           columns={columns}
           data={records}

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { SensorType } from '~/lib/db/types'
 import {
   Dialog,
@@ -46,6 +47,7 @@ export function SensorFormDialog({
   mode,
   defaultValues,
 }: SensorFormDialogProps) {
+  const { t } = useTranslation(['sensors', 'common'])
   const [name, setName] = useState(defaultValues?.name ?? '')
   const [sensorType, setSensorType] = useState<SensorType>(
     defaultValues?.sensorType ?? 'temperature',
@@ -114,30 +116,48 @@ export function SensorFormDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {mode === 'create' ? 'Add Sensor' : 'Edit Sensor'}
+            {mode === 'create'
+              ? t('sensors:actions.addSensor', { defaultValue: 'Add Sensor' })
+              : t('sensors:actions.editSensor', {
+                  defaultValue: 'Edit Sensor',
+                })}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
+            <Label
+              htmlFor="name"
+              className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1"
+            >
+              Name
+            </Label>
             <Input
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Sensor name"
+              placeholder={t('sensors:placeholders.sensorName', {
+                defaultValue: 'Sensor name',
+              })}
               required
+              className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+              style={{ color: 'var(--text-landing-primary)' }}
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Sensor Type</Label>
+            <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1">
+              Sensor Type
+            </Label>
             <Select
               value={sensorType}
               onValueChange={(v) =>
                 setSensorType((v || 'temperature') as SensorType)
               }
             >
-              <SelectTrigger>
+              <SelectTrigger
+                className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                style={{ color: 'var(--text-landing-primary)' }}
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -151,13 +171,22 @@ export function SensorFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label>Structure (optional)</Label>
+            <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1">
+              Structure (optional)
+            </Label>
             <Select
               value={structureId}
               onValueChange={(v) => setStructureId(v || '')}
             >
-              <SelectTrigger>
-                <SelectValue placeholder="Select structure" />
+              <SelectTrigger
+                className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                style={{ color: 'var(--text-landing-primary)' }}
+              >
+                <SelectValue
+                  placeholder={t('sensors:placeholders.selectStructure', {
+                    defaultValue: 'Select structure',
+                  })}
+                />
               </SelectTrigger>
               <SelectContent>
                 {structures.map((s) => (
@@ -170,12 +199,17 @@ export function SensorFormDialog({
           </div>
 
           <div className="space-y-2">
-            <Label>Polling Interval</Label>
+            <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 pl-1">
+              Polling Interval
+            </Label>
             <Select
               value={String(pollingInterval)}
               onValueChange={(v) => setPollingInterval(Number(v) || 15)}
             >
-              <SelectTrigger>
+              <SelectTrigger
+                className="h-11 bg-black/5 dark:bg-white/5 border-transparent focus:border-emerald-500/50 focus:ring-emerald-500/20 transition-all font-medium text-sm px-4 rounded-xl"
+                style={{ color: 'var(--text-landing-primary)' }}
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -197,7 +231,11 @@ export function SensorFormDialog({
               Cancel
             </Button>
             <Button type="submit" disabled={loading || !name}>
-              {loading ? 'Saving...' : mode === 'create' ? 'Create' : 'Save'}
+              {loading
+                ? t('common:saving', { defaultValue: 'Saving...' })
+                : mode === 'create'
+                  ? t('common:create', { defaultValue: 'Create' })
+                  : t('common:save', { defaultValue: 'Save' })}
             </Button>
           </DialogFooter>
         </form>

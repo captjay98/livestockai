@@ -10,6 +10,7 @@ import {
 import { Button } from '~/components/ui/button'
 import { useSettings } from '~/features/settings/context'
 import { LANGUAGE_STORAGE_KEY } from '~/lib/i18n/config'
+import { loadLanguage } from '~/lib/i18n/lazy-loader'
 
 type Language = UserSettingsTable['language']
 
@@ -46,18 +47,26 @@ export function LanguageSwitcher({ showLabel = false }: LanguageSwitcherProps) {
   const currentLanguage = LANGUAGES.find((l) => l.code === i18n.language)
 
   const handleLanguageChange = async (newLang: Language) => {
-    // 1. Save to localStorage FIRST (always works, even without auth)
-    localStorage.setItem(LANGUAGE_STORAGE_KEY, newLang)
-
-    // 2. Update i18n instance immediately for UI feedback
-    await i18n.changeLanguage(newLang)
-
-    // 3. Try to sync to server settings (if authenticated)
-    // This will fail silently on unauthenticated pages
     try {
-      await updateSettings({ language: newLang })
-    } catch {
-      // Silently fail - localStorage is our source of truth
+      // 1. Save to localStorage FIRST (always works, even without auth)
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, newLang)
+
+      // 2. Lazy load language if not already loaded
+      await loadLanguage(newLang)
+
+      // 3. Update i18n instance immediately for UI feedback
+      await i18n.changeLanguage(newLang)
+
+      // 4. Try to sync to server settings (if authenticated)
+      try {
+        await updateSettings({ language: newLang })
+      } catch {
+        // Silently fail - localStorage is our source of truth
+      }
+    } catch (error) {
+      console.error('Failed to change language:', error)
+      // Fallback to English if loading fails
+      await i18n.changeLanguage('en')
     }
   }
 

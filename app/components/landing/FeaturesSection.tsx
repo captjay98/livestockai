@@ -7,7 +7,6 @@ import {
   ShieldCheck,
   TrendingUp,
   Wallet,
-  Zap,
 } from 'lucide-react'
 
 const features = [
@@ -18,14 +17,6 @@ const features = [
     icon: LayoutGrid,
     accent: 'emerald',
     code: 'SPEC-01',
-  },
-  {
-    title: 'Government & NGO Support',
-    description:
-      'Multi-farm oversight, outbreak detection, and digital visit records for agricultural extension services.',
-    icon: Shield,
-    accent: 'emerald',
-    code: 'EXT-02',
   },
   {
     title: 'Predictive Analytics',
@@ -60,12 +51,12 @@ const features = [
     code: 'GLOB-05',
   },
   {
-    title: 'Blazing Fast',
+    title: 'Government & NGO Support',
     description:
-      'Edge-deployed infrastructure ensures zero latency for every user, everywhere.',
-    icon: Zap,
+      'Multi-farm oversight, outbreak detection, and digital visit records for agricultural extension services.',
+    icon: Shield,
     accent: 'cyan',
-    code: 'CORE-06',
+    code: 'EXT-06',
   },
 ]
 
