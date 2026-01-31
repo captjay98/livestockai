@@ -7721,6 +7721,18 @@ _Built with ❤️ for farmers_
 
 > **Note**: The hackathon submission was completed before the deadline (11:59 PM PST, January 30, 2026). The following fixes were made after the deadline to ensure a stable demo experience for judges. No new features were added.
 
+### Git Tag
+
+The exact submission state is preserved with a git tag:
+
+```bash
+git checkout hackathon-submission  # View submission state
+```
+
+- **Tag**: `hackathon-submission`
+- **Commit**: `16e98c29`
+- **Message**: "Hackathon submission - January 30, 2026"
+
 ### Bug Fixes & Polish
 
 **Batch Detail Page Wiring**:
